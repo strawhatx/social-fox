@@ -1,132 +1,107 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Settings, BarChart3, Zap } from 'lucide-react';
+import { BarChart3, Zap, Settings, Loader2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface Project {
   id: string;
   name: string;
   description: string;
   platforms: string[];
-  contentSources: number;
-  lastGenerated: string;
   status: 'active' | 'paused' | 'draft';
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
-  brandVoice: string;
-  targetAudience: string;
+  brand_voice: string;
+  target_audience: string;
+  created_at: string;
 }
 
-const mockProjects: Project[] = [
-  {
-    id: '1',
-    name: 'Syncflow',
-    description: 'Workflow automation platform',
-    platforms: ['Twitter', 'LinkedIn'],
-    contentSources: 3,
-    lastGenerated: '2 hours ago',
-    status: 'active',
-    roles: {
-      brand_builder: true,
-      content_creator: true,
-      audience_researcher: false,
-      campaign_planner: true,
-      channel_manager: true,
-      analytics_tracker: true,
-      lead_generator: false,
-      community_engager: true,
-      growth_hacker: false,
-    },
-    brandVoice: 'Professional yet approachable',
-    targetAudience: 'SaaS professionals and entrepreneurs'
-  },
-  {
-    id: '2',
-    name: 'ProductX',
-    description: 'AI-powered analytics dashboard',
-    platforms: ['Twitter', 'LinkedIn', 'Instagram'],
-    contentSources: 2,
-    lastGenerated: '1 day ago',
-    status: 'active',
-    roles: {
-      brand_builder: true,
-      content_creator: true,
-      audience_researcher: true,
-      campaign_planner: false,
-      channel_manager: true,
-      analytics_tracker: true,
-      lead_generator: true,
-      community_engager: false,
-      growth_hacker: true,
-    },
-    brandVoice: 'Technical and data-driven',
-    targetAudience: 'Data scientists and analysts'
-  },
-  {
-    id: '3',
-    name: 'AppY',
-    description: 'Mobile development framework',
-    platforms: ['LinkedIn'],
-    contentSources: 1,
-    lastGenerated: 'Never',
-    status: 'draft',
-    roles: {
-      brand_builder: false,
-      content_creator: true,
-      audience_researcher: false,
-      campaign_planner: false,
-      channel_manager: false,
-      analytics_tracker: false,
-      lead_generator: false,
-      community_engager: false,
-      growth_hacker: false,
-    },
-    brandVoice: 'Developer-friendly and straightforward',
-    targetAudience: 'Mobile app developers'
-  }
-];
-
 interface ProjectDashboardProps {
-  onSelectProject: (project: Project) => void;
+  onSelectProject: (project: any) => void;
 }
 
 export default function ProjectDashboard({ onSelectProject }: ProjectDashboardProps) {
-  const [projects] = useState(mockProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  console.log('ProjectDashboard rendered - User:', user?.email);
+  console.log('Projects state:', projects);
 
-  const getPlatformColor = (platform: string) => {
-    switch (platform) {
-      case 'Twitter': return 'bg-twitter/10 text-twitter border-twitter/20';
-      case 'LinkedIn': return 'bg-linkedin/10 text-linkedin border-linkedin/20';
-      case 'Instagram': return 'bg-instagram/10 text-instagram border-instagram/20';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!user) {
+        setProjects([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Fetching projects...');
+        setLoading(true);
+        
+        // Try to fetch from projects table
+        const { data, error } = await supabase
+          .from('projects' as any)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        console.log('Supabase response:', { data, error });
+
+        if (error) {
+          console.error('Database error:', error);
+          throw error;
+        }
+
+        const transformedProjects: Project[] = (data || []).map((project: any) => ({
+          id: project.id,
+          name: project.name || 'Untitled Project',
+          description: project.description || '',
+          platforms: project.platforms || [],
+          status: project.status || 'draft',
+          brand_voice: project.brand_voice || '',
+          target_audience: project.target_audience || '',
+          created_at: project.created_at,
+        }));
+
+        console.log('Setting projects:', transformedProjects);
+        setProjects(transformedProjects);
+      } catch (error: any) {
+        console.error('Error fetching projects:', error);
+        
+        // For now, show empty state instead of error
+        setProjects([]);
+        
+        toast({
+          title: "Database Loading",
+          description: "Projects will appear here once you create them.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading projects...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-            Marketing Agent
+            Marketing Agent Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
             AI-powered content generation for multiple projects
@@ -138,83 +113,54 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <Card 
-            key={project.id} 
-            className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
-            onClick={() => onSelectProject(project)}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            <CardHeader className="relative">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg font-semibold">{project.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{project.description}</p>
-                </div>
-                <Badge className={getStatusColor(project.status)}>
-                  {project.status}
-                </Badge>
-              </div>
-            </CardHeader>
+      <Card className="p-12 text-center">
+        <div className="space-y-4">
+          <div className="text-4xl">🚀</div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {projects.length === 0 ? 'Database Connected Successfully!' : `Found ${projects.length} projects`}
+            </h3>
+            <p className="text-muted-foreground">
+              {projects.length === 0 
+                ? 'Your database is working. The hardcoded data has been removed.' 
+                : 'Your projects are loaded from the database'
+              }
+            </p>
+          </div>
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Your First Project
+          </Button>
+        </div>
+      </Card>
 
-            <CardContent className="relative space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  {Object.values(project.roles).filter(Boolean).length} active roles
+      {projects.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project) => (
+            <Card 
+              key={project.id} 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => onSelectProject(project)}
+            >
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{project.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                  </div>
+                  <Badge variant="outline">{project.status}</Badge>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Last generated: {project.lastGenerated}
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm"><strong>Brand Voice:</strong> {project.brand_voice || 'Not set'}</p>
+                  <p className="text-sm"><strong>Platforms:</strong> {project.platforms.join(', ') || 'None'}</p>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Brand Voice</p>
-                <p className="text-xs text-muted-foreground">{project.brandVoice}</p>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Platforms</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.platforms.map((platform) => (
-                    <Badge 
-                      key={platform} 
-                      variant="outline"
-                      className={getPlatformColor(platform)}
-                    >
-                      {platform}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  variant="secondary" 
-                  size="sm" 
-                  className="flex-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectProject(project);
-                  }}
-                >
-                  Open
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -4,33 +4,17 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import ProjectDashboard from '@/components/ProjectDashboard';
 import ProjectWorkspace from '@/components/ProjectWorkspace';
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  platforms: string[];
-  contentSources: number;
-  lastGenerated: string;
-  status: 'active' | 'paused' | 'draft';
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
-  brandVoice: string;
-  targetAudience: string;
-}
+import { Project as DatabaseProject } from '@/hooks/useProjects';
+import { Project, convertDbProjectToLegacy } from '@/types/project';
 
 const Index = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const { signOut, user } = useAuth();
+
+  const handleSelectProject = (dbProject: DatabaseProject) => {
+    const legacyProject = convertDbProjectToLegacy(dbProject);
+    setSelectedProject(legacyProject);
+  };
 
   if (selectedProject) {
     return (
@@ -86,7 +70,7 @@ const Index = () => {
       
       {/* Main Content */}
       <div className="p-6">
-        <ProjectDashboard onSelectProject={setSelectedProject} />
+        <ProjectDashboard onSelectProject={handleSelectProject} />
       </div>
     </div>
   );

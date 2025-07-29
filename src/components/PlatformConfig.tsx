@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Twitter, Linkedin, Instagram, Settings, Zap } from 'lucide-react';
 import { usePlatformConfigs } from '@/hooks/usePlatformConfigs';
 import { useToast } from '@/hooks/use-toast';
+import TestGenerationDialog from './TestGenerationDialog';
 
 interface Project {
   id: string;
@@ -128,10 +129,7 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
             Configure how content is formatted for each platform
           </p>
         </div>
-        <Button variant="outline">
-          <Zap className="w-4 h-4 mr-2" />
-          Test Generation
-        </Button>
+        <TestGenerationDialog platforms={platforms} />
       </div>
 
       <div className="grid gap-6">
@@ -199,7 +197,7 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
               <h3 className="font-semibold">GPT-4 Integration</h3>
               <p className="text-sm text-muted-foreground">
                 Your content will be processed using GPT-4 with the templates above. 
-                Make sure to provide your OpenAI API key in the export configuration.
+                Set up your OpenAI API key below to enable content generation.
               </p>
             </div>
           </div>

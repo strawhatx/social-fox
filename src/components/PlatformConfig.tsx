@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Twitter, Linkedin, Instagram, Settings, Zap } from 'lucide-react';
+import { usePlatformConfigs } from '@/hooks/usePlatformConfigs';
+import { useToast } from '@/hooks/use-toast';
 
 interface Project {
   id: string;
@@ -33,46 +35,88 @@ interface PlatformConfigProps {
 }
 
 export default function PlatformConfig({ project }: PlatformConfigProps) {
-  const [platforms, setPlatforms] = useState<PlatformConfig[]>([
+  const { configs, loading, upsertConfig } = usePlatformConfigs(project.id);
+  const { toast } = useToast();
+
+  // Default platform templates
+  const defaultPlatforms = [
     {
-      id: 'twitter',
+      platform: 'Twitter',
       name: 'Twitter/X',
-      enabled: true,
       characterLimit: 280,
       template: 'Create an engaging Twitter post about {{content}}. Keep it under 280 characters, use relevant hashtags, and make it shareable.',
       icon: Twitter,
       color: 'twitter'
     },
     {
-      id: 'linkedin',
+      platform: 'LinkedIn',
       name: 'LinkedIn',
-      enabled: true,
       characterLimit: 3000,
       template: 'Create a professional LinkedIn post about {{content}}. Focus on business value, include a call-to-action, and make it engaging for professionals.',
       icon: Linkedin,
       color: 'linkedin'
     },
     {
-      id: 'instagram',
+      platform: 'Instagram',
       name: 'Instagram',
-      enabled: false,
       characterLimit: 2200,
       template: 'Create an Instagram caption about {{content}}. Make it visually appealing, use emojis, relevant hashtags, and encourage engagement.',
       icon: Instagram,
       color: 'instagram'
     }
-  ]);
+  ];
 
-  const togglePlatform = (id: string) => {
-    setPlatforms(platforms.map(p => 
-      p.id === id ? { ...p, enabled: !p.enabled } : p
-    ));
+  // Merge database configs with defaults
+  const platforms = defaultPlatforms.map(defaultPlatform => {
+    const dbConfig = configs.find(c => c.platform === defaultPlatform.platform);
+    return {
+      ...defaultPlatform,
+      id: dbConfig?.id || defaultPlatform.platform.toLowerCase(),
+      enabled: dbConfig?.enabled ?? false,
+      template: dbConfig?.template || defaultPlatform.template,
+    };
+  });
+
+  const togglePlatform = async (platform: string) => {
+    const currentConfig = configs.find(c => c.platform === platform);
+    const defaultTemplate = defaultPlatforms.find(p => p.platform === platform)?.template || '';
+    
+    try {
+      await upsertConfig(platform, {
+        enabled: !currentConfig?.enabled,
+        template: currentConfig?.template || defaultTemplate,
+        character_limit: defaultPlatforms.find(p => p.platform === platform)?.characterLimit,
+      });
+      
+      toast({
+        title: "Platform updated",
+        description: `${platform} has been ${currentConfig?.enabled ? 'disabled' : 'enabled'}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update platform configuration",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateTemplate = (id: string, template: string) => {
-    setPlatforms(platforms.map(p => 
-      p.id === id ? { ...p, template } : p
-    ));
+  const updateTemplate = async (platform: string, template: string) => {
+    const currentConfig = configs.find(c => c.platform === platform);
+    
+    try {
+      await upsertConfig(platform, {
+        enabled: currentConfig?.enabled ?? true,
+        template,
+        character_limit: defaultPlatforms.find(p => p.platform === platform)?.characterLimit,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update template",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -114,7 +158,7 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
                     </Badge>
                     <Switch
                       checked={platform.enabled}
-                      onCheckedChange={() => togglePlatform(platform.id)}
+                      onCheckedChange={() => togglePlatform(platform.platform)}
                     />
                   </div>
                 </div>
@@ -129,7 +173,7 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
                     <Textarea
                       id={`template-${platform.id}`}
                       value={platform.template}
-                      onChange={(e) => updateTemplate(platform.id, e.target.value)}
+                      onChange={(e) => updateTemplate(platform.platform, e.target.value)}
                       rows={4}
                       placeholder="Enter your GPT-4 prompt template..."
                     />

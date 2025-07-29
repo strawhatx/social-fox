@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { useContentPosts } from '@/hooks/useContentPosts';
+import { useToast } from '@/hooks/use-toast';
 
 interface Project {
   id: string;
@@ -28,60 +30,17 @@ interface Project {
   targetAudience: string;
 }
 
-interface ContentPost {
-  id: string;
-  content: string;
-  platform: string;
-  status: 'draft' | 'scheduled' | 'posted' | 'needs_review';
-  scheduledFor?: string;
-  createdAt: string;
-  engagement?: {
-    likes: number;
-    shares: number;
-    comments: number;
-  };
-}
+// Remove local interface since we'll use the one from the hook
+import { ContentPost } from '@/hooks/useContentPosts';
 
 interface ContentFeedProps {
   project: Project;
 }
 
-const mockPosts: ContentPost[] = [
-  {
-    id: '1',
-    content: 'Excited to share our latest workflow automation features! 🚀 Streamline your processes and boost productivity with Syncflow. #productivity #automation',
-    platform: 'Twitter',
-    status: 'posted',
-    createdAt: '2 hours ago',
-    engagement: { likes: 24, shares: 8, comments: 5 }
-  },
-  {
-    id: '2',
-    content: 'How workflow automation is transforming modern businesses: From manual processes to intelligent automation, companies are seeing 40% efficiency gains...',
-    platform: 'LinkedIn',
-    status: 'scheduled',
-    scheduledFor: 'Tomorrow at 9:00 AM',
-    createdAt: '1 day ago'
-  },
-  {
-    id: '3',
-    content: 'Behind the scenes: Building Syncflow\'s new integration dashboard. Our team focused on user experience and seamless connectivity...',
-    platform: 'LinkedIn',
-    status: 'needs_review',
-    createdAt: '2 days ago'
-  },
-  {
-    id: '4',
-    content: '✨ New feature alert: Smart task prioritization is now live! Let AI help you focus on what matters most.',
-    platform: 'Twitter',
-    status: 'draft',
-    createdAt: '3 days ago'
-  }
-];
-
 export default function ContentFeed({ project }: ContentFeedProps) {
-  const [posts] = useState(mockPosts);
+  const { posts, loading, createPost, updatePost } = useContentPosts(project.id);
   const [activeTab, setActiveTab] = useState('all');
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -132,7 +91,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="all">All ({posts.length})</TabsTrigger>
           <TabsTrigger value="draft">Drafts ({posts.filter(p => p.status === 'draft').length})</TabsTrigger>
-          <TabsTrigger value="needs_review">Review ({posts.filter(p => p.status === 'needs_review').length})</TabsTrigger>
+          <TabsTrigger value="archived">Archived ({posts.filter(p => p.status === 'archived').length})</TabsTrigger>
           <TabsTrigger value="scheduled">Scheduled ({posts.filter(p => p.status === 'scheduled').length})</TabsTrigger>
           <TabsTrigger value="posted">Posted ({posts.filter(p => p.status === 'posted').length})</TabsTrigger>
         </TabsList>
@@ -157,9 +116,9 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {post.status === 'scheduled' && post.scheduledFor ? 
-                            `Scheduled for ${post.scheduledFor}` : 
-                            `Created ${post.createdAt}`
+                          {post.status === 'scheduled' && post.scheduled_at ? 
+                            `Scheduled for ${new Date(post.scheduled_at).toLocaleString()}` : 
+                            `Created ${new Date(post.created_at).toLocaleDateString()}`
                           }
                         </p>
                       </div>
@@ -197,15 +156,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                       </>
                     )}
                     
-                    {post.status === 'needs_review' && (
+                    {post.status === 'archived' && (
                       <>
                         <Button variant="outline" size="sm">
-                          <Edit3 className="w-4 h-4 mr-2" />
-                          Edit
-                        </Button>
-                        <Button size="sm">
-                          <Send className="w-4 h-4 mr-2" />
-                          Approve & Schedule
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Restore
                         </Button>
                       </>
                     )}

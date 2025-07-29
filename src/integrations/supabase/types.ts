@@ -14,6 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_posts: {
+        Row: {
+          content: string
+          created_at: string
+          engagement: Json | null
+          id: string
+          metadata: Json | null
+          platform: string
+          posted_at: string | null
+          project_id: string
+          scheduled_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          engagement?: Json | null
+          id?: string
+          metadata?: Json | null
+          platform: string
+          posted_at?: string | null
+          project_id: string
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          engagement?: Json | null
+          id?: string
+          metadata?: Json | null
+          platform?: string
+          posted_at?: string | null
+          project_id?: string
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_sources: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          project_id: string
+          type: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          project_id: string
+          type: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          project_id?: string
+          type?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_sources_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      export_configs: {
+        Row: {
+          config: Json | null
+          created_at: string
+          enabled: boolean | null
+          id: string
+          name: string
+          project_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          name: string
+          project_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          name?: string
+          project_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_configs: {
+        Row: {
+          character_limit: number | null
+          config: Json | null
+          created_at: string
+          enabled: boolean | null
+          id: string
+          platform: string
+          project_id: string
+          template: string | null
+          updated_at: string
+        }
+        Insert: {
+          character_limit?: number | null
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          platform: string
+          project_id: string
+          template?: string | null
+          updated_at?: string
+        }
+        Update: {
+          character_limit?: number | null
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          platform?: string
+          project_id?: string
+          template?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -38,6 +193,78 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          brand_voice: string | null
+          content_sources: number | null
+          created_at: string
+          description: string | null
+          id: string
+          last_generated: string | null
+          name: string
+          platforms: string[] | null
+          role_analytics_tracker: boolean | null
+          role_audience_researcher: boolean | null
+          role_brand_builder: boolean | null
+          role_campaign_planner: boolean | null
+          role_channel_manager: boolean | null
+          role_community_engager: boolean | null
+          role_content_creator: boolean | null
+          role_growth_hacker: boolean | null
+          role_lead_generator: boolean | null
+          status: string | null
+          target_audience: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand_voice?: string | null
+          content_sources?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_generated?: string | null
+          name: string
+          platforms?: string[] | null
+          role_analytics_tracker?: boolean | null
+          role_audience_researcher?: boolean | null
+          role_brand_builder?: boolean | null
+          role_campaign_planner?: boolean | null
+          role_channel_manager?: boolean | null
+          role_community_engager?: boolean | null
+          role_content_creator?: boolean | null
+          role_growth_hacker?: boolean | null
+          role_lead_generator?: boolean | null
+          status?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand_voice?: string | null
+          content_sources?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_generated?: string | null
+          name?: string
+          platforms?: string[] | null
+          role_analytics_tracker?: boolean | null
+          role_audience_researcher?: boolean | null
+          role_brand_builder?: boolean | null
+          role_campaign_planner?: boolean | null
+          role_channel_manager?: boolean | null
+          role_community_engager?: boolean | null
+          role_content_creator?: boolean | null
+          role_growth_hacker?: boolean | null
+          role_lead_generator?: boolean | null
+          status?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

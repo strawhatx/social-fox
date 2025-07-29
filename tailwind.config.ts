@@ -52,6 +52,9 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				twitter: 'hsl(var(--twitter))',
+				linkedin: 'hsl(var(--linkedin))',
+				instagram: 'hsl(var(--instagram))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

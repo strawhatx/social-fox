@@ -8,26 +8,41 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 250 100% 99%;
+    --foreground: 240 10% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 250 30% 96%;
+    --secondary-foreground: 240 10% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 250 20% 95%;
+    --muted-foreground: 240 5% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 262 70% 92%;
+    --accent-foreground: 262 83% 58%;
+
+    /* Platform-specific colors */
+    --twitter: 203 89% 53%;
+    --linkedin: 201 100% 35%;
+    --instagram: 315 100% 65%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(252 56% 57%));
+    --gradient-platform: linear-gradient(135deg, hsl(203 89% 53%), hsl(201 100% 35%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(250 20% 98%));
+    
+    /* Effects */
+    --shadow-elegant: 0 4px 20px -4px hsl(262 83% 58% / 0.15);
+    --shadow-card: 0 2px 10px -2px hsl(240 10% 9% / 0.08);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;

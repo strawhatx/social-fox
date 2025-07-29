@@ -182,15 +182,6 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
                     </p>
                   </div>
                   
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Advanced Settings
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Test Template
-                    </Button>
-                  </div>
                 </CardContent>
               )}
             </Card>

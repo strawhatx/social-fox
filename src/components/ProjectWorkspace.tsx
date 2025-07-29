@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Settings, Play, Download } from 'lucide-react';
-import ContentFlow from './ContentFlow';
-import ContentSources from './ContentSources';
+import ContentFeed from './ContentFeed';
+import MarketingRoles from './MarketingRoles';
 import PlatformConfig from './PlatformConfig';
 import ExportConfig from './ExportConfig';
 
@@ -17,6 +17,19 @@ interface Project {
   contentSources: number;
   lastGenerated: string;
   status: 'active' | 'paused' | 'draft';
+  roles: {
+    brand_builder: boolean;
+    content_creator: boolean;
+    audience_researcher: boolean;
+    campaign_planner: boolean;
+    channel_manager: boolean;
+    analytics_tracker: boolean;
+    lead_generator: boolean;
+    community_engager: boolean;
+    growth_hacker: boolean;
+  };
+  brandVoice: string;
+  targetAudience: string;
 }
 
 interface ProjectWorkspaceProps {
@@ -25,7 +38,9 @@ interface ProjectWorkspaceProps {
 }
 
 export default function ProjectWorkspace({ project, onBack }: ProjectWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState('flow');
+  const [activeTab, setActiveTab] = useState('feed');
+  
+  const activeRolesCount = Object.values(project.roles).filter(Boolean).length;
 
   return (
     <div className="space-y-6">
@@ -62,11 +77,11 @@ export default function ProjectWorkspace({ project, onBack }: ProjectWorkspacePr
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Plus className="w-4 h-4 text-primary" />
+                <Settings className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Content Sources</p>
-                <p className="text-2xl font-bold">{project.contentSources}</p>
+                <p className="text-sm text-muted-foreground">Active Roles</p>
+                <p className="text-2xl font-bold">{activeRolesCount}</p>
               </div>
             </div>
           </CardContent>
@@ -118,18 +133,18 @@ export default function ProjectWorkspace({ project, onBack }: ProjectWorkspacePr
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="flow">Content Flow</TabsTrigger>
-          <TabsTrigger value="sources">Sources</TabsTrigger>
+          <TabsTrigger value="feed">Content Feed</TabsTrigger>
+          <TabsTrigger value="roles">Marketing Roles</TabsTrigger>
           <TabsTrigger value="platforms">Platforms</TabsTrigger>
           <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="flow" className="space-y-4">
-          <ContentFlow project={project} />
+        <TabsContent value="feed" className="space-y-4">
+          <ContentFeed project={project} />
         </TabsContent>
 
-        <TabsContent value="sources" className="space-y-4">
-          <ContentSources project={project} />
+        <TabsContent value="roles" className="space-y-4">
+          <MarketingRoles project={project} />
         </TabsContent>
 
         <TabsContent value="platforms" className="space-y-4">

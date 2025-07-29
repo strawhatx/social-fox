@@ -12,6 +12,19 @@ interface Project {
   contentSources: number;
   lastGenerated: string;
   status: 'active' | 'paused' | 'draft';
+  roles: {
+    brand_builder: boolean;
+    content_creator: boolean;
+    audience_researcher: boolean;
+    campaign_planner: boolean;
+    channel_manager: boolean;
+    analytics_tracker: boolean;
+    lead_generator: boolean;
+    community_engager: boolean;
+    growth_hacker: boolean;
+  };
+  brandVoice: string;
+  targetAudience: string;
 }
 
 const mockProjects: Project[] = [
@@ -22,7 +35,20 @@ const mockProjects: Project[] = [
     platforms: ['Twitter', 'LinkedIn'],
     contentSources: 3,
     lastGenerated: '2 hours ago',
-    status: 'active'
+    status: 'active',
+    roles: {
+      brand_builder: true,
+      content_creator: true,
+      audience_researcher: false,
+      campaign_planner: true,
+      channel_manager: true,
+      analytics_tracker: true,
+      lead_generator: false,
+      community_engager: true,
+      growth_hacker: false,
+    },
+    brandVoice: 'Professional yet approachable',
+    targetAudience: 'SaaS professionals and entrepreneurs'
   },
   {
     id: '2',
@@ -31,7 +57,20 @@ const mockProjects: Project[] = [
     platforms: ['Twitter', 'LinkedIn', 'Instagram'],
     contentSources: 2,
     lastGenerated: '1 day ago',
-    status: 'active'
+    status: 'active',
+    roles: {
+      brand_builder: true,
+      content_creator: true,
+      audience_researcher: true,
+      campaign_planner: false,
+      channel_manager: true,
+      analytics_tracker: true,
+      lead_generator: true,
+      community_engager: false,
+      growth_hacker: true,
+    },
+    brandVoice: 'Technical and data-driven',
+    targetAudience: 'Data scientists and analysts'
   },
   {
     id: '3',
@@ -40,7 +79,20 @@ const mockProjects: Project[] = [
     platforms: ['LinkedIn'],
     contentSources: 1,
     lastGenerated: 'Never',
-    status: 'draft'
+    status: 'draft',
+    roles: {
+      brand_builder: false,
+      content_creator: true,
+      audience_researcher: false,
+      campaign_planner: false,
+      channel_manager: false,
+      analytics_tracker: false,
+      lead_generator: false,
+      community_engager: false,
+      growth_hacker: false,
+    },
+    brandVoice: 'Developer-friendly and straightforward',
+    targetAudience: 'Mobile app developers'
   }
 ];
 
@@ -111,12 +163,17 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               <div className="space-y-2">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <BarChart3 className="w-4 h-4 mr-2" />
-                  {project.contentSources} content sources
+                  {Object.values(project.roles).filter(Boolean).length} active roles
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 mr-2" />
                   Last generated: {project.lastGenerated}
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Brand Voice</p>
+                <p className="text-xs text-muted-foreground">{project.brandVoice}</p>
               </div>
 
               <div className="space-y-2">

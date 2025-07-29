@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { User, Palette, Search, Target, MessageCircle, BarChart3, Zap, Users, TrendingUp } from 'lucide-react';
+import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
   id: string;
@@ -28,6 +32,7 @@ interface Project {
 
 interface MarketingRolesProps {
   project: Project;
+  onProjectUpdate?: (updates: Partial<Project>) => void;
 }
 
 const roleDefinitions = {
@@ -87,8 +92,29 @@ const roleDefinitions = {
   }
 };
 
-export default function MarketingRoles({ project }: MarketingRolesProps) {
+export default function MarketingRoles({ project, onProjectUpdate }: MarketingRolesProps) {
+  const { updateProject } = useProjects();
   const activeRoles = Object.entries(project.roles).filter(([_, enabled]) => enabled);
+
+  const handleRoleToggle = async (roleKey: string, enabled: boolean) => {
+    const updatedRoles = {
+      ...project.roles,
+      [roleKey]: enabled
+    };
+    
+    await updateProject(project.id, { roles: updatedRoles });
+    onProjectUpdate?.({ roles: updatedRoles });
+  };
+
+  const handleBrandVoiceChange = async (value: string) => {
+    await updateProject(project.id, { brand_voice: value });
+    onProjectUpdate?.({ brandVoice: value });
+  };
+
+  const handleTargetAudienceChange = async (value: string) => {
+    await updateProject(project.id, { target_audience: value });
+    onProjectUpdate?.({ targetAudience: value });
+  };
 
   return (
     <div className="space-y-6">
@@ -98,17 +124,25 @@ export default function MarketingRoles({ project }: MarketingRolesProps) {
           <CardTitle>Brand Configuration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <h4 className="text-sm font-medium mb-2">Brand Voice</h4>
-            <p className="text-sm text-muted-foreground p-3 bg-muted rounded-md">
-              {project.brandVoice}
-            </p>
+          <div className="space-y-2">
+            <Label htmlFor="brand-voice">Brand Voice</Label>
+            <Textarea
+              id="brand-voice"
+              value={project.brandVoice || ''}
+              onChange={(e) => handleBrandVoiceChange(e.target.value)}
+              placeholder="Describe your brand's personality, tone, and communication style..."
+              className="min-h-[80px]"
+            />
           </div>
-          <div>
-            <h4 className="text-sm font-medium mb-2">Target Audience</h4>
-            <p className="text-sm text-muted-foreground p-3 bg-muted rounded-md">
-              {project.targetAudience}
-            </p>
+          <div className="space-y-2">
+            <Label htmlFor="target-audience">Target Audience</Label>
+            <Textarea
+              id="target-audience"
+              value={project.targetAudience || ''}
+              onChange={(e) => handleTargetAudienceChange(e.target.value)}
+              placeholder="Describe your ideal customer demographics, interests, and characteristics..."
+              className="min-h-[80px]"
+            />
           </div>
         </CardContent>
       </Card>
@@ -144,7 +178,7 @@ export default function MarketingRoles({ project }: MarketingRolesProps) {
                     </div>
                     <Switch 
                       checked={isEnabled}
-                      disabled
+                      onCheckedChange={(checked) => handleRoleToggle(roleKey, checked)}
                       className="data-[state=checked]:bg-primary"
                     />
                   </div>

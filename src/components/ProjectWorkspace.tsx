@@ -8,6 +8,8 @@ import ContentFeed from './ContentFeed';
 import MarketingRoles from './MarketingRoles';
 import PlatformConfig from './PlatformConfig';
 import ExportConfig from './ExportConfig';
+import { useContentPosts } from '@/hooks/useContentPosts';
+import { useExportConfigs } from '@/hooks/useExportConfigs';
 
 interface Project {
   id: string;
@@ -35,12 +37,17 @@ interface Project {
 interface ProjectWorkspaceProps {
   project: Project;
   onBack: () => void;
+  onProjectUpdate?: (updates: Partial<Project>) => void;
 }
 
-export default function ProjectWorkspace({ project, onBack }: ProjectWorkspaceProps) {
+export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: ProjectWorkspaceProps) {
   const [activeTab, setActiveTab] = useState('feed');
+  const { posts } = useContentPosts(project.id);
+  const { configs } = useExportConfigs(project.id);
   
   const activeRolesCount = Object.values(project.roles).filter(Boolean).length;
+  const generatedCount = posts?.length || 0;
+  const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -109,7 +116,7 @@ export default function ProjectWorkspace({ project, onBack }: ProjectWorkspacePr
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Generated</p>
-                <p className="text-2xl font-bold">24</p>
+                <p className="text-2xl font-bold">{generatedCount}</p>
               </div>
             </div>
           </CardContent>
@@ -123,7 +130,7 @@ export default function ProjectWorkspace({ project, onBack }: ProjectWorkspacePr
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Exported</p>
-                <p className="text-2xl font-bold">18</p>
+                <p className="text-2xl font-bold">{exportedCount}</p>
               </div>
             </div>
           </CardContent>
@@ -144,7 +151,7 @@ export default function ProjectWorkspace({ project, onBack }: ProjectWorkspacePr
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-4">
-          <MarketingRoles project={project} />
+          <MarketingRoles project={project} onProjectUpdate={onProjectUpdate} />
         </TabsContent>
 
         <TabsContent value="platforms" className="space-y-4">

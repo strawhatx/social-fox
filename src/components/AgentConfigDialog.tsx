@@ -26,7 +26,8 @@ export function AgentConfigDialog({
 }: AgentConfigDialogProps) {
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
   const [sheetName, setSheetName] = useState('');
-  const [authorizedUser, setAuthorizedUser] = useState<GoogleAuthUser | null>(null);
+  const [authorizedSheets, setAuthorizedSheets] = useState<GoogleAuthUser | null>(null);
+  const [authorizedGmail, setAuthorizedGmail] = useState<GoogleAuthUser | null>(null);
   const { toast } = useToast();
   const { upsertConfig, getConfig } = useAgentConfigs(projectId);
   const { initiateGoogleAuth, isAuthorizing } = useGoogleAuth(projectId);
@@ -34,13 +35,22 @@ export function AgentConfigDialog({
   // Load existing configuration when dialog opens
   useEffect(() => {
     if (open && agentType === 'lead_generator') {
-      const oauthConfig = getConfig(agentType, 'oauth');
+      // Check for Google Sheets OAuth config
+      const sheetsOAuthConfig = getConfig(agentType, 'oauth_sheets');
+      const gmailOAuthConfig = getConfig(agentType, 'oauth_gmail');
       const userConfig = getConfig(agentType, 'user_settings');
       
-      if (oauthConfig?.config_data) {
-        setAuthorizedUser({
-          email: oauthConfig.config_data.user_email || '',
-          name: oauthConfig.config_data.user_name || ''
+      if (sheetsOAuthConfig?.config_data) {
+        setAuthorizedSheets({
+          email: sheetsOAuthConfig.config_data.user_email || '',
+          name: sheetsOAuthConfig.config_data.user_name || ''
+        });
+      }
+      
+      if (gmailOAuthConfig?.config_data) {
+        setAuthorizedGmail({
+          email: gmailOAuthConfig.config_data.user_email || '',
+          name: gmailOAuthConfig.config_data.user_name || ''
         });
       }
       
@@ -79,27 +89,36 @@ export function AgentConfigDialog({
     }
   };
 
-  const handleGoogleAuthorize = async () => {
+  const handleGoogleSheetsAuthorize = async () => {
     try {
       const user = await initiateGoogleAuth(agentType, 'Google Sheets');
-      setAuthorizedUser(user);
+      setAuthorizedSheets(user);
     } catch (error) {
-      console.error('Authorization failed:', error);
+      console.error('Google Sheets authorization failed:', error);
+    }
+  };
+
+  const handleGmailAuthorize = async () => {
+    try {
+      const user = await initiateGoogleAuth(agentType, 'Gmail');
+      setAuthorizedGmail(user);
+    } catch (error) {
+      console.error('Gmail authorization failed:', error);
     }
   };
 
   const renderLeadGeneratorConfig = () => (
     <div className="space-y-6">
-      {/* Google Authorization Section */}
+      {/* Google Sheets Authorization */}
       <div className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium mb-2">Google Authorization</h4>
-          {authorizedUser ? (
+          <h4 className="text-sm font-medium mb-2">Google Sheets Authorization</h4>
+          {authorizedSheets ? (
             <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
               <CheckCircle className="w-4 h-4 text-green-600" />
               <div className="flex-1">
                 <span className="text-sm font-medium text-green-800">Authorized</span>
-                <p className="text-xs text-green-600">{authorizedUser.email}</p>
+                <p className="text-xs text-green-600">{authorizedSheets.email}</p>
               </div>
             </div>
           ) : (
@@ -109,12 +128,43 @@ export function AgentConfigDialog({
                 <span className="text-sm text-orange-800">Not authorized</span>
               </div>
               <Button 
-                onClick={handleGoogleAuthorize}
+                onClick={handleGoogleSheetsAuthorize}
                 variant="outline"
                 disabled={isAuthorizing}
                 className="w-full"
               >
-                {isAuthorizing ? 'Authorizing...' : 'Authorize Google Account'}
+                {isAuthorizing ? 'Authorizing...' : 'Authorize Google Sheets'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Gmail Authorization */}
+      <div className="space-y-4">
+        <div>
+          <h4 className="text-sm font-medium mb-2">Gmail Authorization</h4>
+          {authorizedGmail ? (
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-green-800">Authorized</span>
+                <p className="text-xs text-green-600">{authorizedGmail.email}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-sm text-orange-800">Not authorized</span>
+              </div>
+              <Button 
+                onClick={handleGmailAuthorize}
+                variant="outline"
+                disabled={isAuthorizing}
+                className="w-full"
+              >
+                {isAuthorizing ? 'Authorizing...' : 'Authorize Gmail'}
               </Button>
             </div>
           )}
@@ -122,7 +172,7 @@ export function AgentConfigDialog({
       </div>
 
       {/* Google Sheets Configuration */}
-      {authorizedUser && (
+      {authorizedSheets && (
         <>
           <Separator />
           <div className="space-y-4">
@@ -153,12 +203,6 @@ export function AgentConfigDialog({
                 onChange={(e) => setSheetName(e.target.value)}
               />
             </div>
-
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Gmail integration is automatically configured after Google authorization.
-              </p>
-            </div>
           </div>
         </>
       )}
@@ -183,7 +227,7 @@ export function AgentConfigDialog({
           </Button>
           <Button 
             onClick={handleSave} 
-            disabled={!authorizedUser || !googleSheetsUrl || !sheetName}
+            disabled={!authorizedSheets || !authorizedGmail || !googleSheetsUrl || !sheetName}
           >
             Save Configuration
           </Button>

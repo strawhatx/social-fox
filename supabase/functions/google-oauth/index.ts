@@ -140,7 +140,8 @@ serve(async (req) => {
 
       const userInfo = await userInfoResponse.json();
 
-      // Store OAuth configuration
+      // Store OAuth configuration with specific config type based on integration
+      const configType = integrationName === 'Gmail' ? 'oauth_gmail' : 'oauth_sheets';
       const oauthConfig = {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
@@ -149,6 +150,7 @@ serve(async (req) => {
         user_email: userInfo.email,
         user_name: userInfo.name,
         authorized_at: new Date().toISOString(),
+        integration_name: integrationName,
       };
 
       await supabaseClient
@@ -156,7 +158,7 @@ serve(async (req) => {
         .upsert({
           project_id: projectId,
           agent_type: agentType,
-          config_type: 'oauth',
+          config_type: configType,
           config_data: oauthConfig,
         }, {
           onConflict: 'project_id,agent_type,config_type'

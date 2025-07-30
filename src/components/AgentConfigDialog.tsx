@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAgentConfigs } from '@/hooks/useAgentConfigs';
+import { useGoogleAuth, GoogleAuthUser } from '@/hooks/useGoogleAuth';
+import { CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 interface AgentConfigDialogProps {
@@ -22,108 +24,107 @@ export function AgentConfigDialog({
   agentTitle, 
   projectId 
 }: AgentConfigDialogProps) {
-  const { upsertConfig, getConfig } = useAgentConfigs(projectId);
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  // Lead Generator specific state
-  const [oauthClientId, setOauthClientId] = useState('');
-  const [oauthClientSecret, setOauthClientSecret] = useState('');
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
   const [sheetName, setSheetName] = useState('');
+  const [authorizedUser, setAuthorizedUser] = useState<GoogleAuthUser | null>(null);
+  const { toast } = useToast();
+  const { upsertConfig, getConfig } = useAgentConfigs(projectId);
+  const { initiateGoogleAuth, isAuthorizing } = useGoogleAuth(projectId);
 
-  // Load existing configs
-  const oauthConfig = getConfig(agentType, 'oauth');
-  const googleSheetsConfig = getConfig(agentType, 'google_sheets');
+  // Load existing configuration when dialog opens
+  useEffect(() => {
+    if (open && agentType === 'lead_generator') {
+      const oauthConfig = getConfig(agentType, 'oauth');
+      const userConfig = getConfig(agentType, 'user_settings');
+      
+      if (oauthConfig?.config_data) {
+        setAuthorizedUser({
+          email: oauthConfig.config_data.user_email || '',
+          name: oauthConfig.config_data.user_name || ''
+        });
+      }
+      
+      if (userConfig) {
+        setGoogleSheetsUrl(userConfig.config_data.google_sheets_url || '');
+        setSheetName(userConfig.config_data.sheet_name || '');
+      }
+    }
+  }, [open, agentType, getConfig]);
 
   const handleSave = async () => {
-    setLoading(true);
     try {
       if (agentType === 'lead_generator') {
-        // Save OAuth config if provided
-        if (oauthClientId || oauthClientSecret) {
-          const { error: oauthError } = await upsertConfig(agentType, 'oauth', {
-            client_id: oauthClientId,
-            client_secret: oauthClientSecret,
-          });
-          if (oauthError) throw oauthError;
-        }
-
-        // Save Google Sheets config if provided
-        if (googleSheetsUrl || sheetName) {
-          const { error: sheetsError } = await upsertConfig(agentType, 'google_sheets', {
-            document_url: googleSheetsUrl,
+        // Save user settings (Google Sheets URL and sheet name)
+        if (googleSheetsUrl && sheetName) {
+          await upsertConfig(agentType, 'user_settings', {
+            google_sheets_url: googleSheetsUrl,
             sheet_name: sheetName,
           });
-          if (sheetsError) throw sheetsError;
         }
       }
-
+      
       toast({
-        title: "Configuration saved",
-        description: `${agentTitle} has been configured successfully.`,
+        title: "Configuration Saved",
+        description: "Agent configuration has been updated successfully.",
       });
       
       onOpenChange(false);
-      
-      // Reset form
-      setOauthClientId('');
-      setOauthClientSecret('');
-      setGoogleSheetsUrl('');
-      setSheetName('');
     } catch (error) {
-      console.error('Error saving agent config:', error);
+      console.error('Error saving configuration:', error);
       toast({
         title: "Error",
         description: "Failed to save configuration. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const isAuthorized = oauthConfig?.config_data?.access_token;
-
-  const handleGoogleAuthorize = () => {
-    // TODO: Implement Google OAuth flow
-    // This would typically redirect to Google's OAuth consent screen
-    toast({
-      title: "OAuth Authorization",
-      description: "Google OAuth integration coming soon!",
-    });
+  const handleGoogleAuthorize = async () => {
+    try {
+      const user = await initiateGoogleAuth(agentType, 'Google Sheets');
+      setAuthorizedUser(user);
+    } catch (error) {
+      console.error('Authorization failed:', error);
+    }
   };
 
   const renderLeadGeneratorConfig = () => (
     <div className="space-y-6">
-      {/* Google Authorization */}
+      {/* Google Authorization Section */}
       <div className="space-y-4">
         <div>
           <h4 className="text-sm font-medium mb-2">Google Authorization</h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            Authorize access to Google Sheets and Gmail for lead management
-          </p>
+          {authorizedUser ? (
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-green-800">Authorized</span>
+                <p className="text-xs text-green-600">{authorizedUser.email}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-sm text-orange-800">Not authorized</span>
+              </div>
+              <Button 
+                onClick={handleGoogleAuthorize}
+                variant="outline"
+                disabled={isAuthorizing}
+                className="w-full"
+              >
+                {isAuthorizing ? 'Authorizing...' : 'Authorize Google Account'}
+              </Button>
+            </div>
+          )}
         </div>
-        
-        {!isAuthorized ? (
-          <Button onClick={handleGoogleAuthorize} className="w-full">
-            Authorize Google Account
-          </Button>
-        ) : (
-          <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-green-700 dark:text-green-300">
-              Google account authorized
-            </span>
-          </div>
-        )}
       </div>
 
-      {isAuthorized && (
+      {/* Google Sheets Configuration */}
+      {authorizedUser && (
         <>
           <Separator />
-
-          {/* Google Sheets Configuration */}
           <div className="space-y-4">
             <div>
               <h4 className="text-sm font-medium mb-2">Google Sheets Configuration</h4>
@@ -132,31 +133,32 @@ export function AgentConfigDialog({
               </p>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="sheets-url">Google Sheets Document URL</Label>
+            <div>
+              <Label htmlFor="google-sheets-url">Google Sheets URL</Label>
               <Input
-                id="sheets-url"
+                id="google-sheets-url"
+                type="url"
+                placeholder="https://docs.google.com/spreadsheets/d/..."
                 value={googleSheetsUrl}
                 onChange={(e) => setGoogleSheetsUrl(e.target.value)}
-                placeholder={googleSheetsConfig?.config_data?.document_url || "https://docs.google.com/spreadsheets/d/..."}
               />
             </div>
             
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="sheet-name">Sheet Name</Label>
               <Input
                 id="sheet-name"
+                placeholder="Sheet1"
                 value={sheetName}
                 onChange={(e) => setSheetName(e.target.value)}
-                placeholder={googleSheetsConfig?.config_data?.sheet_name || "Sheet1"}
               />
             </div>
-          </div>
 
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Note:</strong> Gmail integration is automatically configured after Google authorization.
-            </p>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                <strong>Note:</strong> Gmail integration is automatically configured after Google authorization.
+              </p>
+            </div>
           </div>
         </>
       )}
@@ -179,8 +181,11 @@ export function AgentConfigDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Saving..." : "Save Configuration"}
+          <Button 
+            onClick={handleSave} 
+            disabled={!authorizedUser || !googleSheetsUrl || !sheetName}
+          >
+            Save Configuration
           </Button>
         </div>
       </DialogContent>

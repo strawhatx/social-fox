@@ -9,6 +9,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
+import GoogleCallback from "./pages/GoogleCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,8 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/google_sheets/callback" element={<GoogleCallback />} />
+            <Route path="/gmail/callback" element={<GoogleCallback />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { User, Palette, Search, Target, MessageCircle, BarChart3, Zap, Users, TrendingUp } from 'lucide-react';
+import { User, MessageCircle, BarChart3, Zap } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 
 interface Project {
@@ -36,29 +36,17 @@ interface MarketingRolesProps {
 }
 
 const roleDefinitions = {
-  brand_builder: {
-    title: "Brand Builder",
-    description: "Maintains brand identity, voice, and messaging across all platforms",
-    icon: Palette,
-    color: "bg-purple-100 text-purple-600"
-  },
   content_creator: {
     title: "Content Creator",
     description: "Creates engaging content tailored to target audiences",
     icon: User,
     color: "bg-blue-100 text-blue-600"
   },
-  audience_researcher: {
-    title: "Audience Researcher",
-    description: "Researches audience segments, behaviors, and pain points",
-    icon: Search,
-    color: "bg-green-100 text-green-600"
-  },
-  campaign_planner: {
-    title: "Campaign Planner",
-    description: "Designs, launches, and monitors marketing campaigns",
-    icon: Target,
-    color: "bg-orange-100 text-orange-600"
+  lead_generator: {
+    title: "Lead Generator",
+    description: "Implements strategies to capture and qualify leads",
+    icon: Zap,
+    color: "bg-yellow-100 text-yellow-600"
   },
   channel_manager: {
     title: "Channel Manager",
@@ -71,24 +59,6 @@ const roleDefinitions = {
     description: "Measures marketing performance and insights",
     icon: BarChart3,
     color: "bg-indigo-100 text-indigo-600"
-  },
-  lead_generator: {
-    title: "Lead Generator",
-    description: "Implements strategies to capture and qualify leads",
-    icon: Zap,
-    color: "bg-yellow-100 text-yellow-600"
-  },
-  community_engager: {
-    title: "Community Engager",
-    description: "Builds relationships and trust with the audience",
-    icon: Users,
-    color: "bg-pink-100 text-pink-600"
-  },
-  growth_hacker: {
-    title: "Growth Hacker",
-    description: "Drives creative, data-backed growth strategies",
-    icon: TrendingUp,
-    color: "bg-red-100 text-red-600"
   }
 };
 
@@ -152,7 +122,7 @@ export default function MarketingRoles({ project, onProjectUpdate }: MarketingRo
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Active Marketing Roles
-            <Badge variant="secondary">{activeRoles.length} of 9 enabled</Badge>
+            <Badge variant="secondary">{activeRoles.length} of 4 enabled</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -233,6 +203,18 @@ export default function MarketingRoles({ project, onProjectUpdate }: MarketingRo
                         <div className="flex items-center text-muted-foreground">
                           <div className="w-1 h-1 bg-primary rounded-full mr-2" />
                           Adapt messaging for brand voice
+                        </div>
+                      </div>
+                    )}
+                    {roleKey === 'lead_generator' && (
+                      <div className="space-y-1">
+                        <div className="flex items-center text-muted-foreground">
+                          <div className="w-1 h-1 bg-primary rounded-full mr-2" />
+                          Create lead magnets and landing pages
+                        </div>
+                        <div className="flex items-center text-muted-foreground">
+                          <div className="w-1 h-1 bg-primary rounded-full mr-2" />
+                          Qualify and score prospects
                         </div>
                       </div>
                     )}

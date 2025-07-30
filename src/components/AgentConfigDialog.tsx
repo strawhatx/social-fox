@@ -83,76 +83,83 @@ export function AgentConfigDialog({
     }
   };
 
+  const isAuthorized = oauthConfig?.config_data?.access_token;
+
+  const handleGoogleAuthorize = () => {
+    // TODO: Implement Google OAuth flow
+    // This would typically redirect to Google's OAuth consent screen
+    toast({
+      title: "OAuth Authorization",
+      description: "Google OAuth integration coming soon!",
+    });
+  };
+
   const renderLeadGeneratorConfig = () => (
     <div className="space-y-6">
-      {/* OAuth Configuration */}
+      {/* Google Authorization */}
       <div className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium mb-2">OAuth Configuration</h4>
+          <h4 className="text-sm font-medium mb-2">Google Authorization</h4>
           <p className="text-sm text-muted-foreground mb-4">
-            Global OAuth settings for all users enabling Lead Generator
+            Authorize access to Google Sheets and Gmail for lead management
           </p>
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="oauth-client-id">OAuth Client ID</Label>
-          <Input
-            id="oauth-client-id"
-            value={oauthClientId}
-            onChange={(e) => setOauthClientId(e.target.value)}
-            placeholder={oauthConfig?.config_data?.client_id ? "••••••••" : "Enter OAuth Client ID"}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="oauth-client-secret">OAuth Client Secret</Label>
-          <Input
-            id="oauth-client-secret"
-            type="password"
-            value={oauthClientSecret}
-            onChange={(e) => setOauthClientSecret(e.target.value)}
-            placeholder={oauthConfig?.config_data?.client_secret ? "••••••••" : "Enter OAuth Client Secret"}
-          />
-        </div>
+        {!isAuthorized ? (
+          <Button onClick={handleGoogleAuthorize} className="w-full">
+            Authorize Google Account
+          </Button>
+        ) : (
+          <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-sm text-green-700 dark:text-green-300">
+              Google account authorized
+            </span>
+          </div>
+        )}
       </div>
 
-      <Separator />
+      {isAuthorized && (
+        <>
+          <Separator />
 
-      {/* Google Sheets Configuration */}
-      <div className="space-y-4">
-        <div>
-          <h4 className="text-sm font-medium mb-2">Google Sheets Configuration</h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            Configure the destination Google Sheet for lead data
-          </p>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="sheets-url">Google Sheets Document URL</Label>
-          <Input
-            id="sheets-url"
-            value={googleSheetsUrl}
-            onChange={(e) => setGoogleSheetsUrl(e.target.value)}
-            placeholder={googleSheetsConfig?.config_data?.document_url || "https://docs.google.com/spreadsheets/d/..."}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="sheet-name">Sheet Name</Label>
-          <Input
-            id="sheet-name"
-            value={sheetName}
-            onChange={(e) => setSheetName(e.target.value)}
-            placeholder={googleSheetsConfig?.config_data?.sheet_name || "Sheet1"}
-          />
-        </div>
-      </div>
+          {/* Google Sheets Configuration */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Google Sheets Configuration</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configure the destination Google Sheet for lead data
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="sheets-url">Google Sheets Document URL</Label>
+              <Input
+                id="sheets-url"
+                value={googleSheetsUrl}
+                onChange={(e) => setGoogleSheetsUrl(e.target.value)}
+                placeholder={googleSheetsConfig?.config_data?.document_url || "https://docs.google.com/spreadsheets/d/..."}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="sheet-name">Sheet Name</Label>
+              <Input
+                id="sheet-name"
+                value={sheetName}
+                onChange={(e) => setSheetName(e.target.value)}
+                placeholder={googleSheetsConfig?.config_data?.sheet_name || "Sheet1"}
+              />
+            </div>
+          </div>
 
-      <div className="bg-muted/50 p-4 rounded-lg">
-        <p className="text-sm text-muted-foreground">
-          <strong>Note:</strong> Gmail integration requires no additional configuration.
-        </p>
-      </div>
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <strong>Note:</strong> Gmail integration is automatically configured after Google authorization.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 

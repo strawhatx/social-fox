@@ -173,6 +173,7 @@ export default function MarketingRoles({ project, onProjectUpdate }: MarketingRo
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {activeRoles.map(([roleKey, _]) => {
           const role = roleDefinitions[roleKey as keyof typeof roleDefinitions];
+          if (!role) return null; // Skip roles not in definitions
           const Icon = role.icon;
           
           return (

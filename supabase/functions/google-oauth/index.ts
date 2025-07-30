@@ -19,38 +19,32 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Handle OAuth initiation
-    if (req.method === 'POST' && (url.pathname === '/google-oauth/initiate' || url.pathname === '/')) {
+    // Handle OAuth initiation - when called via supabase.functions.invoke
+    if (req.method === 'POST') {
       const { projectId, agentType, integrationName } = await req.json();
       
       const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
-      if (!clientId) {
-        throw new Error('Google Client ID not configured');
+      const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
+      
+      if (!clientId || !clientSecret) {
+        throw new Error('Google OAuth credentials not configured');
       }
 
-      // Get integration config
-      const { data: integration } = await supabaseClient
-        .from('integrations')
-        .select('config_data')
-        .eq('name', integrationName)
-        .single();
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
-      const config = integration.config_data as any;
-      const scopes = config.scopes.join(' ');
+      // For now, use hardcoded Google OAuth configuration since integrations table might not exist
+      const scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/gmail.readonly'];
+      const redirectUri = `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
       const state = btoa(JSON.stringify({ projectId, agentType, integrationName }));
 
-      const authUrl = new URL(config.auth_url);
+      const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
       authUrl.searchParams.append('client_id', clientId);
-      authUrl.searchParams.append('redirect_uri', config.redirect_url);
+      authUrl.searchParams.append('redirect_uri', redirectUri);
       authUrl.searchParams.append('response_type', 'code');
-      authUrl.searchParams.append('scope', scopes);
+      authUrl.searchParams.append('scope', scopes.join(' '));
       authUrl.searchParams.append('state', state);
       authUrl.searchParams.append('access_type', 'offline');
       authUrl.searchParams.append('prompt', 'consent');
+
+      console.log('Generated auth URL:', authUrl.toString());
 
       return new Response(
         JSON.stringify({ authUrl: authUrl.toString() }),
@@ -59,7 +53,7 @@ serve(async (req) => {
     }
 
     // Handle OAuth callback
-    if (req.method === 'GET' && url.pathname === '/google-oauth/callback') {
+    if (req.method === 'GET' && url.pathname.includes('/callback')) {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
@@ -91,17 +85,10 @@ serve(async (req) => {
         throw new Error('Google OAuth credentials not configured');
       }
 
-      // Get integration config for token URL
-      const { data: integration } = await supabaseClient
-        .from('integrations')
-        .select('config_data')
-        .eq('name', integrationName)
-        .single();
-
-      const config = integration.config_data as any;
+      const redirectUri = `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
 
       // Exchange code for tokens
-      const tokenResponse = await fetch(config.token_url, {
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -111,7 +98,7 @@ serve(async (req) => {
           client_secret: clientSecret,
           code,
           grant_type: 'authorization_code',
-          redirect_uri: config.redirect_url,
+          redirect_uri: redirectUri,
         }),
       });
 

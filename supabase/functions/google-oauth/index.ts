@@ -20,7 +20,7 @@ serve(async (req) => {
     );
 
     // Handle OAuth initiation
-    if (req.method === 'POST' && url.pathname === '/google-oauth/initiate') {
+    if (req.method === 'POST' && (url.pathname === '/google-oauth/initiate' || url.pathname === '/')) {
       const { projectId, agentType, integrationName } = await req.json();
       
       const clientId = Deno.env.get('GOOGLE_CLIENT_ID');

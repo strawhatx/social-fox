@@ -138,7 +138,17 @@ serve(async (req) => {
         },
       });
 
+      if (!userInfoResponse.ok) {
+        console.error('Failed to fetch user info:', await userInfoResponse.text());
+        throw new Error('Failed to fetch user information');
+      }
+
       const userInfo = await userInfoResponse.json();
+
+      if (!userInfo.email || !userInfo.name) {
+        console.error('User info missing required fields:', userInfo);
+        throw new Error('User information incomplete');
+      }
 
       // Store OAuth configuration with specific config type based on integration
       const configType = integrationName === 'Gmail' ? 'oauth_gmail' : 'oauth_sheets';

@@ -8,7 +8,7 @@ export interface GoogleAuthUser {
 }
 
 export const useGoogleAuth = (projectId?: string) => {
-  const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const [authorizingStates, setAuthorizingStates] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
   const initiateGoogleAuth = useCallback(async (agentType: string, integrationName: string = 'Google Sheets') => {
@@ -21,7 +21,8 @@ export const useGoogleAuth = (projectId?: string) => {
       return;
     }
 
-    setIsAuthorizing(true);
+    const authKey = `${agentType}_${integrationName}`;
+    setAuthorizingStates(prev => ({ ...prev, [authKey]: true }));
 
     try {
       // Call edge function to get auth URL
@@ -86,7 +87,8 @@ export const useGoogleAuth = (projectId?: string) => {
       });
       throw error;
     } finally {
-      setIsAuthorizing(false);
+      const authKey = `${agentType}_${integrationName}`;
+      setAuthorizingStates(prev => ({ ...prev, [authKey]: false }));
     }
   }, [projectId, toast]);
 
@@ -114,9 +116,14 @@ export const useGoogleAuth = (projectId?: string) => {
     }
   }, [projectId, toast]);
 
+  const getAuthorizingState = useCallback((agentType: string, integrationName: string) => {
+    const authKey = `${agentType}_${integrationName}`;
+    return authorizingStates[authKey] || false;
+  }, [authorizingStates]);
+
   return {
     initiateGoogleAuth,
     refreshGoogleToken,
-    isAuthorizing,
+    getAuthorizingState,
   };
 };

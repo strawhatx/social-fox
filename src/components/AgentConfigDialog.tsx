@@ -30,7 +30,7 @@ export function AgentConfigDialog({
   const [authorizedGmail, setAuthorizedGmail] = useState<GoogleAuthUser | null>(null);
   const { toast } = useToast();
   const { upsertConfig, getConfig } = useAgentConfigs(projectId);
-  const { initiateGoogleAuth, isAuthorizing } = useGoogleAuth(projectId);
+  const { initiateGoogleAuth, getAuthorizingState } = useGoogleAuth(projectId);
 
   // Load existing configuration when dialog opens
   useEffect(() => {
@@ -130,10 +130,10 @@ export function AgentConfigDialog({
               <Button 
                 onClick={handleGoogleSheetsAuthorize}
                 variant="outline"
-                disabled={isAuthorizing}
+                disabled={getAuthorizingState(agentType, 'Google Sheets')}
                 className="w-full"
               >
-                {isAuthorizing ? 'Authorizing...' : 'Authorize Google Sheets'}
+                {getAuthorizingState(agentType, 'Google Sheets') ? 'Authorizing...' : 'Authorize Google Sheets'}
               </Button>
             </div>
           )}
@@ -161,10 +161,10 @@ export function AgentConfigDialog({
               <Button 
                 onClick={handleGmailAuthorize}
                 variant="outline"
-                disabled={isAuthorizing}
+                disabled={getAuthorizingState(agentType, 'Gmail')}
                 className="w-full"
               >
-                {isAuthorizing ? 'Authorizing...' : 'Authorize Gmail'}
+                {getAuthorizingState(agentType, 'Gmail') ? 'Authorizing...' : 'Authorize Gmail'}
               </Button>
             </div>
           )}

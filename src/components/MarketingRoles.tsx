@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { User, MessageCircle, BarChart3, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, MessageCircle, BarChart3, Zap, Settings } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
+import { AgentConfigDialog } from './AgentConfigDialog';
+import { useAgentConfigs } from '@/hooks/useAgentConfigs';
 
 interface Project {
   id: string;
@@ -64,6 +68,13 @@ const roleDefinitions = {
 
 export default function MarketingRoles({ project, onProjectUpdate }: MarketingRolesProps) {
   const { updateProject } = useProjects();
+  const { getConfig } = useAgentConfigs(project.id);
+  const [configDialog, setConfigDialog] = useState<{ open: boolean; agentType: string; agentTitle: string }>({
+    open: false,
+    agentType: '',
+    agentTitle: ''
+  });
+  
   const activeRoles = Object.entries(project.roles).filter(([_, enabled]) => enabled);
 
   const handleRoleToggle = async (roleKey: string, enabled: boolean) => {
@@ -179,11 +190,27 @@ export default function MarketingRoles({ project, onProjectUpdate }: MarketingRo
           return (
             <Card key={roleKey}>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className={`w-6 h-6 rounded flex items-center justify-center ${role.color}`}>
-                    <Icon className="w-3 h-3" />
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-6 h-6 rounded flex items-center justify-center ${role.color}`}>
+                      <Icon className="w-3 h-3" />
+                    </div>
+                    <span>{role.title}</span>
                   </div>
-                  <span>{role.title}</span>
+                  {roleKey === 'lead_generator' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setConfigDialog({
+                        open: true,
+                        agentType: roleKey,
+                        agentTitle: role.title
+                      })}
+                    >
+                      <Settings className="w-3 h-3 mr-1" />
+                      Configure
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -250,6 +277,15 @@ export default function MarketingRoles({ project, onProjectUpdate }: MarketingRo
           );
         })}
       </div>
+
+      {/* Agent Configuration Dialog */}
+      <AgentConfigDialog
+        open={configDialog.open}
+        onOpenChange={(open) => setConfigDialog(prev => ({ ...prev, open }))}
+        agentType={configDialog.agentType}
+        agentTitle={configDialog.agentTitle}
+        projectId={project.id}
+      />
     </div>
   );
 }

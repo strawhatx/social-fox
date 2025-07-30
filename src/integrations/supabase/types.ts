@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_configs: {
+        Row: {
+          agent_type: string
+          config_data: Json
+          config_type: string
+          created_at: string
+          id: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          agent_type: string
+          config_data?: Json
+          config_type: string
+          created_at?: string
+          id?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          agent_type?: string
+          config_data?: Json
+          config_type?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_posts: {
         Row: {
           content: string

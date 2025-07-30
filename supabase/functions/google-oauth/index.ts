@@ -23,20 +23,31 @@ serve(async (req) => {
     if (req.method === 'POST') {
       const { projectId, agentType, integrationName } = await req.json();
       
-      const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
-      const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
-      
-      if (!clientId || !clientSecret) {
-        throw new Error('Google OAuth credentials not configured');
+      // Get integration config from database
+      const { data: integration, error: integrationError } = await supabaseClient
+        .from('integrations')
+        .select('config_data')
+        .eq('name', integrationName || 'Google Sheets')
+        .eq('is_active', true)
+        .single();
+
+      if (integrationError || !integration) {
+        console.error('Integration not found:', integrationError);
+        throw new Error(`Integration "${integrationName || 'Google Sheets'}" not found or inactive`);
       }
 
-      // For now, use hardcoded Google OAuth configuration since integrations table might not exist
-      const scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/gmail.readonly'];
-      const redirectUri = `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
+      const config = integration.config_data as any;
+      
+      if (!config.client_id || !config.client_secret) {
+        throw new Error('Google OAuth credentials not configured in integration');
+      }
+
+      const scopes = config.scopes || ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/gmail.readonly'];
+      const redirectUri = config.redirect_url || `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
       const state = btoa(JSON.stringify({ projectId, agentType, integrationName }));
 
-      const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-      authUrl.searchParams.append('client_id', clientId);
+      const authUrl = new URL(config.auth_url || 'https://accounts.google.com/o/oauth2/v2/auth');
+      authUrl.searchParams.append('client_id', config.client_id);
       authUrl.searchParams.append('redirect_uri', redirectUri);
       authUrl.searchParams.append('response_type', 'code');
       authUrl.searchParams.append('scope', scopes.join(' '));
@@ -78,24 +89,35 @@ serve(async (req) => {
 
       const { projectId, agentType, integrationName } = JSON.parse(atob(state));
       
-      const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
-      const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
-      
-      if (!clientId || !clientSecret) {
-        throw new Error('Google OAuth credentials not configured');
+      // Get integration config from database
+      const { data: integration, error: integrationError } = await supabaseClient
+        .from('integrations')
+        .select('config_data')
+        .eq('name', integrationName || 'Google Sheets')
+        .eq('is_active', true)
+        .single();
+
+      if (integrationError || !integration) {
+        throw new Error(`Integration "${integrationName || 'Google Sheets'}" not found or inactive`);
       }
 
-      const redirectUri = `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
+      const config = integration.config_data as any;
+      
+      if (!config.client_id || !config.client_secret) {
+        throw new Error('Google OAuth credentials not configured in integration');
+      }
+
+      const redirectUri = config.redirect_url || `https://nmdmgdbbiivqazqjejdc.supabase.co/functions/v1/google-oauth/callback`;
 
       // Exchange code for tokens
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      const tokenResponse = await fetch(config.token_url || 'https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
+          client_id: config.client_id,
+          client_secret: config.client_secret,
           code,
           grant_type: 'authorization_code',
           redirect_uri: redirectUri,
@@ -181,8 +203,19 @@ serve(async (req) => {
         throw new Error('No refresh token available');
       }
 
-      const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
-      const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
+      // Get integration config for credentials
+      const { data: integration } = await supabaseClient
+        .from('integrations')
+        .select('config_data')
+        .eq('name', 'Google Sheets')
+        .eq('is_active', true)
+        .single();
+
+      if (!integration) {
+        throw new Error('Google Sheets integration not found');
+      }
+
+      const config = integration.config_data as any;
 
       // Refresh the access token
       const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -191,8 +224,8 @@ serve(async (req) => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: clientId!,
-          client_secret: clientSecret!,
+          client_id: config.client_id,
+          client_secret: config.client_secret,
           refresh_token: currentConfig.refresh_token,
           grant_type: 'refresh_token',
         }),

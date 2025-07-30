@@ -114,12 +114,23 @@ export function AgentConfigDialog({
         <div>
           <h4 className="text-sm font-medium mb-2">Google Sheets Authorization</h4>
           {authorizedSheets ? (
-            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-green-800">Authorized</span>
-                <p className="text-xs text-green-600">{authorizedSheets.email}</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-green-800">Authorized</span>
+                  <p className="text-xs text-green-600">{authorizedSheets.email}</p>
+                </div>
               </div>
+              <Button 
+                onClick={handleGoogleSheetsAuthorize}
+                variant="outline"
+                disabled={getAuthorizingState(agentType, 'Google Sheets')}
+                className="w-full"
+                size="sm"
+              >
+                {getAuthorizingState(agentType, 'Google Sheets') ? 'Reauthorizing...' : 'Reauthorize'}
+              </Button>
             </div>
           ) : (
             <div className="space-y-2">
@@ -145,12 +156,23 @@ export function AgentConfigDialog({
         <div>
           <h4 className="text-sm font-medium mb-2">Gmail Authorization</h4>
           {authorizedGmail ? (
-            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-green-800">Authorized</span>
-                <p className="text-xs text-green-600">{authorizedGmail.email}</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-green-800">Authorized</span>
+                  <p className="text-xs text-green-600">{authorizedGmail.email}</p>
+                </div>
               </div>
+              <Button 
+                onClick={handleGmailAuthorize}
+                variant="outline"
+                disabled={getAuthorizingState(agentType, 'Gmail')}
+                className="w-full"
+                size="sm"
+              >
+                {getAuthorizingState(agentType, 'Gmail') ? 'Reauthorizing...' : 'Reauthorize'}
+              </Button>
             </div>
           ) : (
             <div className="space-y-2">

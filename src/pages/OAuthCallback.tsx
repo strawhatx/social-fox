@@ -48,7 +48,7 @@ const OAuthCallback = () => {
           code,
           state,
           provider: stateData.provider,
-          projectId: stateData.team_id || stateData.project_id
+          projectId: stateData.project_id || stateData.team_id
         });
 
         // Send success message to parent window

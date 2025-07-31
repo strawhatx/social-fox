@@ -13,7 +13,7 @@ export class OAuthService {
     try {
       const { data, error } = await supabase.functions.invoke('process-oauth', {
         body: {
-          team_id: config.projectId,
+          project_id: config.projectId,
           connectionName: config.connectionName || `${config.provider} Connection`,
           provider: config.provider,
           ...config.additionalParams

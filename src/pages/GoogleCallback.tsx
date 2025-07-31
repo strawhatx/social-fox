@@ -16,9 +16,8 @@ export default function GoogleCallback() {
     }
 
     if (code && state) {
-      // This will be handled by the edge function
-      // The callback URL will process the OAuth response
-      window.location.href = `/supabase/functions/v1/google-oauth/callback?code=${code}&state=${state}`;
+      // Redirect to the unified OAuth callback
+      window.location.href = `/oauth/callback?code=${code}&state=${state}`;
     }
   }, [searchParams]);
 

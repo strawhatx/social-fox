@@ -9,7 +9,7 @@ import { saveOAuthState, savePkceVerifier } from "../utils/state.ts";
 
 // Types
 interface OAuthCallbackRequest {
-  team_id: string;
+  project_id: string;
   connectionName: string;
   provider: string;
   [key: string]: string;
@@ -39,7 +39,7 @@ interface OAuthCallbackRequest {
  *   "My Connection",
  *   "google",
  *   connectorConfig,
- *   { team_id: "123" }
+ *   { project_id: "123" }
  * );
  * ```
  */
@@ -236,6 +236,10 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
     'google_sheets': {
       access_type: 'offline',
       prompt: 'consent'
+    },
+    'gmail': {
+      access_type: 'offline',
+      prompt: 'consent'
     }
   };
 
@@ -341,7 +345,7 @@ serve(async (req) => {
   }
 
   try {
-    const { team_id, connectionName, provider, ...params } = await req.json() as OAuthCallbackRequest;
+    const { project_id, connectionName, provider, ...params } = await req.json() as OAuthCallbackRequest;
 
     // Fetch integration configuration from database
     const { data: integrationData, error: integrationError } = await supabase

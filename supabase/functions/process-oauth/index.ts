@@ -351,7 +351,7 @@ serve(async (req) => {
     const { data: integrationData, error: integrationError } = await supabase
       .from('integrations')
       .select('*')
-      .eq('name', provider)
+      .eq('provider', provider)
       .single();
 
     if (integrationError || !integrationData) {

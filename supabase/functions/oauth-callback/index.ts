@@ -212,7 +212,7 @@ serve(async (req) => {
           config_type: 'oauth',
           config_data: connectionConfig,
       }], {
-        onConflict: 'project_id,integration_id,name'
+        onConflict: 'project_id,agent_type,config_type'
       })
       .select();
 

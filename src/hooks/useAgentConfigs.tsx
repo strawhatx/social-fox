@@ -48,18 +48,32 @@ export const useAgentConfigs = (projectId?: string) => {
     if (!user || !projectId) return { error: 'User not authenticated or no project ID' };
 
     try {
-      // Get existing config first
-      const existingConfig = getConfig(agentType);
-      const mergedConfigData = existingConfig 
-        ? { ...existingConfig.config_data, ...configData }
+      // First, get the existing config to merge properly
+      const { data: existingData, error: fetchError } = await supabase
+        .from('agent_configs')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('agent_type', agentType)
+        .eq('config_type', 'main')
+        .maybeSingle();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      // Merge with existing config data - ensure both are objects
+      const existingConfigData = existingData?.config_data || {};
+      const mergedConfigData = typeof existingConfigData === 'object' && existingConfigData !== null
+        ? { ...existingConfigData, ...configData }
         : configData;
 
       const { data, error } = await supabase
         .from('agent_configs')
         .upsert({
+          id: existingData?.id, // Include ID if updating existing record
           project_id: projectId,
           agent_type: agentType,
-          config_type: 'main', // Use a standard config_type
+          config_type: 'main',
           config_data: mergedConfigData
         }, {
           onConflict: 'project_id,agent_type,config_type'

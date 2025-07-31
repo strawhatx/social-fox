@@ -210,32 +210,40 @@ serve(async (req) => {
       timestamp: new Date().toISOString()
     };
 
-    // Get existing config first to merge provider data
-    const { data: existingConfig } = await supabase
+    // Get existing config first to merge provider data properly
+    const { data: existingConfig, error: fetchError } = await supabase
       .from('agent_configs')
-      .select('config_data')
+      .select('*')
       .eq('project_id', project_id)
       .eq('agent_type', agentType)
       .eq('config_type', 'main')
-      .single();
+      .maybeSingle();
 
-    // Merge with existing config
-    const mergedConfigData = existingConfig?.config_data || {};
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      throw new Error(`Failed to fetch existing config: ${fetchError.message}`);
+    }
+
+    // Merge with existing config - ensure we don't lose any provider data
+    const existingConfigData = existingConfig?.config_data || {};
+    const mergedConfigData = { ...existingConfigData };
+    
+    // Add/update the specific provider data
     mergedConfigData[provider] = {
-      ...mergedConfigData[provider],
-      ...connectionConfig,
+      ...mergedConfigData[provider], // Keep existing provider data
+      ...connectionConfig, // Add/update with new OAuth data
     };
 
-    // Upsert connection record (create if doesn't exist, update if it does)
-    console.log('About to insert with project_id:', project_id, 'agent_type:', agentType, 'provider:', provider);
+    // Upsert connection record with proper ID handling
+    console.log('About to upsert with project_id:', project_id, 'agent_type:', agentType, 'provider:', provider);
     const { data, error } = await supabase
       .from('agent_configs')
-      .upsert([{
+      .upsert({
+        id: existingConfig?.id, // Include ID if updating existing record
         project_id: project_id,
         agent_type: agentType,
         config_type: 'main',
         config_data: mergedConfigData,
-      }], {
+      }, {
         onConflict: 'project_id,agent_type,config_type'
       })
       .select();

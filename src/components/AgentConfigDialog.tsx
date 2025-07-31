@@ -116,17 +116,21 @@ export function AgentConfigDialog({
       // For now, set a placeholder to indicate authorization is in progress
       setAuthorizedSheets({ email: 'pending...', name: 'Authorizing...' });
       
-      // Reload config after a short delay to get updated data
+      // Reload config after a longer delay to ensure OAuth callback has completed
       setTimeout(async () => {
         await refetch();
         const config = getConfig(agentType);
-        if (config?.config_data?.google_sheets?.user_email) {
+        console.log('Refetched config after Google Sheets auth:', config);
+        if (config?.config_data?.google_sheets?.access_token) {
           setAuthorizedSheets({
-            email: config.config_data.google_sheets.user_email,
-            name: config.config_data.google_sheets.user_name || 'Google User'
+            email: config.config_data.google_sheets.user_email || 'Google Account',
+            name: config.config_data.google_sheets.user_name || 'Authorized User'
           });
+        } else {
+          console.log('No Google Sheets tokens found after reauth');
+          setAuthorizedSheets(null);
         }
-      }, 2000);
+      }, 5000); // Increased delay to 5 seconds
     } catch (error) {
       console.error('Google Sheets authorization failed:', error);
       setAuthorizedSheets(null);

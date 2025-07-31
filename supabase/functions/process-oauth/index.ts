@@ -367,7 +367,7 @@ serve(async (req) => {
       throw new Error(`Integration not found: ${provider}`);
     }
 
-    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, params, user.id);
+    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, { ...params, project_id }, user.id);
     
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {

@@ -247,7 +247,10 @@ export function AgentConfigDialog({
                 type="url"
                 placeholder="https://docs.google.com/spreadsheets/d/..."
                 value={googleSheetsUrl}
-                onChange={(e) => setGoogleSheetsUrl(e.target.value)}
+                onChange={(e) => {
+                  console.log('URL input changed:', e.target.value);
+                  setGoogleSheetsUrl(e.target.value);
+                }}
               />
             </div>
             

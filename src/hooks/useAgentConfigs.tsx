@@ -76,7 +76,7 @@ export const useAgentConfigs = (projectId?: string) => {
           config_type: 'main',
           config_data: mergedConfigData
         }, {
-          onConflict: 'project_id,agent_type,config_type'
+          onConflict: 'project_id,agent_type' // Updated to match new unique constraint
         })
         .select()
         .single();

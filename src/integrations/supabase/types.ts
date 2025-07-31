@@ -53,6 +53,13 @@ export type Database = {
             referencedRelation: "integrations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_agent_configs_integration"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_flat"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cache: {
@@ -425,7 +432,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      integrations_flat: {
+        Row: {
+          auth_url: string | null
+          client_id: string | null
+          client_secret: string | null
+          code_challenge_required: boolean | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          provider: string | null
+          redirect_url: string | null
+          required_parameters: string[] | null
+          scopes: string[] | null
+          token_url: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auth_url?: never
+          client_id?: never
+          client_secret?: never
+          code_challenge_required?: never
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          redirect_url?: never
+          required_parameters?: never
+          scopes?: never
+          token_url?: never
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auth_url?: never
+          client_id?: never
+          client_secret?: never
+          code_challenge_required?: never
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          redirect_url?: never
+          required_parameters?: never
+          scopes?: never
+          token_url?: never
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

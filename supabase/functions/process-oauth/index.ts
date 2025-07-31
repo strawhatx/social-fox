@@ -255,6 +255,7 @@ export const initiateOAuth = async (
   provider: IntegrationProvider,
   config: Integration,
   params: Record<string, string>,
+  userId: string
 ) => {
   const providerConfig = (await getProviderConfig(config))?.config;
   if (!providerConfig) {
@@ -297,13 +298,17 @@ export const initiateOAuth = async (
     redirectUri,
     timestamp: Date.now(),
     nonce: Math.random().toString(36).substring(2, 15),
-    user_id: params.user_id, // Include user ID in state
+    user_id: userId,
+    project_id: params.project_id, // Include project_id for callback
+    agent_type: params.agent_type, // Include agent_type for callback
     ...params
   }));
 
-  // Store state in database for verification
-  // Note: This will be called from the client side, not here in the edge function
-  // The client should handle storing the state and verifier
+  // Store state and PKCE verifier in database for verification
+  await saveOAuthState(state, userId);
+  if (code_verifier) {
+    await savePkceVerifier(state, userId, code_verifier);
+  }
 
   // Build OAuth parameters dynamically
   const oauthParameters = buildOAuthParameters(
@@ -362,7 +367,7 @@ serve(async (req) => {
       throw new Error(`Integration not found: ${provider}`);
     }
 
-    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, params);
+    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, params, user.id);
     
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {

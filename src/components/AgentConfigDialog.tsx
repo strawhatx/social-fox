@@ -71,10 +71,17 @@ export function AgentConfigDialog({
   const handleSave = async () => {
     try {
       if (agentType === 'lead_generator') {
-        // Save Google Sheets configuration
+        // Get existing config to preserve OAuth tokens
+        const existingConfig = getConfig(agentType);
+        const existingGoogleSheets = existingConfig?.config_data?.google_sheets || {};
+        
+        // Save Google Sheets configuration while preserving existing OAuth data
         if (googleSheetsUrl && sheetName) {
           await upsertConfig(agentType, {
             google_sheets: {
+              // Preserve existing OAuth tokens and provider info
+              ...existingGoogleSheets,
+              // Update user settings
               url: googleSheetsUrl,
               sheet_name: sheetName,
               ...authorizedSheets && {

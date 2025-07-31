@@ -10,10 +10,17 @@ export interface OAuthConfig {
 export class OAuthService {
   async initiateOAuth(config: OAuthConfig): Promise<string> {
     try {
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { data, error } = await supabase.functions.invoke('process-oauth', {
         body: {
           project_id: config.projectId,
           provider: config.provider,
+          user_id: user.id,
           ...config.additionalParams
         }
       });

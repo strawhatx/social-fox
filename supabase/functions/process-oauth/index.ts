@@ -297,6 +297,7 @@ export const initiateOAuth = async (
     redirectUri,
     timestamp: Date.now(),
     nonce: Math.random().toString(36).substring(2, 15),
+    user_id: params.user_id, // Include user ID in state
     ...params
   }));
 

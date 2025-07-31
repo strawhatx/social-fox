@@ -99,9 +99,8 @@ serve(async (req) => {
   const corsResponse = handleCORS(req);
   if (corsResponse) return corsResponse;
 
-  // Validate the JWT token and get user
-  const authHeader = req.headers.get("Authorization");
-  const { id: userId } = await validateSupabaseToken(authHeader);
+  // Extract user ID from state instead of JWT (since Google calls this endpoint directly)
+  let userId: string;
 
   // if the request is not a POST request, return a 405 Method Not Allowed
   if (req.method !== 'POST') {
@@ -115,6 +114,14 @@ serve(async (req) => {
       throw new Error('Provider not specified');
     }
 
+    // Decode state first to get user ID
+    const decodedState = JSON.parse(atob(state));
+    userId = decodedState.user_id;
+    
+    if (!userId) {
+      throw new Error('User ID not found in state');
+    }
+
     // Verify state parameter from database
     const storedState = await getOAuthState(state, userId);
     if (!storedState || storedState !== state) {
@@ -122,8 +129,7 @@ serve(async (req) => {
     }
     await clearOAuthState(state, userId);
     
-    // Decode state and verify timestamp
-    const decodedState = JSON.parse(atob(state));
+    // Verify timestamp
     if (Date.now() - decodedState.timestamp > 3600000) { // 1 hour
       throw new Error("OAuth state expired");
     }

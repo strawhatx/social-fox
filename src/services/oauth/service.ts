@@ -4,7 +4,6 @@ import { saveOAuthState, savePkceVerifier } from './oauthState';
 export interface OAuthConfig {
   provider: string;
   projectId: string;
-  connectionName?: string;
   additionalParams?: Record<string, string>;
 }
 
@@ -14,7 +13,6 @@ export class OAuthService {
       const { data, error } = await supabase.functions.invoke('process-oauth', {
         body: {
           project_id: config.projectId,
-          connectionName: config.connectionName || `${config.provider} Connection`,
           provider: config.provider,
           ...config.additionalParams
         }

@@ -31,7 +31,6 @@ export const useGoogleAuth = (projectId?: string) => {
       await oauthService.startOAuthFlow({
         provider,
         projectId,
-        connectionName: `${integrationName} for ${agentType}`,
         additionalParams: {
           agent_type: agentType
         }

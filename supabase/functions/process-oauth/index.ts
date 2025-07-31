@@ -10,7 +10,6 @@ import { saveOAuthState, savePkceVerifier } from "../utils/state.ts";
 // Types
 interface OAuthCallbackRequest {
   project_id: string;
-  connectionName: string;
   provider: string;
   [key: string]: string;
 }
@@ -248,7 +247,6 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
 
 // Initiate OAuth flow
 export const initiateOAuth = async (
-  connectionName: string,
   provider: IntegrationProvider,
   config: Integration,
   params: Record<string, string>,
@@ -290,7 +288,6 @@ export const initiateOAuth = async (
   // Build state parameter with connection info and security measures
   const state = btoa(JSON.stringify({
     provider,
-    connectionName,
     redirectUri,
     timestamp: Date.now(),
     nonce: Math.random().toString(36).substring(2, 15),
@@ -345,7 +342,7 @@ serve(async (req) => {
   }
 
   try {
-    const { project_id, connectionName, provider, ...params } = await req.json() as OAuthCallbackRequest;
+    const { project_id, provider, ...params } = await req.json() as OAuthCallbackRequest;
 
     // Fetch integration configuration from database
     const { data: integrationData, error: integrationError } = await supabase
@@ -358,7 +355,7 @@ serve(async (req) => {
       throw new Error(`Integration not found: ${provider}`);
     }
 
-    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, params);
+    const oauthUrl = await initiateOAuth(provider as IntegrationProvider, integrationData, params);
     
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {

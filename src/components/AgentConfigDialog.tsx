@@ -54,12 +54,19 @@ export function AgentConfigDialog({
           });
         }
         
-        // Load user settings
-        setGoogleSheetsUrl(config.config_data.google_sheets?.url || '');
-        setSheetName(config.config_data.google_sheets?.sheet_name || '');
+        // Load user settings - only set if currently empty to avoid overwriting user input
+        const storedUrl = config.config_data.google_sheets?.url || '';
+        const storedSheetName = config.config_data.google_sheets?.sheet_name || '';
+        
+        if (googleSheetsUrl === '' && storedUrl) {
+          setGoogleSheetsUrl(storedUrl);
+        }
+        if (sheetName === '' && storedSheetName) {
+          setSheetName(storedSheetName);
+        }
       }
     }
-  }, [open, agentType]); // Removed getConfig from dependencies to prevent constant re-runs
+  }, [open, agentType]); // Only run when dialog opens or agent type changes
 
   const handleSave = async () => {
     try {

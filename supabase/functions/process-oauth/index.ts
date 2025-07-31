@@ -122,22 +122,25 @@ const createSuccessResponse = (data: unknown, req: Request) => {
 
 
 // Get provider configuration from database
-const getProviderConfig = async (integration: Integration): Promise<ProviderConfig | null> => {
+const getProviderConfig = async (integration: any): Promise<ProviderConfig | null> => {
   if (integration.type !== IntegrationType.OAUTH) {
     return null;
   }
 
+  // Handle both flat structure and nested config_data structure
+  const config = integration.config_data || integration;
+
   return {
     type: integration.type,
     config: {
-      clientId: integration.client_id || '',
-      authUrl: integration.auth_url || '',
-      tokenUrl: integration.token_url || '',
-      scopes: integration.scopes || [],
-      requiredParameters: integration.required_parameters || [],
+      clientId: config.client_id || '',
+      authUrl: config.auth_url || '',
+      tokenUrl: config.token_url || '',
+      scopes: config.scopes || [],
+      requiredParameters: config.required_parameters || [],
       description: integration.description,
-      redirectUrl: integration.redirect_url,
-      code_challenge_required: integration.code_challenge_required
+      redirectUrl: config.redirect_url,
+      code_challenge_required: config.code_challenge_required || false
     }
   };
 };

@@ -38,19 +38,19 @@ export function AgentConfigDialog({
       const config = getConfig(agentType);
       
       if (config?.config_data) {
-        // Check for Google Sheets OAuth config
-        if (config.config_data.google_sheets?.user_email) {
+        // Check for Google Sheets OAuth config - check for either user_email or access_token
+        if (config.config_data.google_sheets?.user_email || config.config_data.google_sheets?.access_token) {
           setAuthorizedSheets({
-            email: config.config_data.google_sheets.user_email || '',
-            name: config.config_data.google_sheets.user_name || ''
+            email: config.config_data.google_sheets.user_email || 'Google Account',
+            name: config.config_data.google_sheets.user_name || 'Authorized User'
           });
         }
         
-        // Check for Gmail OAuth config
-        if (config.config_data.gmail?.user_email) {
+        // Check for Gmail OAuth config - check for either user_email or access_token  
+        if (config.config_data.gmail?.user_email || config.config_data.gmail?.access_token) {
           setAuthorizedGmail({
-            email: config.config_data.gmail.user_email || '',
-            name: config.config_data.gmail.user_name || ''
+            email: config.config_data.gmail.user_email || 'Google Account',
+            name: config.config_data.gmail.user_name || 'Authorized User'
           });
         }
         

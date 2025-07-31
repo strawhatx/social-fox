@@ -59,7 +59,7 @@ export function AgentConfigDialog({
         setSheetName(config.config_data.google_sheets?.sheet_name || '');
       }
     }
-  }, [open, agentType, getConfig]);
+  }, [open, agentType]); // Removed getConfig from dependencies to prevent constant re-runs
 
   const handleSave = async () => {
     try {

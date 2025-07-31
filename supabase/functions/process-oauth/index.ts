@@ -280,8 +280,8 @@ export const initiateOAuth = async (
     authUrl = authUrl.replace(`{${key}}`, value);
   }
 
-  // Build redirect URI
-  const redirectUri = providerConfig.redirectUrl || `${window.location.origin}/auth/callback`;
+  // Build redirect URI - this will be set by the client
+  const redirectUri = providerConfig.redirectUrl || `${Deno.env.get("SUPABASE_URL")?.replace("https://", "https://").replace(".supabase.co", "")}.lovableproject.com/oauth/callback`;
 
   // Build state parameter with connection info and security measures
   const state = btoa(JSON.stringify({

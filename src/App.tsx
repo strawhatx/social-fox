@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
 import GoogleCallback from "./pages/GoogleCallback";
+import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             />
             <Route path="/google_sheets/callback" element={<GoogleCallback />} />
             <Route path="/gmail/callback" element={<GoogleCallback />} />
+            <Route path="/oauth/callback" element={<OAuthCallback />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

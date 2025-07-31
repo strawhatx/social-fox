@@ -36,35 +36,27 @@ export function AgentConfigDialog({
   useEffect(() => {
     if (open && agentType === 'lead_generator') {
       const config = getConfig(agentType);
-      console.log('Loading config for dialog:', config);
       
       if (config?.config_data) {
         // Check for Google Sheets OAuth config - check for either user_email or access_token
         if (config.config_data.google_sheets?.user_email || config.config_data.google_sheets?.access_token) {
-          const sheetsAuth = {
+          setAuthorizedSheets({
             email: config.config_data.google_sheets.user_email || 'Google Account',
             name: config.config_data.google_sheets.user_name || 'Authorized User'
-          };
-          console.log('Setting sheets auth:', sheetsAuth);
-          setAuthorizedSheets(sheetsAuth);
+          });
         }
         
         // Check for Gmail OAuth config - check for either user_email or access_token  
         if (config.config_data.gmail?.user_email || config.config_data.gmail?.access_token) {
-          const gmailAuth = {
+          setAuthorizedGmail({
             email: config.config_data.gmail.user_email || 'Google Account',
             name: config.config_data.gmail.user_name || 'Authorized User'
-          };
-          console.log('Setting gmail auth:', gmailAuth);
-          setAuthorizedGmail(gmailAuth);
+          });
         }
         
         // Load user settings
-        const sheetsUrl = config.config_data.google_sheets?.url || '';
-        const sheetNameValue = config.config_data.google_sheets?.sheet_name || '';
-        console.log('Loading settings:', { sheetsUrl, sheetNameValue });
-        setGoogleSheetsUrl(sheetsUrl);
-        setSheetName(sheetNameValue);
+        setGoogleSheetsUrl(config.config_data.google_sheets?.url || '');
+        setSheetName(config.config_data.google_sheets?.sheet_name || '');
       }
     }
   }, [open, agentType, getConfig]);

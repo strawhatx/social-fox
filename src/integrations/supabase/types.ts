@@ -83,33 +83,6 @@ export type Database = {
         }
         Relationships: []
       }
-      connectors: {
-        Row: {
-          config: Json
-          created_at: string
-          id: string
-          name: string
-          provider: string
-          updated_at: string
-        }
-        Insert: {
-          config?: Json
-          created_at?: string
-          id?: string
-          name: string
-          provider: string
-          updated_at?: string
-        }
-        Update: {
-          config?: Json
-          created_at?: string
-          id?: string
-          name?: string
-          provider?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       content_posts: {
         Row: {
           content: string

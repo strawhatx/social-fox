@@ -119,6 +119,7 @@ serve(async (req) => {
       
       // Extract provider and project_id from state
       const decodedState = JSON.parse(atob(state));
+      console.log('Decoded state from GET request:', decodedState);
       provider = decodedState.provider;
       project_id = decodedState.project_id;
     } else {
@@ -127,13 +128,18 @@ serve(async (req) => {
       ({ project_id, provider, code, state, params } = body);
     }
     
-    // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
-    const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
-    const userId = decodedState.user_id;
-
+    // Validate required parameters
     if (!provider) {
       throw new Error('Provider not specified');
     }
+    
+    if (!project_id) {
+      throw new Error('Project ID not found in OAuth state');
+    }
+    
+    // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
+    const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
+    const userId = decodedState.user_id;
 
     // Verify state parameter from database
     const storedState = await getOAuthState(state, userId);
@@ -204,6 +210,7 @@ serve(async (req) => {
     };
 
     // Upsert connection record (create if doesn't exist, update if it does)
+    console.log('About to insert with project_id:', project_id, 'provider:', provider);
     const { data, error } = await supabase
       .from('agent_configs')
       .upsert([{

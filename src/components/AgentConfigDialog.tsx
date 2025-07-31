@@ -249,7 +249,7 @@ export function AgentConfigDialog({
           </Button>
           <Button 
             onClick={handleSave} 
-            disabled={!authorizedSheets || !authorizedGmail || !googleSheetsUrl || !sheetName}
+            disabled={!authorizedSheets || !googleSheetsUrl || !sheetName}
           >
             Save Configuration
           </Button>

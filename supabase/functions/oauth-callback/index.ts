@@ -5,7 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { validateSupabaseToken } from "../utils/auth.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
-import { clearOAuthState, clearPkceVerifier, getOAuthState, getPkceVerifier } from "../process-oauth/state.ts";
+import { clearOAuthState, clearPkceVerifier, getOAuthState, getPkceVerifier } from "../utils/state.ts";
 
 // Types
 interface OAuthCallbackRequest {

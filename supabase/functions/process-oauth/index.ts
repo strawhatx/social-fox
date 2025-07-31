@@ -4,8 +4,8 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
-import { generateCodeChallenge, generateCodeVerifier } from "./pkce-utils.ts";
-import { saveOAuthState, savePkceVerifier } from "./state.ts";
+import { generateCodeChallenge, generateCodeVerifier } from "../utils/pkce-utils.ts";
+import { saveOAuthState, savePkceVerifier } from "../utils/state.ts";
 
 // Types
 interface OAuthCallbackRequest {

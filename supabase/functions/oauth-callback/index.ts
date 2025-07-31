@@ -112,16 +112,16 @@ serve(async (req) => {
       const url = new URL(req.url);
       code = url.searchParams.get('code');
       state = url.searchParams.get('state');
+      project_id = url.searchParams.get('project_id'); // Get project_id from query params
       
       if (!code || !state) {
         throw new Error('Missing required OAuth parameters');
       }
       
-      // Extract provider and project_id from state
+      // Extract provider from state
       const decodedState = JSON.parse(atob(state));
       console.log('Decoded state from GET request:', decodedState);
       provider = decodedState.provider;
-      project_id = decodedState.project_id;
     } else {
       // Handle POST request with JSON body
       const body = await req.json() as OAuthCallbackRequest;
@@ -134,7 +134,7 @@ serve(async (req) => {
     }
     
     if (!project_id) {
-      throw new Error('Project ID not found in OAuth state');
+      throw new Error('Project ID not found in request');
     }
     
     // Extract user ID from state parameter (OAuth callbacks don't have auth headers)

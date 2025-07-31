@@ -319,6 +319,9 @@ export const initiateOAuth = async (
     provider
   );
 
+  // Add project_id as a separate parameter
+  oauthParameters.project_id = params.project_id;
+
   // Build the final OAuth URL
   const finalUrl = buildOAuthUrl(authUrl, oauthParameters);
 

@@ -134,26 +134,21 @@ serve(async (req) => {
 
     
     // Fetch integration configuration
-    const { data: connectorData, error: integrationError } = await supabase
-      .from('connectors')
+    const { data: integrationData, error: integrationError } = await supabase
+      .from('integrations')
       .select('*')
       .eq('provider', provider)
       .single();
 
-    if (integrationError || !connectorData) {
+    if (integrationError || !integrationData) {
       throw new Error('Integration not found');
     }
 
     //process the data properly to the connector type
     const connector: Connector = {
-      id: connectorData.id,
-      name: connectorData.name,
-      provider: connectorData.provider,
-      client_id: connectorData.config?.client_id,
-      client_secret: connectorData.config?.client_secret,
-      token_url: connectorData.config?.token_url,
-      auth_url: connectorData.config?.auth_url,
-      code_challenge_required: connectorData.config?.code_challenge_required,
+      token_url: integrationData.config_data?.token_url,
+      client_id: integrationData.config_data?.client_id,
+      client_secret: integrationData.config_data?.client_secret,
     }
 
     // Process state and get user ID

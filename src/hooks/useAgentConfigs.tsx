@@ -43,19 +43,24 @@ export const useAgentConfigs = (projectId?: string) => {
 
   const upsertConfig = async (
     agentType: string, 
-    configType: string, 
     configData: Record<string, any>
   ) => {
     if (!user || !projectId) return { error: 'User not authenticated or no project ID' };
 
     try {
+      // Get existing config first
+      const existingConfig = getConfig(agentType);
+      const mergedConfigData = existingConfig 
+        ? { ...existingConfig.config_data, ...configData }
+        : configData;
+
       const { data, error } = await supabase
         .from('agent_configs')
         .upsert({
           project_id: projectId,
           agent_type: agentType,
-          config_type: configType,
-          config_data: configData
+          config_type: 'main', // Use a standard config_type
+          config_data: mergedConfigData
         }, {
           onConflict: 'project_id,agent_type,config_type'
         })
@@ -72,9 +77,9 @@ export const useAgentConfigs = (projectId?: string) => {
     }
   };
 
-  const getConfig = (agentType: string, configType: string): AgentConfig | undefined => {
+  const getConfig = (agentType: string): AgentConfig | undefined => {
     return configs.find(config => 
-      config.agent_type === agentType && config.config_type === configType
+      config.agent_type === agentType && config.config_type === 'main'
     );
   };
 

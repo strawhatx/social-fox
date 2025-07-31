@@ -140,6 +140,7 @@ serve(async (req) => {
     // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
     const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
     const userId = decodedState.user_id;
+    const agentType = decodedState.agent_type || 'lead_generator';
 
     // Verify state parameter from database
     const storedState = await getOAuthState(state, userId);
@@ -209,15 +210,31 @@ serve(async (req) => {
       timestamp: new Date().toISOString()
     };
 
+    // Get existing config first to merge provider data
+    const { data: existingConfig } = await supabase
+      .from('agent_configs')
+      .select('config_data')
+      .eq('project_id', project_id)
+      .eq('agent_type', agentType)
+      .eq('config_type', 'main')
+      .single();
+
+    // Merge with existing config
+    const mergedConfigData = existingConfig?.config_data || {};
+    mergedConfigData[provider] = {
+      ...mergedConfigData[provider],
+      ...connectionConfig,
+    };
+
     // Upsert connection record (create if doesn't exist, update if it does)
-    console.log('About to insert with project_id:', project_id, 'provider:', provider);
+    console.log('About to insert with project_id:', project_id, 'agent_type:', agentType, 'provider:', provider);
     const { data, error } = await supabase
       .from('agent_configs')
       .upsert([{
         project_id: project_id,
-          agent_type: 'oauth',
-          config_type: 'oauth',
-          config_data: connectionConfig,
+        agent_type: agentType,
+        config_type: 'main',
+        config_data: mergedConfigData,
       }], {
         onConflict: 'project_id,agent_type,config_type'
       })

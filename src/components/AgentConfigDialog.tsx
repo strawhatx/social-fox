@@ -29,34 +29,34 @@ export function AgentConfigDialog({
   const [authorizedSheets, setAuthorizedSheets] = useState<GoogleAuthUser | null>(null);
   const [authorizedGmail, setAuthorizedGmail] = useState<GoogleAuthUser | null>(null);
   const { toast } = useToast();
-  const { upsertConfig, getConfig } = useAgentConfigs(projectId);
+  const { upsertConfig, getConfig, refetch } = useAgentConfigs(projectId);
   const { initiateGoogleAuth, getAuthorizingState } = useGoogleAuth(projectId);
 
   // Load existing configuration when dialog opens
   useEffect(() => {
     if (open && agentType === 'lead_generator') {
-      // Check for Google Sheets OAuth config
-      const sheetsOAuthConfig = getConfig(agentType, 'oauth_sheets');
-      const gmailOAuthConfig = getConfig(agentType, 'oauth_gmail');
-      const userConfig = getConfig(agentType, 'user_settings');
+      const config = getConfig(agentType);
       
-      if (sheetsOAuthConfig?.config_data) {
-        setAuthorizedSheets({
-          email: sheetsOAuthConfig.config_data.user_email || '',
-          name: sheetsOAuthConfig.config_data.user_name || ''
-        });
-      }
-      
-      if (gmailOAuthConfig?.config_data) {
-        setAuthorizedGmail({
-          email: gmailOAuthConfig.config_data.user_email || '',
-          name: gmailOAuthConfig.config_data.user_name || ''
-        });
-      }
-      
-      if (userConfig) {
-        setGoogleSheetsUrl(userConfig.config_data.google_sheets_url || '');
-        setSheetName(userConfig.config_data.sheet_name || '');
+      if (config?.config_data) {
+        // Check for Google Sheets OAuth config
+        if (config.config_data.google_sheets?.user_email) {
+          setAuthorizedSheets({
+            email: config.config_data.google_sheets.user_email || '',
+            name: config.config_data.google_sheets.user_name || ''
+          });
+        }
+        
+        // Check for Gmail OAuth config
+        if (config.config_data.gmail?.user_email) {
+          setAuthorizedGmail({
+            email: config.config_data.gmail.user_email || '',
+            name: config.config_data.gmail.user_name || ''
+          });
+        }
+        
+        // Load user settings
+        setGoogleSheetsUrl(config.config_data.google_sheets?.url || '');
+        setSheetName(config.config_data.google_sheets?.sheet_name || '');
       }
     }
   }, [open, agentType, getConfig]);
@@ -64,11 +64,17 @@ export function AgentConfigDialog({
   const handleSave = async () => {
     try {
       if (agentType === 'lead_generator') {
-        // Save user settings (Google Sheets URL and sheet name)
+        // Save Google Sheets configuration
         if (googleSheetsUrl && sheetName) {
-          await upsertConfig(agentType, 'user_settings', {
-            google_sheets_url: googleSheetsUrl,
-            sheet_name: sheetName,
+          await upsertConfig(agentType, {
+            google_sheets: {
+              url: googleSheetsUrl,
+              sheet_name: sheetName,
+              ...authorizedSheets && {
+                user_email: authorizedSheets.email,
+                user_name: authorizedSheets.name
+              }
+            }
           });
         }
       }
@@ -91,19 +97,48 @@ export function AgentConfigDialog({
 
   const handleGoogleSheetsAuthorize = async () => {
     try {
-      const user = await initiateGoogleAuth(agentType, 'Google Sheets');
-      setAuthorizedSheets(user);
+      await initiateGoogleAuth(agentType, 'Google Sheets');
+      // The user info will be updated through the OAuth callback
+      // For now, set a placeholder to indicate authorization is in progress
+      setAuthorizedSheets({ email: 'pending...', name: 'Authorizing...' });
+      
+      // Reload config after a short delay to get updated data
+      setTimeout(async () => {
+        await refetch();
+        const config = getConfig(agentType);
+        if (config?.config_data?.google_sheets?.user_email) {
+          setAuthorizedSheets({
+            email: config.config_data.google_sheets.user_email,
+            name: config.config_data.google_sheets.user_name || 'Google User'
+          });
+        }
+      }, 2000);
     } catch (error) {
       console.error('Google Sheets authorization failed:', error);
+      setAuthorizedSheets(null);
     }
   };
 
   const handleGmailAuthorize = async () => {
     try {
-      const user = await initiateGoogleAuth(agentType, 'Gmail');
-      setAuthorizedGmail(user);
+      await initiateGoogleAuth(agentType, 'Gmail');
+      // The user info will be updated through the OAuth callback
+      setAuthorizedGmail({ email: 'pending...', name: 'Authorizing...' });
+      
+      // Reload config after a short delay to get updated data
+      setTimeout(async () => {
+        await refetch();
+        const config = getConfig(agentType);
+        if (config?.config_data?.gmail?.user_email) {
+          setAuthorizedGmail({
+            email: config.config_data.gmail.user_email,
+            name: config.config_data.gmail.user_name || 'Google User'
+          });
+        }
+      }, 2000);
     } catch (error) {
       console.error('Gmail authorization failed:', error);
+      setAuthorizedGmail(null);
     }
   };
 

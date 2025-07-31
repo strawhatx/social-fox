@@ -99,16 +99,36 @@ serve(async (req) => {
   const corsResponse = handleCORS(req);
   if (corsResponse) return corsResponse;
 
-  // if the request is not a POST request, return a 405 Method Not Allowed
-  if (req.method !== 'POST') {
+  // Handle both GET (OAuth redirect) and POST requests
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
   try {
-    const { project_id, provider, code, state, params } = await req.json() as OAuthCallbackRequest;
+    let project_id, provider, code, state, params;
+    
+    if (req.method === 'GET') {
+      // Handle OAuth redirect from provider (GET request with query params)
+      const url = new URL(req.url);
+      code = url.searchParams.get('code');
+      state = url.searchParams.get('state');
+      
+      if (!code || !state) {
+        throw new Error('Missing required OAuth parameters');
+      }
+      
+      // Extract provider and project_id from state
+      const decodedState = JSON.parse(atob(state));
+      provider = decodedState.provider;
+      project_id = decodedState.project_id;
+    } else {
+      // Handle POST request with JSON body
+      const body = await req.json() as OAuthCallbackRequest;
+      ({ project_id, provider, code, state, params } = body);
+    }
     
     // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
-    const decodedState = JSON.parse(atob(state));
+    const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
     const userId = decodedState.user_id;
 
     if (!provider) {

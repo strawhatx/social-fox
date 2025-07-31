@@ -21,6 +21,7 @@ export type Database = {
           config_type: string
           created_at: string
           id: string
+          integration_id: string | null
           project_id: string
           updated_at: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           config_type: string
           created_at?: string
           id?: string
+          integration_id?: string | null
           project_id: string
           updated_at?: string
         }
@@ -39,10 +41,19 @@ export type Database = {
           config_type?: string
           created_at?: string
           id?: string
+          integration_id?: string | null
           project_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_agent_configs_integration"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_posts: {
         Row: {
@@ -170,8 +181,9 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
           name: string
+          provider: string
           type: string
           updated_at: string
         }
@@ -181,8 +193,9 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           name: string
+          provider: string
           type: string
           updated_at?: string
         }
@@ -192,8 +205,9 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           name?: string
+          provider?: string
           type?: string
           updated_at?: string
         }

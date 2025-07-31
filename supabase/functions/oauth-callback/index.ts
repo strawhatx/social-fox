@@ -3,7 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
-import { validateSupabaseToken } from "../utils/auth.ts";
+
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { clearOAuthState, clearPkceVerifier, getOAuthState, getPkceVerifier } from "../utils/state.ts";
 
@@ -99,17 +99,17 @@ serve(async (req) => {
   const corsResponse = handleCORS(req);
   if (corsResponse) return corsResponse;
 
-  // Validate the JWT token and get user
-  const authHeader = req.headers.get("Authorization");
-  const { id: userId } = await validateSupabaseToken(authHeader);
-
   // if the request is not a POST request, return a 405 Method Not Allowed
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
   try {
-    const { project_id, provider, code, state,  params } = await req.json() as OAuthCallbackRequest;
+    const { project_id, provider, code, state, params } = await req.json() as OAuthCallbackRequest;
+    
+    // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
+    const decodedState = JSON.parse(atob(state));
+    const userId = decodedState.user_id;
 
     if (!provider) {
       throw new Error('Provider not specified');
@@ -122,8 +122,7 @@ serve(async (req) => {
     }
     await clearOAuthState(state, userId);
     
-    // Decode state and verify timestamp
-    const decodedState = JSON.parse(atob(state));
+    // Verify timestamp
     if (Date.now() - decodedState.timestamp > 3600000) { // 1 hour
       throw new Error("OAuth state expired");
     }
@@ -151,8 +150,8 @@ serve(async (req) => {
       client_secret: integrationData.config_data?.client_secret,
     }
 
-    // Process state and get user ID
-    const stateData = JSON.parse(atob(state)) as StateData;
+    // Use the already decoded state data
+    const stateData = decodedState as StateData;
 
     // Process token URL for provider-specific templates
     let tokenUrl = connector.token_url;

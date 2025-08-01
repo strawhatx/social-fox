@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram, Sparkles } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
+import { GenerateContentDialog } from '@/components/GenerateContentDialog';
 
 interface Project {
   id: string;
@@ -29,6 +30,7 @@ interface ContentFeedProps {
 export default function ContentFeed({ project }: ContentFeedProps) {
   const { posts, loading, createPost, updatePost } = useContentPosts(project.id);
   const [activeTab, setActiveTab] = useState('all');
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -69,8 +71,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           <h2 className="text-2xl font-bold">Content Feed</h2>
           <p className="text-muted-foreground">Manage and review AI-generated content</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <Button 
+          onClick={() => setShowGenerateDialog(true)}
+          className="bg-primary hover:bg-primary/90"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
           Generate New Content
         </Button>
       </div>
@@ -185,6 +190,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           })}
         </TabsContent>
       </Tabs>
+
+      <GenerateContentDialog
+        open={showGenerateDialog}
+        onOpenChange={setShowGenerateDialog}
+        project={project}
+      />
     </div>
   );
 }

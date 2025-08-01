@@ -3,10 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Settings, Play, Download, Link } from 'lucide-react';
+import { ArrowLeft, Plus, Settings, Play, Download, Link, GitCommit } from 'lucide-react';
 import ContentFeed from './ContentFeed';
 import ConnectionsManager from './ConnectionsManager';
-import ProjectSettingsDialog from './ProjectSettingsDialog';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useConnections } from '@/hooks/useConnections';
 
@@ -30,7 +29,6 @@ interface ProjectWorkspaceProps {
 
 export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: ProjectWorkspaceProps) {
   const [activeTab, setActiveTab] = useState('feed');
-  const [showSettings, setShowSettings] = useState(false);
   const { posts } = useContentPosts(project.id);
   const { connections } = useConnections(project.id);
   
@@ -39,23 +37,22 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
   const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
 
   return (
-    <div className="space-y-6">{/* Project Workspace Container */}
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">{project.name}</h1>
-            <p className="text-muted-foreground">{project.description}</p>
+            <h1 className="text-2xl font-medium">{project.name}</h1>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             {project.status}
           </Badge>
-          <Button variant="outline" onClick={() => setShowSettings(true)}>
+          <Button variant="outline">
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
@@ -65,18 +62,6 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           </Button>
         </div>
       </div>
-
-      {/* Settings Dialog */}
-      <ProjectSettingsDialog
-        project={project}
-        open={showSettings}
-        onOpenChange={setShowSettings}
-        onUpdate={(updates) => {
-          if (onProjectUpdate) {
-            onProjectUpdate(updates);
-          }
-        }}
-      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

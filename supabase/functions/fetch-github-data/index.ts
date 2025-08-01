@@ -55,7 +55,7 @@ serve(async (req) => {
              description: 'No GitHub connection found. Connect GitHub to get real-time data.',
              commits: [],
              tickets: [],
-             comments: 0
+             comments: []
            } 
          }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

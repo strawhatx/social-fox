@@ -39,7 +39,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
   const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6">{/* Project Workspace Container */}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">

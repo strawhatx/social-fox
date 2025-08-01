@@ -74,20 +74,61 @@ const prepareTokenRequest = (
     code,
     redirect_uri: stateData.redirectUri,
     grant_type: 'authorization_code',
-  }
+  };
 
   if (connector.code_challenge_required && code_verifier) {
     bodyConfig['code_verifier'] = code_verifier;
   }
 
-  return {
-    ...baseConfig,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${btoa(`${connector.client_id}:${connector.client_secret}`)}`
-    },
-    body: new URLSearchParams(bodyConfig).toString()
-  };
+  // Provider-specific token request configuration
+  if (connector.provider === 'github') {
+    // GitHub uses client_id and client_secret in the body
+    bodyConfig['client_id'] = connector.client_id;
+    bodyConfig['client_secret'] = connector.client_secret;
+    
+    return {
+      ...baseConfig,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: new URLSearchParams(bodyConfig).toString()
+    };
+  } else if (connector.provider === 'gmail' || connector.provider === 'google_sheets') {
+    // Google OAuth uses client credentials in body
+    bodyConfig['client_id'] = connector.client_id;
+    bodyConfig['client_secret'] = connector.client_secret;
+    
+    return {
+      ...baseConfig,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams(bodyConfig).toString()
+    };
+  } else if (connector.provider === 'twitter') {
+    // Twitter uses Basic Auth with client credentials
+    bodyConfig['client_id'] = connector.client_id;
+    
+    return {
+      ...baseConfig,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${btoa(`${connector.client_id}:${connector.client_secret}`)}`
+      },
+      body: new URLSearchParams(bodyConfig).toString()
+    };
+  } else {
+    // Default OAuth implementation
+    return {
+      ...baseConfig,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${btoa(`${connector.client_id}:${connector.client_secret}`)}`
+      },
+      body: new URLSearchParams(bodyConfig).toString()
+    };
+  }
 };
 
 // Main handler
@@ -112,16 +153,16 @@ serve(async (req) => {
       const url = new URL(req.url);
       code = url.searchParams.get('code');
       state = url.searchParams.get('state');
-      project_id = url.searchParams.get('project_id'); // Get project_id from query params
       
       if (!code || !state) {
         throw new Error('Missing required OAuth parameters');
       }
       
-      // Extract provider from state
+      // Extract provider and project_id from state
       const decodedState = JSON.parse(atob(state));
       console.log('Decoded state from GET request:', decodedState);
       provider = decodedState.provider;
+      project_id = decodedState.project_id;
     } else {
       // Handle POST request with JSON body
       const body = await req.json() as OAuthCallbackRequest;
@@ -172,10 +213,15 @@ serve(async (req) => {
 
     //process the data properly to the connector type
     const connector: Connector = {
+      id: integrationData.id,
+      name: integrationData.name,
+      provider: integrationData.provider,
       token_url: integrationData.config_data?.token_url,
       client_id: integrationData.config_data?.client_id,
       client_secret: integrationData.config_data?.client_secret,
-    }
+      auth_url: integrationData.config_data?.auth_url,
+      code_challenge_required: integrationData.config_data?.code_challenge_required || false
+    };
 
     // Use the already decoded state data
     const stateData = decodedState as StateData;

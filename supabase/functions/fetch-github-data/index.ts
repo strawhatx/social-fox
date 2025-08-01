@@ -76,6 +76,12 @@ serve(async (req) => {
 
     if (accountConfig?.access_token) {
       try {
+        console.log('Making request to n8n webhook with data:', {
+          projectId,
+          githubLogin: accountConfig.login,
+          hasToken: !!accountConfig.access_token
+        });
+
         // Make request to n8n webhook
         const webhookResponse = await fetch('https://primary-production-146e9.up.railway.app/webhook/github-data', {
           method: 'POST',
@@ -89,12 +95,24 @@ serve(async (req) => {
           })
         });
 
+        console.log('n8n webhook response status:', webhookResponse.status);
+        
         if (webhookResponse.ok) {
           const webhookData = await webhookResponse.json();
-          githubData = webhookData;
-          console.log('Successfully fetched data from n8n webhook');
+          console.log('n8n webhook response data:', webhookData);
+          
+          // Ensure we have the expected structure
+          githubData = {
+            description: webhookData.description || `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
+            commits: Array.isArray(webhookData.commits) ? webhookData.commits : [],
+            tickets: Array.isArray(webhookData.tickets) ? webhookData.tickets : [],
+            comments: typeof webhookData.comments === 'number' ? webhookData.comments : 0,
+            login: accountConfig.login
+          };
+          console.log('Successfully processed data from n8n webhook:', githubData);
         } else {
-          console.warn('n8n webhook request failed, falling back to stored data');
+          const errorText = await webhookResponse.text();
+          console.warn('n8n webhook request failed with status:', webhookResponse.status, 'Error:', errorText);
           githubData = {
             description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
             commits: [],

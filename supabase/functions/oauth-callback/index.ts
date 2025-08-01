@@ -203,48 +203,46 @@ serve(async (req) => {
     const tokenData = await tokenResponse.json() as TokenResponse;
 
     const connectionConfig = {
+      code,
+      state,
+      scope: tokenData.scope || (integrationData.config_data?.scopes || []).join(' '),
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
       expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
       provider,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      // Include any additional parameters from the state (like git_url, repository for GitHub)
+      ...Object.fromEntries(
+        Object.entries(decodedState).filter(([key]) => 
+          !['provider', 'project_id', 'user_id', 'redirectUri', 'timestamp', 'nonce', 'connectionName'].includes(key)
+        )
+      )
     };
 
-    // Get existing config first to merge provider data properly
-    const { data: existingConfig, error: fetchError } = await supabase
-      .from('agent_configs')
+    // Get the integration to find the connection
+    const { data: existingConnection, error: connectionError } = await supabase
+      .from('connections')
       .select('*')
       .eq('project_id', project_id)
-      .eq('agent_type', agentType)
-      .eq('config_type', 'main')
+      .eq('integration_id', integrationData.id)
       .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      throw new Error(`Failed to fetch existing config: ${fetchError.message}`);
+    if (connectionError && connectionError.code !== 'PGRST116') {
+      throw new Error(`Failed to fetch existing connection: ${connectionError.message}`);
     }
 
-    // Merge with existing config - ensure we don't lose any provider data
-    const existingConfigData = existingConfig?.config_data || {};
-    const mergedConfigData = { ...existingConfigData };
-    
-    // Add/update the specific provider data
-    mergedConfigData[provider] = {
-      ...mergedConfigData[provider], // Keep existing provider data
-      ...connectionConfig, // Add/update with new OAuth data
-    };
-
-    // Upsert connection record with proper ID handling
-    console.log('About to upsert with project_id:', project_id, 'agent_type:', agentType, 'provider:', provider);
+    // Create or update the connection with OAuth data
     const { data, error } = await supabase
-      .from('agent_configs')
+      .from('connections')
       .upsert({
-        id: existingConfig?.id, // Include ID if updating existing record
+        id: existingConnection?.id,
         project_id: project_id,
-        agent_type: agentType,
-        config_type: 'main',
-        config_data: mergedConfigData,
+        integration_id: integrationData.id,
+        account_config: connectionConfig,
+        account_identifier: connectionConfig.access_token ? `${provider}_${userId}` : null,
+        is_active: true
       }, {
-        onConflict: 'project_id,agent_type' // Updated to match new unique constraint
+        onConflict: 'project_id,integration_id'
       })
       .select();
 

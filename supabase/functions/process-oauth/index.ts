@@ -77,18 +77,13 @@ export enum IntegrationType {
   API = 'api',
 }
 
-export enum IntegrationProvider {
-  GMAIL = 'gmail',
-  GOOGLE_SHEETS = 'google_sheets',
-}
-
 export interface Integration {
   id: string;
   icon: string;
   name: string;
   description: string;
   type: IntegrationType;
-  provider: IntegrationProvider;
+  provider: string;
   client_id: string;
   auth_url: string;
   token_url: string;
@@ -243,7 +238,11 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
     'gmail': {
       access_type: 'offline',
       prompt: 'consent'
-    }
+    },
+    'github': {},
+    'twitter': {},
+    'linkedin': {},
+    'linkedin_oidc': {}
   };
 
   return providerParams[provider] || {};
@@ -252,7 +251,7 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
 // Initiate OAuth flow
 export const initiateOAuth = async (
   connectionName: string,
-  provider: IntegrationProvider,
+  provider: string,
   config: Integration,
   params: Record<string, string>,
   userId: string
@@ -357,7 +356,8 @@ serve(async (req) => {
   }
 
   try {
-    const { project_id, connectionName, provider, ...params } = await req.json() as OAuthCallbackRequest;
+    const { project_id, provider, user_id, ...params } = await req.json() as OAuthCallbackRequest;
+    const connectionName = `${provider}_connection_${Date.now()}`;
 
     // Fetch integration configuration from database
     const { data: integrationData, error: integrationError } = await supabase
@@ -370,7 +370,7 @@ serve(async (req) => {
       throw new Error(`Integration not found: ${provider}`);
     }
 
-    const oauthUrl = await initiateOAuth(connectionName, provider as IntegrationProvider, integrationData, { ...params, project_id }, user.id);
+    const oauthUrl = await initiateOAuth(connectionName, provider, integrationData, { ...params, project_id }, user.id);
     
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {

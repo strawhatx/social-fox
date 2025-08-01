@@ -53,21 +53,12 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
         projectId: project.id
       });
 
-      // Create a basic connection for non-GitHub integrations
-      const { error } = await createConnection(integration.id, {});
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to create connection",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `${integration.name} connected successfully`,
-        });
-      }
+      // The connection will be created automatically by the OAuth callback
+      // No need to create it manually here
+      toast({
+        title: "Success",
+        description: `${integration.name} connected successfully`,
+      });
     } catch (error) {
       console.error('Connection failed:', error);
       toast({

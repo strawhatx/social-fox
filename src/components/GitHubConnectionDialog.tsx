@@ -51,15 +51,8 @@ export const GitHubConnectionDialog = ({
         }
       });
 
-      // Create the connection with the additional config
-      const { error } = await createConnection(integrationId, {
-        git_url: gitUrl.trim(),
-        repository: repository.trim()
-      });
-
-      if (error) {
-        throw error;
-      }
+      // The connection will be created automatically by the OAuth callback
+      // The OAuth callback will handle storing the tokens and additional config
 
       toast({
         title: "Success",

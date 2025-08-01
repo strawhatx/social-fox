@@ -197,7 +197,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           parts.push(`${githubData.tickets.length} active tickets`);
         }
         
-        if (githubData.comments > 0) {
+        if (githubData.comments && githubData.comments > 0) {
           parts.push(`${githubData.comments} comments`);
         }
         
@@ -205,6 +205,11 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           const finalDescription = parts.join(', ');
           console.log('getGitHubDescription: Returning description with real data:', finalDescription);
           return finalDescription;
+        }
+        
+        // If we have commits but no other data, still show it
+        if (githubData.commits && githubData.commits.length > 0) {
+          return `${githubData.commits.length} recent commits`;
         }
       }
       

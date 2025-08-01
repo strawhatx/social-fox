@@ -48,10 +48,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
               <Button variant="ghost" size="sm" onClick={onBack}>
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <div>
-                <h1 className="text-2xl font-semibold">{project.name}</h1>
-                <p className="text-sm text-muted-foreground">{project.description}</p>
-              </div>
+              <h1 className="text-xl font-semibold">Project Workspace</h1>
             </div>
             <div className="flex items-center space-x-3">
               <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
@@ -82,6 +79,38 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
       />
 
       <div className="container mx-auto px-6 py-6 space-y-6">
+        {/* Marketing Agent Dashboard */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Marketing Agent Dashboard</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-2xl font-bold">{project.name}</h2>
+                <p className="text-muted-foreground mt-1">{project.description}</p>
+              </div>
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Brand Voice:</span>
+                  <span className="text-muted-foreground">{project.brandVoice}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Target Audience:</span>
+                  <span className="text-muted-foreground">{project.targetAudience}</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {project.platforms.map((platform) => (
+                  <Badge key={platform} variant="secondary" className="text-xs">
+                    {platform}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Stats Overview */}
         <div className="grid grid-cols-3 gap-4">
           <Card className="border-0 shadow-sm">

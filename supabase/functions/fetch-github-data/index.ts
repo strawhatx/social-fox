@@ -109,6 +109,7 @@ serve(async (req) => {
         });
 
         console.log('n8n webhook response status:', webhookResponse.status);
+        console.log('n8n webhook response headers:', Object.fromEntries(webhookResponse.headers.entries()));
         
         if (webhookResponse.ok) {
           const webhookData = await webhookResponse.json();

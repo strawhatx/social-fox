@@ -91,25 +91,15 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
     try {
       const realSources: ContentSource[] = [];
 
-      // Check for GitHub connections
-      const { data: connections } = await supabase
-        .from('connections')
-        .select('*')
-        .eq('project_id', project.id);
-
-      if (connections && connections.length > 0) {
-        for (const connection of connections) {
-          const githubDescription = await getGitHubDescription(connection.account_config);
-          realSources.push({
-            id: `github-${connection.id}`,
-            name: 'GitHub Activity',
-            type: 'github',
-            icon: <Github className="h-4 w-4" />,
-            description: githubDescription,
-            selected: true
-          });
-        }
-      }
+      // Always include project description as the first data source
+      realSources.push({
+        id: 'project-description',
+        name: 'Project Description',
+        type: 'project-description',
+        icon: <MessageSquare className="h-4 w-4" />,
+        description: project.description || 'Project overview and context',
+        selected: true
+      });
 
       setContentSources(realSources);
     } catch (error) {

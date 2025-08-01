@@ -115,68 +115,46 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
 
       for (const connection of connections || []) {
         const integration = connection.integrations as any;
-        if (integration && integration.type === 'data_source') {
+        if (integration && integration.type === 'data_source' && integration.provider === 'github') {
+          // Get GitHub data and create separate sources for each type
+          const githubData = await getGitHubData();
           
-          // Get real data based on provider type
-          if (integration.provider === 'github') {
-            // Get GitHub data and create separate sources for each type
-            const githubData = await getGitHubData();
-            
-            if (githubData) {
-              // 1. Recent GitHub activity with commits
-              if (githubData.commits && githubData.commits.length > 0) {
-                realSources.push({
-                  id: `${connection.id}-commits`,
-                  name: 'Recent GitHub activity with the commits',
-                  type: 'github-commits',
-                  icon: <Github className="h-4 w-4" />,
-                  description: `${githubData.commits.length} recent commits from ${githubData.login || 'repository'}`,
-                  selected: true
-                });
-              }
-              
-              // 2. Task updates with active tickets
-              if (githubData.tickets && githubData.tickets.length > 0) {
-                realSources.push({
-                  id: `${connection.id}-tickets`,
-                  name: 'Task updates with the active tickets',
-                  type: 'github-tickets',
-                  icon: <CheckSquare className="h-4 w-4" />,
-                  description: `${githubData.tickets.length} active tickets and issues`,
-                  selected: true
-                });
-              }
-              
-              // 3. User feedback with comments
-              if (githubData.comments && githubData.comments > 0) {
-                realSources.push({
-                  id: `${connection.id}-comments`,
-                  name: 'User feedback with comments',
-                  type: 'github-comments',
-                  icon: <MessageSquare className="h-4 w-4" />,
-                  description: `${githubData.comments} comments and discussions`,
-                  selected: true
-                });
-              }
+          if (githubData) {
+            // 1. Recent GitHub activity with commits
+            if (githubData.commits && githubData.commits.length > 0) {
+              realSources.push({
+                id: `${connection.id}-commits`,
+                name: 'Recent GitHub activity with the commits',
+                type: 'github-commits',
+                icon: <Github className="h-4 w-4" />,
+                description: `${githubData.commits.length} recent commits from ${githubData.login || 'repository'}`,
+                selected: true
+              });
             }
-          } else if (integration.provider === 'gmail') {
-            realSources.push({
-              id: connection.id,
-              name: integration.name,
-              type: integration.provider,
-              icon: <MessageSquare className="h-4 w-4" />,
-              description: getGmailDescription(connection.account_config),
-              selected: true
-            });
-          } else if (integration.provider === 'google_sheets') {
-            realSources.push({
-              id: connection.id,
-              name: integration.name,
-              type: integration.provider,
-              icon: <CheckSquare className="h-4 w-4" />,
-              description: getSheetsDescription(connection.account_config),
-              selected: true
-            });
+            
+            // 2. Task updates with active tickets
+            if (githubData.tickets && githubData.tickets.length > 0) {
+              realSources.push({
+                id: `${connection.id}-tickets`,
+                name: 'Task updates with the active tickets',
+                type: 'github-tickets',
+                icon: <CheckSquare className="h-4 w-4" />,
+                description: `${githubData.tickets.length} active tickets and issues`,
+                selected: true
+              });
+            }
+            
+            // 3. User feedback with comments
+            if (githubData.comments && githubData.comments > 0) {
+              realSources.push({
+                id: `${connection.id}-comments`,
+                name: 'User feedback with comments',
+                type: 'github-comments',
+                icon: <MessageSquare className="h-4 w-4" />,
+                description: `${githubData.comments} comments and discussions`,
+                selected: true
+              });
+            }
           }
         }
       }
@@ -280,19 +258,6 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
     }
   };
 
-  const getGmailDescription = (accountConfig: any) => {
-    if (accountConfig?.email) {
-      return `Connected to ${accountConfig.email}`;
-    }
-    return 'Gmail account connected';
-  };
-
-  const getSheetsDescription = (accountConfig: any) => {
-    if (accountConfig?.spreadsheet_id) {
-      return 'Google Sheets connected';
-    }
-    return 'Google Sheets account connected';
-  };
 
   const handleSourceToggle = (sourceId: string) => {
     setContentSources(prev => 

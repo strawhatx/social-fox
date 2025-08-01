@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,9 +24,32 @@ export const GitHubConnectionDialog = ({
   const [gitUrl, setGitUrl] = useState('');
   const [repository, setRepository] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
-  const { createConnection } = useConnections(projectId);
+  const { getIntegrationByProvider, getConnectionByIntegration } = useConnections(projectId);
   const { connectProvider } = useOAuth();
   const { toast } = useToast();
+
+  // Load existing connection data when dialog opens
+  useEffect(() => {
+    if (open) {
+      const githubIntegration = getIntegrationByProvider('github');
+      if (githubIntegration) {
+        const existingConnection = getConnectionByIntegration(githubIntegration.id);
+        if (existingConnection?.account_config) {
+          const config = existingConnection.account_config;
+          if (config.git_url) {
+            setGitUrl(config.git_url);
+          }
+          if (config.repository) {
+            setRepository(config.repository);
+          }
+        }
+      }
+    } else {
+      // Clear form when dialog closes
+      setGitUrl('');
+      setRepository('');
+    }
+  }, [open, getIntegrationByProvider, getConnectionByIntegration]);
 
   const extractOwnerFromProfileUrl = (url: string): string | null => {
     try {
@@ -89,8 +112,6 @@ export const GitHubConnectionDialog = ({
       });
       
       onOpenChange(false);
-      setGitUrl('');
-      setRepository('');
     } catch (error) {
       console.error('GitHub connection failed:', error);
       toast({

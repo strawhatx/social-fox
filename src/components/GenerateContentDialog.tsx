@@ -169,10 +169,14 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
 
   const getGitHubDescription = async (accountConfig: any) => {
     try {
+      console.log('getGitHubDescription: Calling fetch-github-data for project:', project.id);
+      
       // Call the fetch-github-data edge function to get real data
       const { data, error } = await supabase.functions.invoke('fetch-github-data', {
         body: { projectId: project.id }
       });
+
+      console.log('getGitHubDescription: Response from fetch-github-data:', { data, error });
 
       if (error) {
         console.error('Error fetching GitHub data:', error);
@@ -181,6 +185,8 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
 
       if (data?.data) {
         const githubData = data.data;
+        console.log('getGitHubDescription: GitHub data received:', githubData);
+        
         const parts = [];
         
         if (githubData.commits && githubData.commits.length > 0) {
@@ -196,13 +202,16 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
         }
         
         if (parts.length > 0) {
+          console.log('getGitHubDescription: Returning description:', parts.join(', '));
           return parts.join(', ');
         }
       }
       
-      return accountConfig?.login ? `GitHub account connected (${accountConfig.login})` : 'GitHub account connected';
+      const fallback = accountConfig?.login ? `GitHub account connected (${accountConfig.login})` : 'GitHub account connected';
+      console.log('getGitHubDescription: Returning fallback:', fallback);
+      return fallback;
     } catch (error) {
-      console.error('Error fetching GitHub data:', error);
+      console.error('getGitHubDescription: Error fetching GitHub data:', error);
       return 'GitHub account connected';
     }
   };

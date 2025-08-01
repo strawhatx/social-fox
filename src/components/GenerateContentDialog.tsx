@@ -19,6 +19,7 @@ interface GenerateContentDialogProps {
   project: {
     id: string;
     name: string;
+    description?: string;
     brand_voice?: string;
     target_audience?: string;
   };
@@ -113,6 +114,16 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
       // Update content sources with real connected data
       const realSources: ContentSource[] = [];
 
+      // Always add project description as a data source
+      realSources.push({
+        id: 'project-description',
+        name: 'Project Description',
+        type: 'project-description',
+        icon: <MessageSquare className="h-4 w-4" />,
+        description: project.description || 'Project overview and context',
+        selected: true
+      });
+
       for (const connection of connections || []) {
         const integration = connection.integrations as any;
         if (integration && integration.type === 'data_source' && integration.provider === 'github') {
@@ -159,8 +170,8 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
         }
       }
 
-      // Add fallback sources if no connections
-      if (realSources.length === 0) {
+      // Add fallback sources if no connections (but we already have project description)
+      if (realSources.length === 1) { // Only project description exists
         realSources.push({
           id: 'no-connections',
           name: 'No Data Sources Connected',

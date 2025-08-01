@@ -15,17 +15,6 @@ interface Project {
   contentSources: number;
   lastGenerated: string;
   status: 'active' | 'paused' | 'draft';
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
   brandVoice: string;
   targetAudience: string;
 }

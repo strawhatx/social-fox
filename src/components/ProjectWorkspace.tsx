@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Settings, Play, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Settings, Play, Download, Link } from 'lucide-react';
 import ContentFeed from './ContentFeed';
-import MarketingRoles from './MarketingRoles';
+import ConnectionsManager from './ConnectionsManager';
 import PlatformConfig from './PlatformConfig';
 import ExportConfig from './ExportConfig';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useExportConfigs } from '@/hooks/useExportConfigs';
+import { useConnections } from '@/hooks/useConnections';
 
 interface Project {
   id: string;
@@ -19,17 +20,6 @@ interface Project {
   contentSources: number;
   lastGenerated: string;
   status: 'active' | 'paused' | 'draft';
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
   brandVoice: string;
   targetAudience: string;
 }
@@ -44,8 +34,9 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
   const [activeTab, setActiveTab] = useState('feed');
   const { posts } = useContentPosts(project.id);
   const { configs } = useExportConfigs(project.id);
+  const { connections, integrations } = useConnections(project.id);
   
-  const activeRolesCount = Object.values(project.roles).filter(Boolean).length;
+  const activeConnectionsCount = connections?.length || 0;
   const generatedCount = posts?.length || 0;
   const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
 
@@ -84,11 +75,11 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Settings className="w-4 h-4 text-primary" />
+                <Link className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Active Roles</p>
-                <p className="text-2xl font-bold">{activeRolesCount}</p>
+                <p className="text-sm text-muted-foreground">Connections</p>
+                <p className="text-2xl font-bold">{activeConnectionsCount}</p>
               </div>
             </div>
           </CardContent>
@@ -141,7 +132,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="feed">Content Feed</TabsTrigger>
-          <TabsTrigger value="roles">Marketing Roles</TabsTrigger>
+          <TabsTrigger value="connections">Connections</TabsTrigger>
           <TabsTrigger value="platforms">Platforms</TabsTrigger>
           <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
@@ -150,8 +141,8 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           <ContentFeed project={project} />
         </TabsContent>
 
-        <TabsContent value="roles" className="space-y-4">
-          <MarketingRoles project={project} onProjectUpdate={onProjectUpdate} />
+        <TabsContent value="connections" className="space-y-4">
+          <ConnectionsManager project={project} />
         </TabsContent>
 
         <TabsContent value="platforms" className="space-y-4">

@@ -112,8 +112,8 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
       // Update content sources with real connected data
       const realSources: ContentSource[] = [];
 
-      connections?.forEach((connection: any) => {
-        const integration = connection.integrations;
+      for (const connection of connections || []) {
+        const integration = connection.integrations as any;
         if (integration && integration.type === 'data_source') {
           let description = 'No recent activity';
           let icon = <Github className="h-4 w-4" />;
@@ -122,7 +122,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           switch (integration.provider) {
             case 'github':
               icon = <Github className="h-4 w-4" />;
-              description = getGitHubDescription(connection.account_config);
+              description = await getGitHubDescription(connection.account_config);
               break;
             case 'gmail':
               icon = <MessageSquare className="h-4 w-4" />;
@@ -143,7 +143,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
             selected: true
           });
         }
-      });
+      }
 
       // Add fallback sources if no connections
       if (realSources.length === 0) {
@@ -166,11 +166,44 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
     }
   };
 
-  const getGitHubDescription = (accountConfig: any) => {
-    if (accountConfig?.repositories?.length > 0) {
-      return `Connected to ${accountConfig.repositories.length} repositories`;
+  const getGitHubDescription = async (accountConfig: any) => {
+    try {
+      // Call the fetch-github-data edge function to get real data
+      const { data, error } = await supabase.functions.invoke('fetch-github-data', {
+        body: { projectId: project.id }
+      });
+
+      if (error) {
+        console.error('Error fetching GitHub data:', error);
+        return 'GitHub account connected';
+      }
+
+      if (data?.data) {
+        const githubData = data.data;
+        const parts = [];
+        
+        if (githubData.commits && githubData.commits.length > 0) {
+          parts.push(`${githubData.commits.length} recent commits`);
+        }
+        
+        if (githubData.tickets && githubData.tickets.length > 0) {
+          parts.push(`${githubData.tickets.length} active tickets`);
+        }
+        
+        if (githubData.comments > 0) {
+          parts.push(`${githubData.comments} comments`);
+        }
+        
+        if (parts.length > 0) {
+          return parts.join(', ');
+        }
+      }
+      
+      return accountConfig?.login ? `GitHub account connected (${accountConfig.login})` : 'GitHub account connected';
+    } catch (error) {
+      console.error('Error fetching GitHub data:', error);
+      return 'GitHub account connected';
     }
-    return 'GitHub account connected';
   };
 
   const getGmailDescription = (accountConfig: any) => {

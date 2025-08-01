@@ -28,19 +28,19 @@ export const GitHubConnectionDialog = ({
   const { connectProvider } = useOAuth();
   const { toast } = useToast();
 
-  const extractOwnerFromUrl = (url: string): string | null => {
+  const extractOwnerFromProfileUrl = (url: string): string | null => {
     try {
-      // Handle various GitHub URL formats
-      const githubUrlPattern = /github\.com[\/:]([^\/]+)\/([^\/]+)/;
-      const match = url.match(githubUrlPattern);
+      // Handle GitHub profile URL format: https://github.com/username
+      const githubProfilePattern = /github\.com[\/:]([^\/]+)\/?$/;
+      const match = url.match(githubProfilePattern);
       
       if (match) {
-        return match[1]; // The owner/username part
+        return match[1]; // The username part
       }
       
       return null;
     } catch (error) {
-      console.error('Error extracting owner from URL:', error);
+      console.error('Error extracting owner from profile URL:', error);
       return null;
     }
   };
@@ -49,18 +49,18 @@ export const GitHubConnectionDialog = ({
     if (!gitUrl.trim() || !repository.trim()) {
       toast({
         title: "Error",
-        description: "Please fill in both repository URL and repository name",
+        description: "Please fill in both profile URL and repository name",
         variant: "destructive",
       });
       return;
     }
 
-    // Extract owner name from repository URL
-    const ownerName = extractOwnerFromUrl(gitUrl.trim());
+    // Extract owner name from profile URL
+    const ownerName = extractOwnerFromProfileUrl(gitUrl.trim());
     if (!ownerName) {
       toast({
         title: "Error",
-        description: "Invalid GitHub repository URL. Please use format: https://github.com/owner/repository",
+        description: "Invalid GitHub profile URL. Please use format: https://github.com/username",
         variant: "destructive",
       });
       return;
@@ -112,10 +112,10 @@ export const GitHubConnectionDialog = ({
         
         <div className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="git_url">Repository URL</Label>
+            <Label htmlFor="git_url">GitHub Profile URL</Label>
             <Input
               id="git_url"
-              placeholder="https://github.com/username/repository"
+              placeholder="https://github.com/username"
               value={gitUrl}
               onChange={(e) => setGitUrl(e.target.value)}
             />

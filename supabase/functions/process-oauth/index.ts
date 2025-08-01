@@ -238,7 +238,9 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
       access_type: 'offline',
       prompt: 'consent'
     },
-    'github': {},
+    'github': {
+      prompt: 'consent'
+    },
     'twitter': {},
     'linkedin': {},
     'linkedin_oidc': {}

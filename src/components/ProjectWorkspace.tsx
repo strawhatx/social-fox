@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Settings, Play, Download, Link } from 'lucide-react';
 import ContentFeed from './ContentFeed';
-import PlatformConfig from './PlatformConfig';
+import ConnectionsManager from './ConnectionsManager';
 import { useContentPosts } from '@/hooks/useContentPosts';
+import { useConnections } from '@/hooks/useConnections';
 
 interface Project {
   id: string;
@@ -29,10 +30,11 @@ interface ProjectWorkspaceProps {
 export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: ProjectWorkspaceProps) {
   const [activeTab, setActiveTab] = useState('feed');
   const { posts } = useContentPosts(project.id);
+  const { connections } = useConnections(project.id);
   
+  const activeConnectionsCount = connections?.length || 0;
   const generatedCount = posts?.length || 0;
   const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
-  const draftCount = posts?.filter(post => post.status === 'draft')?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -68,12 +70,12 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <Play className="w-4 h-4 text-green-600" />
+              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Link className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Generated</p>
-                <p className="text-2xl font-bold">{generatedCount}</p>
+                <p className="text-sm text-muted-foreground">Connections</p>
+                <p className="text-2xl font-bold">{activeConnectionsCount}</p>
               </div>
             </div>
           </CardContent>
@@ -82,12 +84,12 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Settings className="w-4 h-4 text-blue-600" />
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <Play className="w-4 h-4 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Drafts</p>
-                <p className="text-2xl font-bold">{draftCount}</p>
+                <p className="text-sm text-muted-foreground">Generated</p>
+                <p className="text-2xl font-bold">{generatedCount}</p>
               </div>
             </div>
           </CardContent>
@@ -112,15 +114,15 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="feed">Content Feed</TabsTrigger>
-          <TabsTrigger value="platforms">Platform Settings</TabsTrigger>
+          <TabsTrigger value="connections">Connections</TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="space-y-4">
           <ContentFeed project={project} />
         </TabsContent>
 
-        <TabsContent value="platforms" className="space-y-4">
-          <PlatformConfig project={project} />
+        <TabsContent value="connections" className="space-y-4">
+          <ConnectionsManager project={project} />
         </TabsContent>
       </Tabs>
     </div>

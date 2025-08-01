@@ -39,30 +39,30 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
   const exportedCount = posts?.filter(post => post.status === 'posted')?.length || 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="space-y-6">{/* Project Workspace Container */}
       {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <h1 className="text-xl font-semibold">Project Workspace</h1>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
-                {project.status}
-              </Badge>
-              <Button variant="outline" size="sm" onClick={() => setShowSettings(true)}>
-                <Settings className="w-4 h-4" />
-              </Button>
-              <Button size="sm">
-                <Play className="w-4 h-4 mr-2" />
-                Generate
-              </Button>
-            </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">{project.name}</h1>
+            <p className="text-muted-foreground">{project.description}</p>
           </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            {project.status}
+          </Badge>
+          <Button variant="outline" onClick={() => setShowSettings(true)}>
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Play className="w-4 h-4 mr-2" />
+            Generate Content
+          </Button>
         </div>
       </div>
 
@@ -78,100 +78,66 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
         }}
       />
 
-      <div className="container mx-auto px-6 py-6 space-y-6">
-        {/* Marketing Agent Dashboard */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold">Marketing Agent Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Link className="w-4 h-4 text-primary" />
+              </div>
               <div>
-                <h2 className="text-2xl font-bold">{project.name}</h2>
-                <p className="text-muted-foreground mt-1">{project.description}</p>
-              </div>
-              <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium">Brand Voice:</span>
-                  <span className="text-muted-foreground">{project.brandVoice}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium">Target Audience:</span>
-                  <span className="text-muted-foreground">{project.targetAudience}</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {project.platforms.map((platform) => (
-                  <Badge key={platform} variant="secondary" className="text-xs">
-                    {platform}
-                  </Badge>
-                ))}
+                <p className="text-sm text-muted-foreground">Connections</p>
+                <p className="text-2xl font-bold">{activeConnectionsCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Connections</p>
-                  <p className="text-2xl font-bold">{activeConnectionsCount}</p>
-                </div>
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Link className="w-5 h-5 text-primary" />
-                </div>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <Play className="w-4 h-4 text-green-600" />
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Generated</p>
-                  <p className="text-2xl font-bold">{generatedCount}</p>
-                </div>
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Play className="w-5 h-5 text-green-600" />
-                </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Generated</p>
+                <p className="text-2xl font-bold">{generatedCount}</p>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Published</p>
-                  <p className="text-2xl font-bold">{exportedCount}</p>
-                </div>
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Download className="w-5 h-5 text-purple-600" />
-                </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Download className="w-4 h-4 text-purple-600" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-fit">
-            <TabsTrigger value="feed">Content Feed</TabsTrigger>
-            <TabsTrigger value="connections">Connections</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="feed">
-            <ContentFeed project={project} />
-          </TabsContent>
-
-          <TabsContent value="connections">
-            <ConnectionsManager project={project} />
-          </TabsContent>
-        </Tabs>
+              <div>
+                <p className="text-sm text-muted-foreground">Published</p>
+                <p className="text-2xl font-bold">{exportedCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="feed">Content Feed</TabsTrigger>
+          <TabsTrigger value="connections">Connections</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="feed" className="space-y-4">
+          <ContentFeed project={project} />
+        </TabsContent>
+
+        <TabsContent value="connections" className="space-y-4">
+          <ConnectionsManager project={project} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

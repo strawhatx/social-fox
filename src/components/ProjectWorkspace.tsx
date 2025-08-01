@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Settings, Play, Download, Link, GitCommit } from 'lucide-react';
 import ContentFeed from './ContentFeed';
 import ConnectionsManager from './ConnectionsManager';
+import { GitHubActivityFeed } from './GitHubActivityFeed';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useConnections } from '@/hooks/useConnections';
 
@@ -42,10 +43,10 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">{project.name}</h1>
+            <h1 className="text-3xl font-bold">{project.name}</h1>
             <p className="text-muted-foreground">{project.description}</p>
           </div>
         </div>
@@ -111,13 +112,18 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="feed">Content Feed</TabsTrigger>
+          <TabsTrigger value="activity">GitHub Activity</TabsTrigger>
           <TabsTrigger value="connections">Connections</TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="space-y-4">
           <ContentFeed project={project} />
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-4">
+          <GitHubActivityFeed projectId={project.id} />
         </TabsContent>
 
         <TabsContent value="connections" className="space-y-4">

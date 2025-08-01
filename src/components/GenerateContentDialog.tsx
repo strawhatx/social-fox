@@ -19,7 +19,6 @@ interface GenerateContentDialogProps {
   project: {
     id: string;
     name: string;
-    description?: string;
     brand_voice?: string;
     target_audience?: string;
   };
@@ -87,19 +86,90 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   }, [open, project.id]);
 
   const loadConnectedData = async () => {
+    console.log('loadConnectedData: Starting to load connected data for project:', project.id);
     setIsLoadingData(true);
     try {
+      // Fetch connections for this project with integration details
+      const { data: connections, error: connectionsError } = await supabase
+        .from('connections')
+        .select(`
+          id,
+          account_config,
+          integrations!inner(
+            name,
+            provider, 
+            type
+          )
+        `)
+        .eq('project_id', project.id)
+        .eq('is_active', true);
+
+      if (connectionsError) {
+        console.error('Error loading connections:', connectionsError);
+        toast.error('Failed to load connection data');
+        return;
+      }
+
+      // Update content sources with real connected data
       const realSources: ContentSource[] = [];
 
-      // Always include project description as the first data source
-      realSources.push({
-        id: 'project-description',
-        name: 'Project Description',
-        type: 'project-description',
-        icon: <MessageSquare className="h-4 w-4" />,
-        description: project.description || 'Project overview and context',
-        selected: true
-      });
+      for (const connection of connections || []) {
+        const integration = connection.integrations as any;
+        if (integration && integration.type === 'data_source' && integration.provider === 'github') {
+          // Get GitHub data and create separate sources for each type
+          const githubData = await getGitHubData();
+          
+          // Always show all three GitHub data sources
+          
+          // 1. Recent GitHub activity with commits
+          realSources.push({
+            id: `${connection.id}-commits`,
+            name: 'Recent GitHub activity',
+            type: 'github-commits',
+            icon: <Github className="h-4 w-4" />,
+            description: githubData?.commits?.length > 0 
+              ? `${githubData.commits.length} recent commits from ${githubData.login || 'repository'}`
+              : 'No recent commits available',
+            selected: true
+          });
+          
+          // 2. Task updates with active tickets
+          realSources.push({
+            id: `${connection.id}-tickets`,
+            name: 'Task updates',
+            type: 'github-tickets',
+            icon: <CheckSquare className="h-4 w-4" />,
+            description: githubData?.tickets?.length > 0 
+              ? `${githubData.tickets.length} active tickets and issues`
+              : 'No active tickets or issues',
+            selected: true
+          });
+          
+          // 3. User feedback with comments
+          realSources.push({
+            id: `${connection.id}-comments`,
+            name: 'User feedback',
+            type: 'github-comments',
+            icon: <MessageSquare className="h-4 w-4" />,
+            description: githubData?.comments > 0 
+              ? `${githubData.comments} comments and discussions`
+              : 'No comments or discussions',
+            selected: true
+          });
+        }
+      }
+
+      // Add fallback sources if no connections
+      if (realSources.length === 0) {
+        realSources.push({
+          id: 'no-connections',
+          name: 'No Data Sources Connected',
+          type: 'placeholder',
+          icon: <MessageSquare className="h-4 w-4" />,
+          description: 'Connect data sources to get real-time content',
+          selected: false
+        });
+      }
 
       setContentSources(realSources);
     } catch (error) {

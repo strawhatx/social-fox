@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Settings, Trash2, ExternalLink, Check, AlertCircle } from 'lucide-react';
+import { Plus, Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, Mail, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 
@@ -84,19 +84,52 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
   const getIntegrationIcon = (provider: string) => {
     switch (provider.toLowerCase()) {
       case 'google_sheets':
-        return '📊';
+        return <FileSpreadsheet className="w-5 h-5" />;
       case 'gmail':
-        return '📧';
+        return <Mail className="w-5 h-5" />;
       case 'github':
-        return '🐙';
+        return <GitBranch className="w-5 h-5" />;
       case 'twitter':
-        return '🐦';
+        return <Twitter className="w-5 h-5" />;
       case 'linkedin':
-        return '💼';
+        return <Linkedin className="w-5 h-5" />;
       default:
-        return '🔗';
+        return <Database className="w-5 h-5" />;
     }
   };
+
+  const getProviderDescription = (provider: string) => {
+    switch (provider.toLowerCase()) {
+      case 'google_sheets':
+        return 'Manual task updates → post ideas';
+      case 'gmail':
+        return 'Surface insights from conversations';
+      case 'github':
+        return 'Turn commits into progress updates';
+      case 'twitter':
+        return 'Publish updates and threads';
+      case 'linkedin':
+        return 'Professional updates and articles';
+      default:
+        return 'Connect to enable automation';
+    }
+  };
+
+  const isDataSource = (provider: string) => {
+    return ['google_sheets', 'gmail', 'github'].includes(provider.toLowerCase());
+  };
+
+  const isPublishingPlatform = (provider: string) => {
+    return ['twitter', 'linkedin'].includes(provider.toLowerCase());
+  };
+
+  const dataSourceIntegrations = integrations.filter(integration => 
+    isDataSource(integration.provider)
+  );
+
+  const publishingPlatformIntegrations = integrations.filter(integration => 
+    isPublishingPlatform(integration.provider)
+  );
 
   const getStatusBadge = (isActive: boolean) => {
     return (
@@ -111,175 +144,128 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     return <div>Loading connections...</div>;
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Connections</h2>
-          <p className="text-muted-foreground">
-            Manage third-party service connections for your project
-          </p>
+  const renderConnectionCard = (integration: any) => {
+    const connection = getConnectionByIntegration(integration.id);
+    const isConnected = !!connection;
+
+    return (
+      <Card key={integration.id} className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            {getIntegrationIcon(integration.provider)}
+            <div>
+              <h3 className="font-semibold">{integration.name}</h3>
+              <Badge variant={isConnected ? "default" : "secondary"} className="mt-1">
+                {isConnected ? "Connected" : "Not Connected"}
+              </Badge>
+            </div>
+          </div>
         </div>
         
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Connection
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Connection</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="integration">Integration</Label>
-                <Select value={selectedIntegration} onValueChange={setSelectedIntegration}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an integration" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {integrations
-                      .filter(integration => !getConnectionByIntegration(integration.id))
-                      .map((integration) => (
-                        <SelectItem key={integration.id} value={integration.id}>
-                          <div className="flex items-center gap-2">
-                            <span>{getIntegrationIcon(integration.provider)}</span>
-                            {integration.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {selectedIntegration && (
-                <div>
-                  <Label htmlFor="account-identifier">Account Identifier (optional)</Label>
-                  <Input
-                    id="account-identifier"
-                    placeholder="e.g., username, email, or account name"
-                    value={connectionConfig.account_identifier || ''}
-                    onChange={(e) => setConnectionConfig({
-                      ...connectionConfig,
-                      account_identifier: e.target.value
-                    })}
-                  />
-                </div>
-              )}
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateConnection} disabled={!selectedIntegration}>
-                  Create Connection
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {connections.map((connection) => {
-          const integration = integrations.find(i => i.id === connection.integration_id);
-          if (!integration) return null;
-
-          return (
-            <Card key={connection.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{getIntegrationIcon(integration.provider)}</span>
-                    <div>
-                      <CardTitle className="text-base">{integration.name}</CardTitle>
-                      {connection.account_identifier && (
-                        <p className="text-sm text-muted-foreground">
-                          {connection.account_identifier}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {getStatusBadge(connection.is_active)}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {integration.description}
-                </p>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">
-                    Connected {new Date(connection.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Settings className="w-3 h-3 mr-1" />
-                    Configure
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <ExternalLink className="w-3 h-3" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDeleteConnection(connection.id)}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <p className="text-sm text-muted-foreground mt-3 mb-4">
+          {getProviderDescription(integration.provider)}
+        </p>
         
-        {connections.length === 0 && (
-          <Card className="col-span-full">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <div className="text-4xl mb-4">🔗</div>
-              <h3 className="text-lg font-semibold mb-2">No connections yet</h3>
-              <p className="text-muted-foreground mb-4 text-center">
-                Connect third-party services to enable content distribution and automation
-              </p>
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Connection
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {isDataSource(integration.provider) ? "Data Source" : "Publishing Platform"}
+          </span>
+          
+          {isConnected ? (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleDeleteConnection(connection.id)}
+            >
+              Disconnect
+            </Button>
+          ) : (
+            <Button size="sm">
+              Connect →
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* How It Works Section */}
+      <div className="bg-muted/50 rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">How It Works</h2>
+        <div className="flex items-center space-x-4 text-sm">
+          <div className="flex items-center space-x-2">
+            <Database className="w-4 h-4" />
+            <span>Pull Data</span>
+          </div>
+          <span>→</span>
+          <div className="flex items-center space-x-2">
+            <Settings className="w-4 h-4" />
+            <span>AI Processing</span>
+          </div>
+          <span>→</span>
+          <div className="flex items-center space-x-2">
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Generate Content</span>
+          </div>
+          <span>→</span>
+          <div className="flex items-center space-x-2">
+            <Share2 className="w-4 h-4" />
+            <span>Auto-Post</span>
+          </div>
+        </div>
       </div>
-      
-      {/* Available Integrations */}
+
+      {/* Data Sources Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Available Integrations</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {integrations.map((integration) => {
-            const hasConnection = getConnectionByIntegration(integration.id);
-            
-            return (
-              <Card key={integration.id} className={hasConnection ? 'opacity-50' : ''}>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl">{getIntegrationIcon(integration.provider)}</span>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{integration.name}</p>
-                      <p className="text-xs text-muted-foreground">{integration.provider}</p>
-                    </div>
-                    {hasConnection && (
-                      <Badge variant="secondary" className="text-xs">
-                        Connected
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Database className="w-5 h-5" />
+            <h2 className="text-xl font-semibold">Data Sources</h2>
+            <span className="text-sm text-muted-foreground">Pull real-time data</span>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {dataSourceIntegrations.map(renderConnectionCard)}
+          
+          {/* Request Integration Card */}
+          <Card className="p-6 border-2 border-dashed border-muted-foreground/25">
+            <div className="flex flex-col items-center justify-center text-center h-full min-h-[120px]">
+              <Plus className="w-6 h-6 text-muted-foreground mb-2" />
+              <h3 className="font-semibold mb-1">Request Integration</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Need another data source? Let us know!
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Publishing Platforms Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Share2 className="w-5 h-5" />
+            <h2 className="text-xl font-semibold">Publishing Platforms</h2>
+            <span className="text-sm text-muted-foreground">Share your content</span>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {publishingPlatformIntegrations.map(renderConnectionCard)}
+          
+          {/* Request Platform Card */}
+          <Card className="p-6 border-2 border-dashed border-muted-foreground/25">
+            <div className="flex flex-col items-center justify-center text-center h-full min-h-[120px]">
+              <Plus className="w-6 h-6 text-muted-foreground mb-2" />
+              <h3 className="font-semibold mb-1">Request Platform</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Want to publish elsewhere? Let us know!
+              </p>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

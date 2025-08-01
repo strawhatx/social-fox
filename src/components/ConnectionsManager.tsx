@@ -2,13 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, Mail, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
+import { useOAuth } from '@/hooks/useOAuth';
+import { GitHubConnectionDialog } from './GitHubConnectionDialog';
 
 interface Project {
   id: string;
@@ -38,29 +36,45 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
   } = useConnections(project.id);
   
   const { toast } = useToast();
-  const [selectedIntegration, setSelectedIntegration] = useState('');
-  const [connectionConfig, setConnectionConfig] = useState<Record<string, any>>({});
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { connectProvider, isConnecting } = useOAuth();
+  const [gitHubDialogOpen, setGitHubDialogOpen] = useState(false);
+  const [selectedGitHubIntegration, setSelectedGitHubIntegration] = useState<string>('');
 
-  const handleCreateConnection = async () => {
-    if (!selectedIntegration) return;
-    
-    const { error } = await createConnection(selectedIntegration, connectionConfig);
-    
-    if (error) {
+  const handleConnectIntegration = async (integration: any) => {
+    if (integration.provider === 'github') {
+      setSelectedGitHubIntegration(integration.id);
+      setGitHubDialogOpen(true);
+      return;
+    }
+
+    try {
+      await connectProvider({
+        provider: integration.provider,
+        projectId: project.id
+      });
+
+      // Create a basic connection for non-GitHub integrations
+      const { error } = await createConnection(integration.id, {});
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create connection",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: `${integration.name} connected successfully`,
+        });
+      }
+    } catch (error) {
+      console.error('Connection failed:', error);
       toast({
-        title: "Error",
-        description: "Failed to create connection",
+        title: "Connection failed",
+        description: error instanceof Error ? error.message : "Failed to connect to the service",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Success",
-        description: "Connection created successfully",
-      });
-      setDialogOpen(false);
-      setSelectedIntegration('');
-      setConnectionConfig({});
     }
   };
 
@@ -115,20 +129,12 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     }
   };
 
-  const isDataSource = (provider: string) => {
-    return ['google_sheets', 'gmail', 'github'].includes(provider.toLowerCase());
-  };
-
-  const isPublishingPlatform = (provider: string) => {
-    return ['twitter', 'linkedin'].includes(provider.toLowerCase());
-  };
-
   const dataSourceIntegrations = integrations.filter(integration => 
-    isDataSource(integration.provider)
+    integration.type === 'data_source'
   );
 
   const publishingPlatformIntegrations = integrations.filter(integration => 
-    isPublishingPlatform(integration.provider)
+    integration.type === 'publishing_platform'
   );
 
   const getStatusBadge = (isActive: boolean) => {
@@ -168,7 +174,7 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
         
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {isDataSource(integration.provider) ? "Data Source" : "Publishing Platform"}
+            {integration.type === 'data_source' ? "Data Source" : "Publishing Platform"}
           </span>
           
           {isConnected ? (
@@ -180,7 +186,11 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
               Disconnect
             </Button>
           ) : (
-            <Button size="sm">
+            <Button 
+              size="sm"
+              onClick={() => handleConnectIntegration(integration)}
+              disabled={isConnecting}
+            >
               Connect →
             </Button>
           )}
@@ -268,6 +278,14 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
           </Card>
         </div>
       </div>
+
+      {/* GitHub Connection Dialog */}
+      <GitHubConnectionDialog
+        open={gitHubDialogOpen}
+        onOpenChange={setGitHubDialogOpen}
+        projectId={project.id}
+        integrationId={selectedGitHubIntegration}
+      />
     </div>
   );
 };

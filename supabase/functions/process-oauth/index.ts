@@ -118,15 +118,14 @@ const createSuccessResponse = (data: unknown, req: Request) => {
 
 // Get provider configuration from database
 const getProviderConfig = async (integration: any): Promise<ProviderConfig | null> => {
-  if (integration.type !== IntegrationType.OAUTH) {
-    return null;
-  }
-
+  // All integrations with OAuth config are supported - don't filter by type
+  // since integrations can be data_source, publishing_platform, etc.
+  
   // Handle both flat structure and nested config_data structure
   const config = integration.config_data || integration;
 
   return {
-    type: integration.type,
+    type: "oauth", // Always oauth for these integrations
     config: {
       clientId: config.client_id || '',
       authUrl: config.auth_url || '',

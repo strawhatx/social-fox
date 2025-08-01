@@ -46,7 +46,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold">{project.name}</h1>
+            <h1 className="text-2xl font-medium">{project.name}</h1>
             <p className="text-muted-foreground">{project.description}</p>
           </div>
         </div>

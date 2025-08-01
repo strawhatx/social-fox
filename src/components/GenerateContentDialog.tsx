@@ -86,6 +86,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   }, [open, project.id]);
 
   const loadConnectedData = async () => {
+    console.log('loadConnectedData: Starting to load connected data for project:', project.id);
     setIsLoadingData(true);
     try {
       // Fetch connections for this project with integration details

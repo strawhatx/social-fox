@@ -76,6 +76,48 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   const [isPublishing, setIsPublishing] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
   const [currentStep, setCurrentStep] = useState<'setup' | 'preview' | 'publish'>('setup');
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  // Load GitHub data when dialog opens
+  useEffect(() => {
+    if (open) {
+      loadGitHubData();
+    }
+  }, [open, project.id]);
+
+  const loadGitHubData = async () => {
+    setIsLoadingData(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-github-data', {
+        body: { projectId: project.id }
+      });
+
+      if (error) {
+        console.error('Error loading GitHub data:', error);
+        toast.error('Failed to load GitHub data');
+        return;
+      }
+
+      if (data?.data) {
+        // Update content sources with real GitHub data
+        setContentSources(prev => prev.map(source => {
+          if (source.id === 'github') {
+            return {
+              ...source,
+              description: data.data.description || 'Recent GitHub activity loaded',
+              selected: true
+            };
+          }
+          return source;
+        }));
+      }
+    } catch (error) {
+      console.error('Error calling GitHub webhook:', error);
+      toast.error('Failed to load GitHub data');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
 
   const handleSourceToggle = (sourceId: string) => {
     setContentSources(prev => 
@@ -197,94 +239,86 @@ Generate engaging social media content that highlights recent progress and achie
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Panel */}
           <div className="space-y-4">
-            {/* Project Selection */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Select Project</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select value={project.id} disabled>
-                  <SelectTrigger>
-                    <SelectValue placeholder={project.name} />
-                  </SelectTrigger>
-                </Select>
-              </CardContent>
-            </Card>
-
-            {/* Available Data */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Available Data</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {contentSources.map((source) => (
-                  <div key={source.id} className="flex items-center space-x-3">
-                    <Checkbox
-                      checked={source.selected}
-                      onCheckedChange={() => handleSourceToggle(source.id)}
-                    />
-                    <div className="flex items-center space-x-2 flex-1">
-                      {source.icon}
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{source.name}</p>
-                        <p className="text-xs text-muted-foreground">{source.description}</p>
+            {/* Available Data and Brand Voice - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Available Data */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    Available Data
+                    {isLoadingData && <Loader2 className="h-4 w-4 animate-spin" />}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {contentSources.map((source) => (
+                    <div key={source.id} className="flex items-center space-x-3">
+                      <Checkbox
+                        checked={source.selected}
+                        onCheckedChange={() => handleSourceToggle(source.id)}
+                      />
+                      <div className="flex items-center space-x-2 flex-1">
+                        {source.icon}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{source.name}</p>
+                          <p className="text-xs text-muted-foreground">{source.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                  ))}
+                </CardContent>
+              </Card>
 
-            {/* Brand Voice */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Brand Voice</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <label className="text-xs text-muted-foreground">Tone:</label>
-                  <Select value={brandVoice.tone} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, tone: value }))}>
-                    <SelectTrigger className="h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Friendly">Friendly</SelectItem>
-                      <SelectItem value="Professional">Professional</SelectItem>
-                      <SelectItem value="Casual">Casual</SelectItem>
-                      <SelectItem value="Formal">Formal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Voice:</label>
-                  <Select value={brandVoice.voice} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, voice: value }))}>
-                    <SelectTrigger className="h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Enthusiastic">Enthusiastic</SelectItem>
-                      <SelectItem value="Confident">Confident</SelectItem>
-                      <SelectItem value="Helpful">Helpful</SelectItem>
-                      <SelectItem value="Inspiring">Inspiring</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Style:</label>
-                  <Select value={brandVoice.style} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, style: value }))}>
-                    <SelectTrigger className="h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Storytelling">Storytelling</SelectItem>
-                      <SelectItem value="Direct">Direct</SelectItem>
-                      <SelectItem value="Educational">Educational</SelectItem>
-                      <SelectItem value="Conversational">Conversational</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Brand Voice */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Brand Voice</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Tone:</label>
+                    <Select value={brandVoice.tone} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, tone: value }))}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Friendly">Friendly</SelectItem>
+                        <SelectItem value="Professional">Professional</SelectItem>
+                        <SelectItem value="Casual">Casual</SelectItem>
+                        <SelectItem value="Formal">Formal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Voice:</label>
+                    <Select value={brandVoice.voice} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, voice: value }))}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Enthusiastic">Enthusiastic</SelectItem>
+                        <SelectItem value="Confident">Confident</SelectItem>
+                        <SelectItem value="Helpful">Helpful</SelectItem>
+                        <SelectItem value="Inspiring">Inspiring</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Style:</label>
+                    <Select value={brandVoice.style} onValueChange={(value) => setBrandVoice(prev => ({ ...prev, style: value }))}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Storytelling">Storytelling</SelectItem>
+                        <SelectItem value="Direct">Direct</SelectItem>
+                        <SelectItem value="Educational">Educational</SelectItem>
+                        <SelectItem value="Conversational">Conversational</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Generate Button */}
             {currentStep === 'setup' && (

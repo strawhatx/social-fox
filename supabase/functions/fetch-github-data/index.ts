@@ -37,18 +37,17 @@ serve(async (req) => {
     // Create Basic Auth header
     const basicAuth = btoa(`${username}:${password}`);
     
-    // Call the webhook with project ID
+    // Call the webhook with project ID as GET request
     const webhookUrl = `http://localhost:5678/webhook/github-data?projectId=${encodeURIComponent(projectId)}`;
     
     console.log(`Calling webhook: ${webhookUrl}`);
     
     const response = await fetch(webhookUrl, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Authorization': `Basic ${basicAuth}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ projectId }),
     });
 
     if (!response.ok) {

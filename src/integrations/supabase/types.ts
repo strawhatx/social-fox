@@ -35,6 +35,39 @@ export type Database = {
         }
         Relationships: []
       }
+      connections: {
+        Row: {
+          account_config: Json
+          account_identifier: string | null
+          created_at: string
+          id: string
+          integration_id: string
+          is_active: boolean
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_config?: Json
+          account_identifier?: string | null
+          created_at?: string
+          id?: string
+          integration_id: string
+          is_active?: boolean
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_config?: Json
+          account_identifier?: string | null
+          created_at?: string
+          id?: string
+          integration_id?: string
+          is_active?: boolean
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_posts: {
         Row: {
           content: string

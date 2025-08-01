@@ -285,7 +285,6 @@ serve(async (req) => {
         project_id: project_id,
         integration_id: integrationData.id,
         account_config: connectionConfig,
-        account_identifier: connectionConfig.access_token ? `${provider}_${userId}` : null,
         is_active: true
       }, {
         onConflict: 'project_id,integration_id'

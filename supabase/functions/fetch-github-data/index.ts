@@ -82,7 +82,16 @@ serve(async (req) => {
           hasToken: !!accountConfig.access_token
         });
 
-        // Make request to n8n webhook using GET with query parameters
+        // Get n8n credentials from Supabase secrets
+        const n8nUsername = Deno.env.get('8N8_USERNAME');
+        const n8nPassword = Deno.env.get('8N8_PASSWORD');
+        
+        if (!n8nUsername || !n8nPassword) {
+          console.error('n8n credentials not found in environment variables');
+          throw new Error('n8n credentials not configured');
+        }
+
+        // Make request to n8n webhook using GET with query parameters and basic auth
         const webhookUrl = new URL('https://primary-production-146e9.up.railway.app/webhook/github-data');
         webhookUrl.searchParams.set('projectId', projectId);
         webhookUrl.searchParams.set('githubToken', accountConfig.access_token);
@@ -90,10 +99,12 @@ serve(async (req) => {
           webhookUrl.searchParams.set('githubLogin', accountConfig.login);
         }
 
+        const credentials = btoa(`${n8nUsername}:${n8nPassword}`);
         const webhookResponse = await fetch(webhookUrl.toString(), {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
+            'Authorization': `Basic ${credentials}`
           }
         });
 

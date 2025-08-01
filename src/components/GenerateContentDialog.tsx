@@ -78,45 +78,113 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   const [currentStep, setCurrentStep] = useState<'setup' | 'preview' | 'publish'>('setup');
   const [isLoadingData, setIsLoadingData] = useState(false);
 
-  // Load GitHub data when dialog opens
+  // Load real data from connected integrations when dialog opens
   useEffect(() => {
     if (open) {
-      loadGitHubData();
+      loadConnectedData();
     }
   }, [open, project.id]);
 
-  const loadGitHubData = async () => {
+  const loadConnectedData = async () => {
     setIsLoadingData(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-github-data', {
-        body: { projectId: project.id }
-      });
+      // Fetch connections for this project with integration details
+      const { data: connections, error: connectionsError } = await supabase
+        .from('connections')
+        .select(`
+          id,
+          account_config,
+          integrations!inner(
+            name,
+            provider, 
+            type
+          )
+        `)
+        .eq('project_id', project.id)
+        .eq('is_active', true);
 
-      if (error) {
-        console.error('Error loading GitHub data:', error);
-        toast.error('Failed to load GitHub data');
+      if (connectionsError) {
+        console.error('Error loading connections:', connectionsError);
+        toast.error('Failed to load connection data');
         return;
       }
 
-      if (data?.data) {
-        // Update content sources with real GitHub data
-        setContentSources(prev => prev.map(source => {
-          if (source.id === 'github') {
-            return {
-              ...source,
-              description: data.data.description || 'Recent GitHub activity loaded',
-              selected: true
-            };
+      // Update content sources with real connected data
+      const realSources: ContentSource[] = [];
+
+      connections?.forEach((connection: any) => {
+        const integration = connection.integrations;
+        if (integration && integration.type === 'data_source') {
+          let description = 'No recent activity';
+          let icon = <Github className="h-4 w-4" />;
+          
+          // Get real data based on provider type
+          switch (integration.provider) {
+            case 'github':
+              icon = <Github className="h-4 w-4" />;
+              description = getGitHubDescription(connection.account_config);
+              break;
+            case 'gmail':
+              icon = <MessageSquare className="h-4 w-4" />;
+              description = getGmailDescription(connection.account_config);
+              break;
+            case 'google_sheets':
+              icon = <CheckSquare className="h-4 w-4" />;
+              description = getSheetsDescription(connection.account_config);
+              break;
           }
-          return source;
-        }));
+
+          realSources.push({
+            id: connection.id,
+            name: integration.name,
+            type: integration.provider,
+            icon,
+            description,
+            selected: true
+          });
+        }
+      });
+
+      // Add fallback sources if no connections
+      if (realSources.length === 0) {
+        realSources.push({
+          id: 'no-connections',
+          name: 'No Data Sources Connected',
+          type: 'placeholder',
+          icon: <MessageSquare className="h-4 w-4" />,
+          description: 'Connect data sources to get real-time content',
+          selected: false
+        });
       }
+
+      setContentSources(realSources);
     } catch (error) {
-      console.error('Error calling GitHub webhook:', error);
-      toast.error('Failed to load GitHub data');
+      console.error('Error loading connected data:', error);
+      toast.error('Failed to load connection data');
     } finally {
       setIsLoadingData(false);
     }
+  };
+
+  const getGitHubDescription = (accountConfig: any) => {
+    if (accountConfig?.repositories?.length > 0) {
+      return `Connected to ${accountConfig.repositories.length} repositories`;
+    }
+    return 'GitHub account connected';
+  };
+
+  const getGmailDescription = (accountConfig: any) => {
+    if (accountConfig?.email) {
+      return `Connected to ${accountConfig.email}`;
+    }
+    return 'Gmail account connected';
+  };
+
+  const getSheetsDescription = (accountConfig: any) => {
+    if (accountConfig?.spreadsheet_id) {
+      return 'Google Sheets connected';
+    }
+    return 'Google Sheets account connected';
   };
 
   const handleSourceToggle = (sourceId: string) => {

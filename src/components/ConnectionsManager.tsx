@@ -26,7 +26,7 @@ interface ConnectionsManagerProps {
   project: Project;
 }
 
-export default function ConnectionsManager({ project }: ConnectionsManagerProps) {
+const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
   const { 
     connections, 
     integrations, 
@@ -284,4 +284,6 @@ export default function ConnectionsManager({ project }: ConnectionsManagerProps)
       </div>
     </div>
   );
-}
+};
+
+export default ConnectionsManager;

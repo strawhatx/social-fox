@@ -82,17 +82,19 @@ serve(async (req) => {
           hasToken: !!accountConfig.access_token
         });
 
-        // Make request to n8n webhook
-        const webhookResponse = await fetch('https://primary-production-146e9.up.railway.app/webhook/github-data', {
-          method: 'POST',
+        // Make request to n8n webhook using GET with query parameters
+        const webhookUrl = new URL('https://primary-production-146e9.up.railway.app/webhook/github-data');
+        webhookUrl.searchParams.set('projectId', projectId);
+        webhookUrl.searchParams.set('githubToken', accountConfig.access_token);
+        if (accountConfig.login) {
+          webhookUrl.searchParams.set('githubLogin', accountConfig.login);
+        }
+
+        const webhookResponse = await fetch(webhookUrl.toString(), {
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            projectId,
-            githubToken: accountConfig.access_token,
-            githubLogin: accountConfig.login
-          })
+            'Accept': 'application/json',
+          }
         });
 
         console.log('n8n webhook response status:', webhookResponse.status);

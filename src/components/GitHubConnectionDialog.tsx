@@ -28,11 +28,39 @@ export const GitHubConnectionDialog = ({
   const { connectProvider } = useOAuth();
   const { toast } = useToast();
 
+  const extractOwnerFromUrl = (url: string): string | null => {
+    try {
+      // Handle various GitHub URL formats
+      const githubUrlPattern = /github\.com[\/:]([^\/]+)\/([^\/]+)/;
+      const match = url.match(githubUrlPattern);
+      
+      if (match) {
+        return match[1]; // The owner/username part
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error extracting owner from URL:', error);
+      return null;
+    }
+  };
+
   const handleConnect = async () => {
     if (!gitUrl.trim() || !repository.trim()) {
       toast({
         title: "Error",
         description: "Please fill in both repository URL and repository name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Extract owner name from repository URL
+    const ownerName = extractOwnerFromUrl(gitUrl.trim());
+    if (!ownerName) {
+      toast({
+        title: "Error",
+        description: "Invalid GitHub repository URL. Please use format: https://github.com/owner/repository",
         variant: "destructive",
       });
       return;
@@ -47,7 +75,8 @@ export const GitHubConnectionDialog = ({
         projectId,
         additionalParams: {
           git_url: gitUrl.trim(),
-          repository: repository.trim()
+          repository: repository.trim(),
+          owner: ownerName
         }
       });
 

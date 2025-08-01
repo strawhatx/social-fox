@@ -17,10 +17,8 @@ export const useOAuth = (): UseOAuthResult => {
     try {
       await oauthService.startOAuthFlow(config);
       
-      toast({
-        title: "Successfully connected!",
-        description: `${config.provider} has been connected to your project.`,
-      });
+      // Success toast is now handled in the GitHub dialog after the flow completes
+      // Don't show it here since this runs before OAuth is complete
     } catch (error) {
       console.error('OAuth connection failed:', error);
       toast({

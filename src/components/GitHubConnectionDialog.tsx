@@ -92,7 +92,7 @@ export const GitHubConnectionDialog = ({
     setIsConnecting(true);
     
     try {
-      // First start the OAuth flow
+      // Start the OAuth flow - this will open GitHub's OAuth page
       await connectProvider({
         provider: 'github',
         projectId,
@@ -103,9 +103,7 @@ export const GitHubConnectionDialog = ({
         }
       });
 
-      // The connection will be created automatically by the OAuth callback
-      // The OAuth callback will handle storing the tokens and additional config
-
+      // Only show success and close dialog after OAuth completes successfully
       toast({
         title: "Success",
         description: "GitHub repository connected successfully",

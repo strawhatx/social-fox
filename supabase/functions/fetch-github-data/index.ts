@@ -65,7 +65,7 @@ serve(async (req) => {
     const githubConnection = connections[0];
     const accountConfig = githubConnection.account_config;
 
-    // Extract GitHub data from the stored OAuth tokens
+    // Call the n8n webhook to get real GitHub data
     let githubData = {
       description: 'GitHub connected successfully',
       repositories: [],
@@ -73,14 +73,43 @@ serve(async (req) => {
     };
 
     if (accountConfig?.access_token) {
-      // If we have an access token, we could fetch real GitHub data
-      // For now, we'll return the stored account information
-      githubData = {
-        description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
-        repositories: accountConfig.repositories || [],
-        recent_activity: ['Recent commits and activity available'],
-        login: accountConfig.login
-      };
+      try {
+        // Make request to n8n webhook
+        const webhookResponse = await fetch('https://primary-production-146e9.up.railway.app/webhook/github-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            projectId,
+            githubToken: accountConfig.access_token,
+            githubLogin: accountConfig.login
+          })
+        });
+
+        if (webhookResponse.ok) {
+          const webhookData = await webhookResponse.json();
+          githubData = webhookData;
+          console.log('Successfully fetched data from n8n webhook');
+        } else {
+          console.warn('n8n webhook request failed, falling back to stored data');
+          githubData = {
+            description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
+            repositories: accountConfig.repositories || [],
+            recent_activity: ['Recent commits and activity available'],
+            login: accountConfig.login
+          };
+        }
+      } catch (error) {
+        console.error('Error calling n8n webhook:', error);
+        // Fallback to stored account information
+        githubData = {
+          description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
+          repositories: accountConfig.repositories || [],
+          recent_activity: ['Recent commits and activity available'],
+          login: accountConfig.login
+        };
+      }
     }
 
     console.log('GitHub data retrieved successfully');

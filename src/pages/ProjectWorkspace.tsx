@@ -12,7 +12,7 @@ const ProjectWorkspacePage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { projects, loading } = useProjects();
+  const { projects, loading, updateProject } = useProjects();
   const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
@@ -30,6 +30,18 @@ const ProjectWorkspacePage = () => {
 
   const handleBack = () => {
     navigate('/dashboard');
+  };
+
+  const handleProjectUpdate = async (updates: Partial<any>) => {
+    if (projectId && updateProject) {
+      try {
+        await updateProject(projectId, updates);
+        // Update the local state to reflect changes immediately
+        setSelectedProject(prev => prev ? { ...prev, ...updates } : null);
+      } catch (error) {
+        console.error('Failed to update project:', error);
+      }
+    }
   };
 
   if (loading) {
@@ -80,6 +92,7 @@ const ProjectWorkspacePage = () => {
         <ProjectWorkspace
           project={selectedProject}
           onBack={handleBack}
+          onProjectUpdate={handleProjectUpdate}
         />
       </div>
     </div>

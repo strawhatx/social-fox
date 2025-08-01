@@ -202,8 +202,9 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
         }
         
         if (parts.length > 0) {
-          console.log('getGitHubDescription: Returning description:', parts.join(', '));
-          return parts.join(', ');
+          const finalDescription = parts.join(', ');
+          console.log('getGitHubDescription: Returning description with real data:', finalDescription);
+          return finalDescription;
         }
       }
       

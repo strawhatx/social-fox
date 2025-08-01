@@ -40,12 +40,28 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [contentSources, setContentSources] = useState<ContentSource[]>([
     {
-      id: 'project-description',
-      name: 'Project Description',
-      type: 'description',
-      icon: <MessageSquare className="h-4 w-4" />,
-      description: project.name || 'Use project details for content',
+      id: 'github',
+      name: 'Recent GitHub Activity',
+      type: 'github',
+      icon: <Github className="h-4 w-4" />,
+      description: '3 commits in the last 24 hours',
       selected: true
+    },
+    {
+      id: 'tasks',
+      name: 'Task Updates',
+      type: 'tasks',
+      icon: <CheckSquare className="h-4 w-4" />,
+      description: '2 completed tasks today',
+      selected: true
+    },
+    {
+      id: 'feedback',
+      name: 'User Feedback',
+      type: 'feedback',
+      icon: <MessageSquare className="h-4 w-4" />,
+      description: '1 new user email',
+      selected: false
     }
   ]);
   
@@ -62,7 +78,185 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
   const [currentStep, setCurrentStep] = useState<'setup' | 'preview' | 'publish'>('setup');
   const [isLoadingData, setIsLoadingData] = useState(false);
 
+  // Load real data from connected integrations when dialog opens
+  useEffect(() => {
+    if (open) {
+      loadConnectedData();
+    }
+  }, [open, project.id]);
 
+  const loadConnectedData = async () => {
+    console.log('loadConnectedData: Starting to load connected data for project:', project.id);
+    setIsLoadingData(true);
+    try {
+      // Fetch connections for this project with integration details
+      const { data: connections, error: connectionsError } = await supabase
+        .from('connections')
+        .select(`
+          id,
+          account_config,
+          integrations!inner(
+            name,
+            provider, 
+            type
+          )
+        `)
+        .eq('project_id', project.id)
+        .eq('is_active', true);
+
+      if (connectionsError) {
+        console.error('Error loading connections:', connectionsError);
+        toast.error('Failed to load connection data');
+        return;
+      }
+
+      // Update content sources with real connected data
+      const realSources: ContentSource[] = [];
+
+      for (const connection of connections || []) {
+        const integration = connection.integrations as any;
+        if (integration && integration.type === 'data_source' && integration.provider === 'github') {
+          // Get GitHub data and create separate sources for each type
+          const githubData = await getGitHubData();
+          
+          // Always show all three GitHub data sources
+          
+          // 1. Recent GitHub activity with commits
+          realSources.push({
+            id: `${connection.id}-commits`,
+            name: 'Recent GitHub activity',
+            type: 'github-commits',
+            icon: <Github className="h-4 w-4" />,
+            description: githubData?.commits?.length > 0 
+              ? `${githubData.commits.length} recent commits from ${githubData.login || 'repository'}`
+              : 'No recent commits available',
+            selected: true
+          });
+          
+          // 2. Task updates with active tickets
+          realSources.push({
+            id: `${connection.id}-tickets`,
+            name: 'Task updates',
+            type: 'github-tickets',
+            icon: <CheckSquare className="h-4 w-4" />,
+            description: githubData?.tickets?.length > 0 
+              ? `${githubData.tickets.length} active tickets and issues`
+              : 'No active tickets or issues',
+            selected: true
+          });
+          
+          // 3. User feedback with comments
+          realSources.push({
+            id: `${connection.id}-comments`,
+            name: 'User feedback',
+            type: 'github-comments',
+            icon: <MessageSquare className="h-4 w-4" />,
+            description: githubData?.comments > 0 
+              ? `${githubData.comments} comments and discussions`
+              : 'No comments or discussions',
+            selected: true
+          });
+        }
+      }
+
+      // Add fallback sources if no connections
+      if (realSources.length === 0) {
+        realSources.push({
+          id: 'no-connections',
+          name: 'No Data Sources Connected',
+          type: 'placeholder',
+          icon: <MessageSquare className="h-4 w-4" />,
+          description: 'Connect data sources to get real-time content',
+          selected: false
+        });
+      }
+
+      setContentSources(realSources);
+    } catch (error) {
+      console.error('Error loading connected data:', error);
+      toast.error('Failed to load connection data');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  const getGitHubData = async () => {
+    try {
+      console.log('getGitHubData: Calling fetch-github-data for project:', project.id);
+      
+      // Call the fetch-github-data edge function to get real data
+      const { data, error } = await supabase.functions.invoke('fetch-github-data', {
+        body: { projectId: project.id }
+      });
+
+      console.log('getGitHubData: Response from fetch-github-data:', { data, error });
+
+      if (error) {
+        console.error('Error fetching GitHub data:', error);
+        return null;
+      }
+
+      return data?.data || null;
+    } catch (error) {
+      console.error('getGitHubData: Error fetching GitHub data:', error);
+      return null;
+    }
+  };
+
+  const getGitHubDescription = async (accountConfig: any) => {
+    try {
+      console.log('getGitHubDescription: Calling fetch-github-data for project:', project.id);
+      
+      // Call the fetch-github-data edge function to get real data
+      const { data, error } = await supabase.functions.invoke('fetch-github-data', {
+        body: { projectId: project.id }
+      });
+
+      console.log('getGitHubDescription: Response from fetch-github-data:', { data, error });
+
+      if (error) {
+        console.error('Error fetching GitHub data:', error);
+        return 'GitHub account connected';
+      }
+
+      if (data?.data) {
+        const githubData = data.data;
+        console.log('getGitHubDescription: GitHub data received:', githubData);
+        
+        const parts = [];
+        
+        if (githubData.commits && githubData.commits.length > 0) {
+          parts.push(`${githubData.commits.length} recent commits`);
+        }
+        
+        if (githubData.tickets && githubData.tickets.length > 0) {
+          parts.push(`${githubData.tickets.length} active tickets`);
+        }
+        
+        if (githubData.comments && githubData.comments > 0) {
+          parts.push(`${githubData.comments} comments`);
+        }
+        
+        if (parts.length > 0) {
+          const finalDescription = parts.join(', ');
+          console.log('getGitHubDescription: Returning description with real data:', finalDescription);
+          return finalDescription;
+        }
+        
+        // If we have commits but no other data, still show it
+        if (githubData.commits && githubData.commits.length > 0) {
+          return `${githubData.commits.length} recent commits`;
+        }
+      }
+      
+      const fallback = accountConfig?.login ? `GitHub account connected (${accountConfig.login})` : 'GitHub account connected';
+      console.log('getGitHubDescription: Returning fallback:', fallback);
+      return fallback;
+    } catch (error) {
+      console.error('getGitHubDescription: Error fetching GitHub data:', error);
+      return 'GitHub account connected';
+    }
+  };
 
 
   const handleSourceToggle = (sourceId: string) => {

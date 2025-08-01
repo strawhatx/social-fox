@@ -58,10 +58,6 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
-            <Play className="w-4 h-4 mr-2" />
-            Generate Content
-          </Button>
         </div>
       </div>
 

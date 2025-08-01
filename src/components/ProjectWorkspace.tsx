@@ -43,7 +43,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
             <h1 className="text-3xl font-bold">{project.name}</h1>

@@ -46,7 +46,9 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           </Button>
           <div>
             <h1 className="text-3xl font-bold">{project.name}</h1>
-            <p className="text-muted-foreground">{project.description}</p>
+            <p className="text-muted-foreground">
+              {project.description || 'No project description available. Click Settings to add one.'}
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-2">

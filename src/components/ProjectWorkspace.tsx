@@ -3,10 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Settings, Play, Download, Link, GitCommit } from 'lucide-react';
+import { ArrowLeft, Plus, Settings, Play, Download, Link } from 'lucide-react';
 import ContentFeed from './ContentFeed';
 import ConnectionsManager from './ConnectionsManager';
-import { GitHubActivityFeed } from './GitHubActivityFeed';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useConnections } from '@/hooks/useConnections';
 
@@ -112,18 +111,13 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="feed">Content Feed</TabsTrigger>
-          <TabsTrigger value="activity">GitHub Activity</TabsTrigger>
           <TabsTrigger value="connections">Connections</TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="space-y-4">
           <ContentFeed project={project} />
-        </TabsContent>
-
-        <TabsContent value="activity" className="space-y-4">
-          <GitHubActivityFeed projectId={project.id} />
         </TabsContent>
 
         <TabsContent value="connections" className="space-y-4">

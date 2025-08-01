@@ -112,7 +112,7 @@ serve(async (req) => {
         
         if (webhookResponse.ok) {
           const webhookData = await webhookResponse.json();
-          console.log('n8n webhook response data:', webhookData);
+          console.log('n8n webhook response data:', JSON.stringify(webhookData, null, 2));
           
           // Ensure we have the expected structure
           githubData = {
@@ -122,7 +122,7 @@ serve(async (req) => {
             comments: typeof webhookData.comments === 'number' ? webhookData.comments : 0,
             login: accountConfig.login
           };
-          console.log('Successfully processed data from n8n webhook:', githubData);
+          console.log('Successfully processed data from n8n webhook:', JSON.stringify(githubData, null, 2));
         } else {
           const errorText = await webhookResponse.text();
           console.warn('n8n webhook request failed with status:', webhookResponse.status, 'Error:', errorText);

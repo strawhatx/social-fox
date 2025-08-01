@@ -50,13 +50,14 @@ serve(async (req) => {
 
     if (!connections || connections.length === 0) {
       return new Response(
-        JSON.stringify({ 
-          data: { 
-            description: 'No GitHub connection found. Connect GitHub to get real-time data.',
-            repositories: [],
-            recent_activity: []
-          } 
-        }),
+         JSON.stringify({ 
+           data: { 
+             description: 'No GitHub connection found. Connect GitHub to get real-time data.',
+             commits: [],
+             tickets: [],
+             comments: 0
+           } 
+         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -68,8 +69,9 @@ serve(async (req) => {
     // Call the n8n webhook to get real GitHub data
     let githubData = {
       description: 'GitHub connected successfully',
-      repositories: [],
-      recent_activity: []
+      commits: [],
+      tickets: [],
+      comments: 0
     };
 
     if (accountConfig?.access_token) {
@@ -95,8 +97,9 @@ serve(async (req) => {
           console.warn('n8n webhook request failed, falling back to stored data');
           githubData = {
             description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
-            repositories: accountConfig.repositories || [],
-            recent_activity: ['Recent commits and activity available'],
+            commits: [],
+            tickets: [],
+            comments: 0,
             login: accountConfig.login
           };
         }
@@ -105,8 +108,9 @@ serve(async (req) => {
         // Fallback to stored account information
         githubData = {
           description: `GitHub account connected${accountConfig.login ? ` (${accountConfig.login})` : ''}`,
-          repositories: accountConfig.repositories || [],
-          recent_activity: ['Recent commits and activity available'],
+          commits: [],
+          tickets: [],
+          comments: 0,
           login: accountConfig.login
         };
       }

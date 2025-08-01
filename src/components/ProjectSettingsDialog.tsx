@@ -85,15 +85,15 @@ export default function ProjectSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Project Settings</DialogTitle>
           <DialogDescription>
             Update your project configuration and settings.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1 min-h-0">
           {/* Basic Information */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -202,7 +202,7 @@ export default function ProjectSettingsDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

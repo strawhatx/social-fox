@@ -14,54 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      agent_configs: {
-        Row: {
-          agent_type: string
-          config_data: Json
-          config_type: string
-          created_at: string
-          id: string
-          integration_id: string | null
-          project_id: string
-          updated_at: string
-        }
-        Insert: {
-          agent_type: string
-          config_data?: Json
-          config_type: string
-          created_at?: string
-          id?: string
-          integration_id?: string | null
-          project_id: string
-          updated_at?: string
-        }
-        Update: {
-          agent_type?: string
-          config_data?: Json
-          config_type?: string
-          created_at?: string
-          id?: string
-          integration_id?: string | null
-          project_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_agent_configs_integration"
-            columns: ["integration_id"]
-            isOneToOne: false
-            referencedRelation: "integrations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_agent_configs_integration"
-            columns: ["integration_id"]
-            isOneToOne: false
-            referencedRelation: "integrations_flat"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cache: {
         Row: {
           created_at: string

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Settings, Play, Download, Link, GitCommit } from 'lucide-react';
 import ContentFeed from './ContentFeed';
 import ConnectionsManager from './ConnectionsManager';
+import ProjectSettingsDialog from './ProjectSettingsDialog';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useConnections } from '@/hooks/useConnections';
 
@@ -29,6 +30,7 @@ interface ProjectWorkspaceProps {
 
 export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: ProjectWorkspaceProps) {
   const [activeTab, setActiveTab] = useState('feed');
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { posts } = useContentPosts(project.id);
   const { connections } = useConnections(project.id);
   
@@ -52,7 +54,7 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             {project.status}
           </Badge>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setSettingsOpen(true)}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
@@ -123,6 +125,17 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           <ConnectionsManager project={project} />
         </TabsContent>
       </Tabs>
+
+      <ProjectSettingsDialog
+        project={project}
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        onUpdate={(updates) => {
+          if (onProjectUpdate) {
+            onProjectUpdate(updates);
+          }
+        }}
+      />
     </div>
   );
 }

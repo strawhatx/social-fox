@@ -124,7 +124,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           // 1. Recent GitHub activity with commits
           realSources.push({
             id: `${connection.id}-commits`,
-            name: 'Recent GitHub activity with the commits',
+            name: 'Recent GitHub activity',
             type: 'github-commits',
             icon: <Github className="h-4 w-4" />,
             description: githubData?.commits?.length > 0 
@@ -136,7 +136,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           // 2. Task updates with active tickets
           realSources.push({
             id: `${connection.id}-tickets`,
-            name: 'Task updates with the active tickets',
+            name: 'Task updates',
             type: 'github-tickets',
             icon: <CheckSquare className="h-4 w-4" />,
             description: githubData?.tickets?.length > 0 
@@ -148,7 +148,7 @@ export const GenerateContentDialog = ({ open, onOpenChange, project }: GenerateC
           // 3. User feedback with comments
           realSources.push({
             id: `${connection.id}-comments`,
-            name: 'User feedback with comments',
+            name: 'User feedback',
             type: 'github-comments',
             icon: <MessageSquare className="h-4 w-4" />,
             description: githubData?.comments > 0 

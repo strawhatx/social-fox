@@ -91,21 +91,20 @@ serve(async (req) => {
           throw new Error('n8n credentials not configured');
         }
 
-        // Make request to n8n webhook using GET with query parameters and basic auth
-        const webhookUrl = new URL('https://primary-production-146e9.up.railway.app/webhook/github-data');
-        webhookUrl.searchParams.set('projectId', projectId);
-        webhookUrl.searchParams.set('githubToken', accountConfig.access_token);
-        if (accountConfig.login) {
-          webhookUrl.searchParams.set('githubLogin', accountConfig.login);
-        }
-
+        // Make request to n8n webhook using POST with project_id in body
         const credentials = btoa(`${n8nUsername}:${n8nPassword}`);
-        const webhookResponse = await fetch(webhookUrl.toString(), {
-          method: 'GET',
+        const webhookResponse = await fetch('https://primary-production-146e9.up.railway.app/webhook/github-data', {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': `Basic ${credentials}`
-          }
+          },
+          body: JSON.stringify({
+            project_id: projectId,
+            githubToken: accountConfig.access_token,
+            githubLogin: accountConfig.login
+          })
         });
 
         console.log('n8n webhook response status:', webhookResponse.status);

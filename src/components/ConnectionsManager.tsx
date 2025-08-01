@@ -172,9 +172,10 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => handleDeleteConnection(connection.id)}
+              onClick={() => handleConnectIntegration(integration)}
+              disabled={isConnecting}
             >
-              Disconnect
+              Re-authorize
             </Button>
           ) : (
             <Button 

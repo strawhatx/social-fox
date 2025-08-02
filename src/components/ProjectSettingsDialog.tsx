@@ -221,31 +221,14 @@ export default function ProjectSettingsDialog({
                   id="automation-toggle"
                   checked={formData.automation_enabled}
                   onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, automation_enabled: checked }))
+                    setFormData(prev => ({ 
+                      ...prev, 
+                      automation_enabled: checked,
+                      automation_frequency: 'daily'
+                    }))
                   }
                 />
               </div>
-              
-              {formData.automation_enabled && (
-                <div className="space-y-2">
-                  <Label htmlFor="frequency">Check frequency</Label>
-                  <Select
-                    value={formData.automation_frequency}
-                    onValueChange={(value) => 
-                      setFormData(prev => ({ ...prev, automation_frequency: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hourly">Every hour</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </div>
           </div>
         </div>

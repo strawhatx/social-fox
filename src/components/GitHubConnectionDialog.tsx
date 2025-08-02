@@ -26,8 +26,8 @@ export const GitHubConnectionDialog = ({
 }: GitHubConnectionDialogProps) => {
   // If already connected, start with configure step, otherwise start with connect
   const [step, setStep] = useState<'connect' | 'configure'>(isConnected ? 'configure' : 'connect');
-  const [gitUrl, setGitUrl] = useState('');
-  const [repoName, setRepoName] = useState('');
+  const [owner, setOwner] = useState('');
+  const [repository, setRepository] = useState('');
   
   const { connectProvider, isConnecting } = useOAuth();
   const { toast } = useToast();
@@ -39,16 +39,6 @@ export const GitHubConnectionDialog = ({
       setStep(isConnected ? 'configure' : 'connect');
     }
   }, [isOpen, isConnected]);
-
-  // Extract owner name from git URL
-  const extractOwner = (url: string): string => {
-    if (!url) return '';
-    // Handle both full URLs and just usernames
-    const match = url.match(/(?:https?:\/\/github\.com\/)?([^\/\s]+)/);
-    return match ? match[1] : '';
-  };
-
-  const owner = extractOwner(gitUrl);
 
   const handleConnect = async () => {
     try {
@@ -73,20 +63,10 @@ export const GitHubConnectionDialog = ({
   };
 
   const handleSaveRepository = async () => {
-    if (!gitUrl.trim() || !repoName.trim()) {
+    if (!owner.trim() || !repository.trim()) {
       toast({
         title: "Missing information",
         description: "Please enter both GitHub URL and repository name",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const ownerName = extractOwner(gitUrl);
-    if (!ownerName) {
-      toast({
-        title: "Invalid GitHub URL",
-        description: "Please enter a valid GitHub URL or username",
         variant: "destructive",
       });
       return;
@@ -97,16 +77,14 @@ export const GitHubConnectionDialog = ({
       if (!githubIntegration) {
         throw new Error('GitHub integration not found');
       }
-
-      // Normalize git_url to always be the full GitHub profile URL
-      const normalizedGitUrl = gitUrl.startsWith('http') ? gitUrl : `https://github.com/${gitUrl}`;
-      
+ 
       const accountConfig = {
-        git_url: normalizedGitUrl,
-        owner: ownerName,
-        repository: repoName,
-        repository_full_name: `${ownerName}/${repoName}`,
-        repository_url: `https://github.com/${ownerName}/${repoName}`
+        repository:{,
+          owner: owner,
+          owner_url: `https://github.com/${owner}`,
+          repository: repository,
+          repository_url: `https://github.com/${owner}/${repository}`
+        }
       };
 
       // Check if connection already exists
@@ -128,8 +106,8 @@ export const GitHubConnectionDialog = ({
       onConnectionSuccess?.();
       onClose();
       setStep('connect');
-      setGitUrl('');
-      setRepoName('');
+        setOwner('');
+        setRepository('');
     } catch (error) {
       console.error('Failed to save repository:', error);
       toast({
@@ -217,31 +195,31 @@ export const GitHubConnectionDialog = ({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="gitUrl">GitHub URL</Label>
+                <Label htmlFor="owner">GitHub Account</Label>
                 <Input
-                  id="gitUrl"
-                  placeholder="e.g., https://github.com/username or just username"
+                  id="owner"
+                  placeholder="e.g., account username"
                   value={gitUrl}
-                  onChange={(e) => setGitUrl(e.target.value)}
+                  onChange={(e) => setOwner(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="repoName">Repository Name</Label>
+                <Label htmlFor="repopository">Repository</Label>
                 <Input
-                  id="repoName"
+                  id="repository"
                   placeholder="e.g., my-awesome-project"
-                  value={repoName}
-                  onChange={(e) => setRepoName(e.target.value)}
+                  value={repository}
+                  onChange={(e) => setRepository(e.target.value)}
                 />
               </div>
 
               <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
                 <strong>Repository URL:</strong> {
-                  owner && repoName 
-                    ? `https://github.com/${owner}/${repoName}` 
-                    : gitUrl || repoName
-                      ? `https://github.com/${owner || '[owner]'}/${repoName || '[repository]'}` 
+                  owner && repoository
+                    ? `https://github.com/${owner}/${repository}` 
+                    : owner || repsitory
+                      ? `https://github.com/${owner || '[owner]'}/${repository || '[repository]'}` 
                       : 'Enter GitHub URL and repository name above'
                 }
               </div>

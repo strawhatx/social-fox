@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram, Sparkles } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram, Plus } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
-import { GenerateContentDialog } from '@/components/GenerateContentDialog';
 
 interface Project {
   id: string;
@@ -30,7 +32,9 @@ interface ContentFeedProps {
 export default function ContentFeed({ project }: ContentFeedProps) {
   const { posts, loading, createPost, updatePost } = useContentPosts(project.id);
   const [activeTab, setActiveTab] = useState('all');
-  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [selectedPlatform, setSelectedPlatform] = useState('Twitter');
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -61,6 +65,38 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     }
   };
 
+  const handleCreatePost = async () => {
+    if (!newPostContent.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter content for your post",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await createPost({
+      content: newPostContent,
+      platform: selectedPlatform,
+      status: 'draft'
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create post",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Post created successfully",
+      });
+      setNewPostContent('');
+      setShowCreateDialog(false);
+    }
+  };
+
   const filteredPosts = activeTab === 'all' ? posts : posts.filter(post => post.status === activeTab);
 
   return (
@@ -71,13 +107,51 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           <h2 className="text-2xl font-bold">Content Feed</h2>
           <p className="text-muted-foreground">Manage and review AI-generated content</p>
         </div>
-        <Button 
-          onClick={() => setShowGenerateDialog(true)}
-          className="bg-primary hover:bg-primary/90"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate New Content
-        </Button>
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90">
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Post
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Create Manual Post</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Platform</label>
+                <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Twitter">Twitter</SelectItem>
+                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                    <SelectItem value="Instagram">Instagram</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Content</label>
+                <Textarea
+                  placeholder="Write your post content here..."
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  rows={6}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreatePost}>
+                  Create Post
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Status Tabs */}
@@ -190,12 +264,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           })}
         </TabsContent>
       </Tabs>
-
-      <GenerateContentDialog
-        open={showGenerateDialog}
-        onOpenChange={setShowGenerateDialog}
-        project={project}
-      />
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Twitter, Linkedin, Instagram, Settings, Zap } from 'lucide-react';
 import { usePlatformConfigs } from '@/hooks/usePlatformConfigs';
 import { useToast } from '@/hooks/use-toast';
-import TestGenerationDialog from './TestGenerationDialog';
+
 
 interface Project {
   id: string;
@@ -129,7 +129,7 @@ export default function PlatformConfig({ project }: PlatformConfigProps) {
             Configure how content is formatted for each platform
           </p>
         </div>
-        <TestGenerationDialog platforms={platforms} />
+        
       </div>
 
       <div className="grid gap-6">

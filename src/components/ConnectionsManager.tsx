@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, Mail, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
+import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
@@ -90,8 +90,6 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     switch (provider.toLowerCase()) {
       case 'google_sheets':
         return <FileSpreadsheet className="w-5 h-5" />;
-      case 'gmail':
-        return <Mail className="w-5 h-5" />;
       case 'github':
         return <GitBranch className="w-5 h-5" />;
       case 'twitter':
@@ -107,8 +105,6 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     switch (provider.toLowerCase()) {
       case 'google_sheets':
         return 'Manual task updates → post ideas';
-      case 'gmail':
-        return 'Surface insights from conversations';
       case 'github':
         return 'Turn commits into progress updates';
       case 'twitter':
@@ -231,17 +227,6 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {dataSourceIntegrations.map(renderConnectionCard)}
-          
-          {/* Request Integration Card */}
-          <Card className="p-6 border-2 border-dashed border-muted-foreground/25">
-            <div className="flex flex-col items-center justify-center text-center h-full min-h-[120px]">
-              <Plus className="w-6 h-6 text-muted-foreground mb-2" />
-              <h3 className="font-semibold mb-1">Request Integration</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Need another data source? Let us know!
-              </p>
-            </div>
-          </Card>
         </div>
       </div>
 
@@ -257,17 +242,6 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {publishingPlatformIntegrations.map(renderConnectionCard)}
-          
-          {/* Request Platform Card */}
-          <Card className="p-6 border-2 border-dashed border-muted-foreground/25">
-            <div className="flex flex-col items-center justify-center text-center h-full min-h-[120px]">
-              <Plus className="w-6 h-6 text-muted-foreground mb-2" />
-              <h3 className="font-semibold mb-1">Request Platform</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Want to publish elsewhere? Let us know!
-              </p>
-            </div>
-          </Card>
         </div>
       </div>
 

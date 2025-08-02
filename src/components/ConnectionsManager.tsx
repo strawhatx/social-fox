@@ -6,6 +6,7 @@ import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, G
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
+import { GitHubConnectionDialog } from './GitHubConnectionDialog';
 
 
 interface Project {
@@ -25,6 +26,8 @@ interface ConnectionsManagerProps {
 }
 
 const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
+  const [showGitHubDialog, setShowGitHubDialog] = useState(false);
+  
   const { 
     connections, 
     integrations, 
@@ -39,6 +42,12 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
   const { connectProvider, isConnecting } = useOAuth();
 
   const handleConnectIntegration = async (integration: any) => {
+    // Show GitHub dialog for GitHub connections
+    if (integration.provider === 'github') {
+      setShowGitHubDialog(true);
+      return;
+    }
+
     try {
       await connectProvider({
         provider: integration.provider,
@@ -179,65 +188,81 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     );
   };
 
+  const githubIntegration = integrations.find(integration => integration.provider === 'github');
+  const githubConnection = githubIntegration ? getConnectionByIntegration(githubIntegration.id) : null;
+
   return (
-    <div className="space-y-8">
-      {/* How It Works Section */}
-      <div className="bg-muted/50 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">How It Works</h2>
-        <div className="flex items-center space-x-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Database className="w-4 h-4" />
-            <span>Pull Data</span>
-          </div>
-          <span>→</span>
-          <div className="flex items-center space-x-2">
-            <Settings className="w-4 h-4" />
-            <span>AI Processing</span>
-          </div>
-          <span>→</span>
-          <div className="flex items-center space-x-2">
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Generate Content</span>
-          </div>
-          <span>→</span>
-          <div className="flex items-center space-x-2">
-            <Share2 className="w-4 h-4" />
-            <span>Auto-Post</span>
+    <>
+      <div className="space-y-8">
+        {/* How It Works Section */}
+        <div className="bg-muted/50 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4">How It Works</h2>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <Database className="w-4 h-4" />
+              <span>Pull Data</span>
+            </div>
+            <span>→</span>
+            <div className="flex items-center space-x-2">
+              <Settings className="w-4 h-4" />
+              <span>AI Processing</span>
+            </div>
+            <span>→</span>
+            <div className="flex items-center space-x-2">
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Generate Content</span>
+            </div>
+            <span>→</span>
+            <div className="flex items-center space-x-2">
+              <Share2 className="w-4 h-4" />
+              <span>Auto-Post</span>
+            </div>
           </div>
         </div>
+
+        {/* Data Sources Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Database className="w-5 h-5" />
+              <h2 className="text-xl font-semibold">Data Sources</h2>
+              <span className="text-sm text-muted-foreground">Pull real-time data</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {dataSourceIntegrations.map(renderConnectionCard)}
+          </div>
+        </div>
+
+        {/* Publishing Platforms Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Share2 className="w-5 h-5" />
+              <h2 className="text-xl font-semibold">Publishing Platforms</h2>
+              <span className="text-sm text-muted-foreground">Share your content</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {publishingPlatformIntegrations.map(renderConnectionCard)}
+          </div>
+        </div>
+
       </div>
 
-      {/* Data Sources Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Database className="w-5 h-5" />
-            <h2 className="text-xl font-semibold">Data Sources</h2>
-            <span className="text-sm text-muted-foreground">Pull real-time data</span>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {dataSourceIntegrations.map(renderConnectionCard)}
-        </div>
-      </div>
-
-      {/* Publishing Platforms Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Share2 className="w-5 h-5" />
-            <h2 className="text-xl font-semibold">Publishing Platforms</h2>
-            <span className="text-sm text-muted-foreground">Share your content</span>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {publishingPlatformIntegrations.map(renderConnectionCard)}
-        </div>
-      </div>
-
-    </div>
+      <GitHubConnectionDialog
+        isOpen={showGitHubDialog}
+        onClose={() => setShowGitHubDialog(false)}
+        projectId={project.id}
+        isConnected={!!githubConnection}
+        onConnectionSuccess={() => {
+          // Refresh connections data
+          window.location.reload();
+        }}
+      />
+    </>
   );
 };
 

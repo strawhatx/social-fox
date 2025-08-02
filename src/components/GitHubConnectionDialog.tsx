@@ -127,6 +127,7 @@ export const GitHubConnectionDialog = ({
           </DialogDescription>
         </DialogHeader>
 
+        <div className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="owner">GitHub Account</Label>

@@ -204,7 +204,11 @@ export const GitHubConnectionDialog = ({
               </div>
 
               <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                <strong>Repository URL:</strong> {repoOwner && repoName ? `https://github.com/${repoOwner}/${repoName}` : 'Enter owner and name above'}
+                <strong>Repository URL:</strong> {
+                  repoOwner || repoName 
+                    ? `https://github.com/${repoOwner || '[owner]'}/${repoName || '[repository]'}` 
+                    : 'Enter owner and name above'
+                }
               </div>
             </div>
 

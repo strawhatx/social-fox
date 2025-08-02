@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,13 +24,21 @@ export const GitHubConnectionDialog = ({
   isConnected = false,
   onConnectionSuccess 
 }: GitHubConnectionDialogProps) => {
-  const [step, setStep] = useState<'connect' | 'configure'>('connect');
+  // If already connected, start with configure step, otherwise start with connect
+  const [step, setStep] = useState<'connect' | 'configure'>(isConnected ? 'configure' : 'connect');
   const [repoOwner, setRepoOwner] = useState('');
   const [repoName, setRepoName] = useState('');
   
   const { connectProvider, isConnecting } = useOAuth();
   const { toast } = useToast();
   const { createConnection, getIntegrationByProvider } = useConnections(projectId);
+
+  // Reset step when dialog opens/closes or connection status changes
+  useEffect(() => {
+    if (isOpen) {
+      setStep(isConnected ? 'configure' : 'connect');
+    }
+  }, [isOpen, isConnected]);
 
   const handleConnect = async () => {
     try {

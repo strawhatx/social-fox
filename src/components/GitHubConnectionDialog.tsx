@@ -127,23 +127,6 @@ export const GitHubConnectionDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <GitBranch className="w-8 h-8" />
-              <div>
-                <h3 className="font-semibold">GitHub Repository</h3>
-                <p className="text-sm text-muted-foreground">
-                  Turn commits into progress updates
-                </p>
-              </div>
-            </div>
-            <Badge variant={isConnected ? "default" : "secondary"} className="flex items-center gap-1">
-              {isConnected ? <Check className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-              {isConnected ? 'Connected' : 'Not Connected'}
-            </Badge>
-          </div>
-
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="owner">GitHub Account</Label>

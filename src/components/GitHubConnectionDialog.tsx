@@ -199,7 +199,7 @@ export const GitHubConnectionDialog = ({
                 <Input
                   id="owner"
                   placeholder="e.g., account username"
-                  value={gitUrl}
+                  value={owner}
                   onChange={(e) => setOwner(e.target.value)}
                 />
               </div>
@@ -216,9 +216,9 @@ export const GitHubConnectionDialog = ({
 
               <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
                 <strong>Repository URL:</strong> {
-                  owner && repoository
+                  owner && repository
                     ? `https://github.com/${owner}/${repository}` 
-                    : owner || repsitory
+                    : owner || repository
                       ? `https://github.com/${owner || '[owner]'}/${repository || '[repository]'}` 
                       : 'Enter GitHub URL and repository name above'
                 }
@@ -231,7 +231,7 @@ export const GitHubConnectionDialog = ({
               </Button>
               <Button 
                 onClick={handleSaveRepository}
-                disabled={!gitUrl.trim() || !repoName.trim()}
+                disabled={!owner.trim() || !repository.trim()}
                 className="flex-1"
               >
                 Save Repository

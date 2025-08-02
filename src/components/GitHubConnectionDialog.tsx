@@ -24,19 +24,36 @@ export const GitHubConnectionDialog = ({
   isConnected = false,
   onConnectionSuccess 
 }: GitHubConnectionDialogProps) => {
-  // If already connected, start with configure step, otherwise start with connect
   const [step, setStep] = useState<'connect' | 'configure'>(isConnected ? 'configure' : 'connect');
   const [owner, setOwner] = useState('');
   const [repository, setRepository] = useState('');
-  
+
   const { connectProvider, isConnecting } = useOAuth();
   const { toast } = useToast();
   const { createConnection, updateConnection, getIntegrationByProvider, getConnectionByIntegration } = useConnections(projectId);
+
+  // Load existing connection data
+  useEffect(() => {
+    if (isConnected && isOpen) {
+      const githubIntegration = getIntegrationByProvider('github');
+      if (githubIntegration) {
+        const connection = getConnectionByIntegration(githubIntegration.id);
+        if (connection?.account_config?.repository) {
+          setOwner(connection.account_config.repository.owner || '');
+          setRepository(connection.account_config.repository.repository || '');
+        }
+      }
+    }
+  }, [isConnected, isOpen, getIntegrationByProvider, getConnectionByIntegration]);
 
   // Reset step when dialog opens/closes or connection status changes
   useEffect(() => {
     if (isOpen) {
       setStep(isConnected ? 'configure' : 'connect');
+    } else {
+      // Reset form when dialog closes
+      setOwner('');
+      setRepository('');
     }
   }, [isOpen, isConnected]);
 
@@ -105,9 +122,7 @@ export const GitHubConnectionDialog = ({
 
       onConnectionSuccess?.();
       onClose();
-      setStep('connect');
-        setOwner('');
-        setRepository('');
+      // Don't reset form here - it will be reset when dialog reopens
     } catch (error) {
       console.error('Failed to save repository:', error);
       toast({

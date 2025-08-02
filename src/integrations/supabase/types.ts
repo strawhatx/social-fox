@@ -206,6 +206,8 @@ export type Database = {
       }
       projects: {
         Row: {
+          automation_enabled: boolean
+          automation_frequency: string | null
           brand_voice: string | null
           content_sources: number | null
           created_at: string
@@ -229,6 +231,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          automation_enabled?: boolean
+          automation_frequency?: string | null
           brand_voice?: string | null
           content_sources?: number | null
           created_at?: string
@@ -252,6 +256,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          automation_enabled?: boolean
+          automation_frequency?: string | null
           brand_voice?: string | null
           content_sources?: number | null
           created_at?: string

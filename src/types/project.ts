@@ -24,6 +24,8 @@ export interface Project {
   };
   brandVoice: string;
   targetAudience: string;
+  automation_enabled?: boolean;
+  automation_frequency?: string;
 }
 
 // Utility function to convert database project to legacy format
@@ -38,6 +40,8 @@ export const convertDbProjectToLegacy = (dbProject: DbProject): Project => ({
   roles: dbProject.roles,
   brandVoice: dbProject.brand_voice,
   targetAudience: dbProject.target_audience,
+  automation_enabled: dbProject.automation_enabled,
+  automation_frequency: dbProject.automation_frequency
 });
 
 // Utility function to convert legacy project to database format
@@ -50,4 +54,6 @@ export const convertLegacyToDbProject = (legacyProject: Partial<Project>): Parti
   target_audience: legacyProject.targetAudience,
   status: legacyProject.status,
   roles: legacyProject.roles,
+  automation_enabled: legacyProject.automation_enabled,
+  automation_frequency: legacyProject.automation_frequency,
 });

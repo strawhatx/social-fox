@@ -14,6 +14,8 @@ export interface Project {
   status: 'active' | 'paused' | 'draft';
   brand_voice: string;
   target_audience: string;
+  automation_enabled: boolean;
+  automation_frequency: string;
   roles: {
     brand_builder: boolean;
     content_creator: boolean;
@@ -63,6 +65,8 @@ export const useProjects = () => {
         status: project.status,
         brand_voice: project.brand_voice || '',
         target_audience: project.target_audience || '',
+        automation_enabled: project.automation_enabled || false,
+        automation_frequency: project.automation_frequency || 'daily',
         roles: {
           brand_builder: project.role_brand_builder || false,
           content_creator: project.role_content_creator || false,
@@ -150,6 +154,8 @@ export const useProjects = () => {
           brand_voice: updates.brand_voice,
           target_audience: updates.target_audience,
           status: updates.status,
+          automation_enabled: updates.automation_enabled,
+          automation_frequency: updates.automation_frequency,
           role_brand_builder: updates.roles?.brand_builder,
           role_content_creator: updates.roles?.content_creator,
           role_audience_researcher: updates.roles?.audience_researcher,

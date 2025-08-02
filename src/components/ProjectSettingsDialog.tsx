@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -19,6 +20,8 @@ interface Project {
   status: 'active' | 'paused' | 'draft';
   brandVoice: string;
   targetAudience: string;
+  automation_enabled?: boolean;
+  automation_frequency?: string;
 }
 
 interface ProjectSettingsDialogProps {
@@ -45,7 +48,9 @@ export default function ProjectSettingsDialog({
     status: project.status,
     brandVoice: project.brandVoice,
     targetAudience: project.targetAudience,
-    platforms: project.platforms
+    platforms: project.platforms,
+    automation_enabled: project.automation_enabled || false,
+    automation_frequency: project.automation_frequency || 'daily'
   });
   const { toast } = useToast();
 
@@ -198,6 +203,49 @@ export default function ProjectSettingsDialog({
                     ))}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Automation Settings */}
+          <div className="space-y-4">
+            <Label>Automation Settings</Label>
+            <div className="space-y-4 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="automation-toggle">Auto-generate posts</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically create draft posts based on GitHub activity
+                  </p>
+                </div>
+                <Switch
+                  id="automation-toggle"
+                  checked={formData.automation_enabled}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, automation_enabled: checked }))
+                  }
+                />
+              </div>
+              
+              {formData.automation_enabled && (
+                <div className="space-y-2">
+                  <Label htmlFor="frequency">Check frequency</Label>
+                  <Select
+                    value={formData.automation_frequency}
+                    onValueChange={(value) => 
+                      setFormData(prev => ({ ...prev, automation_frequency: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hourly">Every hour</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
         </div>

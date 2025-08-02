@@ -10,7 +10,6 @@ export interface Project {
   platforms: string[];
   contentSources: number;
   
-  status: 'active' | 'paused' | 'draft';
   roles: {
     brand_builder: boolean;
     content_creator: boolean;
@@ -36,7 +35,6 @@ export const convertDbProjectToLegacy = (dbProject: DbProject): Project => ({
   platforms: dbProject.platforms,
   contentSources: dbProject.content_sources,
   
-  status: dbProject.status,
   roles: dbProject.roles,
   brandVoice: dbProject.brand_voice,
   targetAudience: dbProject.target_audience,
@@ -52,7 +50,6 @@ export const convertLegacyToDbProject = (legacyProject: Partial<Project>): Parti
   platforms: legacyProject.platforms,
   brand_voice: legacyProject.brandVoice,
   target_audience: legacyProject.targetAudience,
-  status: legacyProject.status,
   roles: legacyProject.roles,
   automation_enabled: legacyProject.automation_enabled,
   automation_frequency: legacyProject.automation_frequency,

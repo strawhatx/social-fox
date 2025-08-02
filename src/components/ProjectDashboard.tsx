@@ -16,15 +16,6 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
   console.log('ProjectDashboard: projects loaded:', projects);
   console.log('ProjectDashboard: loading state:', loading);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'paused': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'draft': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-    }
-  };
-
   const getPlatformColor = (platform: string) => {
     switch (platform) {
       case 'Twitter': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -88,15 +79,9 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               {projects.length} project{projects.length !== 1 ? 's' : ''} found
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <Badge variant="outline" className="bg-green-50 text-green-700">
-                {projects.filter(p => p.status === 'active').length} Active
-              </Badge>
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
-                {projects.filter(p => p.status === 'paused').length} Paused
-              </Badge>
-              <Badge variant="outline" className="bg-gray-50 text-gray-700">
-                {projects.filter(p => p.status === 'draft').length} Draft
+              <span className="text-sm text-muted-foreground">Projects:</span>
+              <Badge variant="outline" className="bg-primary/10 text-primary">
+                {projects.length} Total
               </Badge>
             </div>
           </div>
@@ -115,11 +100,6 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
                     <div className="space-y-1 flex-1">
                       <CardTitle className="text-lg font-semibold line-clamp-1">{project.name}</CardTitle>
                       <p className="text-sm text-muted-foreground line-clamp-2">{project.description || 'No description'}</p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status}
-                      </Badge>
                     </div>
                   </div>
                 </CardHeader>

@@ -225,7 +225,6 @@ export type Database = {
           role_content_creator: boolean | null
           role_growth_hacker: boolean | null
           role_lead_generator: boolean | null
-          status: string | null
           target_audience: string | null
           updated_at: string
           user_id: string
@@ -250,7 +249,6 @@ export type Database = {
           role_content_creator?: boolean | null
           role_growth_hacker?: boolean | null
           role_lead_generator?: boolean | null
-          status?: string | null
           target_audience?: string | null
           updated_at?: string
           user_id: string
@@ -275,7 +273,6 @@ export type Database = {
           role_content_creator?: boolean | null
           role_growth_hacker?: boolean | null
           role_lead_generator?: boolean | null
-          status?: string | null
           target_audience?: string | null
           updated_at?: string
           user_id?: string

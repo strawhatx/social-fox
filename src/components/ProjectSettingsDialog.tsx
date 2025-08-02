@@ -16,8 +16,6 @@ interface Project {
   description: string;
   platforms: string[];
   contentSources: number;
-  lastGenerated: string;
-  status: 'active' | 'paused' | 'draft';
   brandVoice: string;
   targetAudience: string;
   automation_enabled?: boolean;
@@ -32,8 +30,7 @@ interface ProjectSettingsDialogProps {
 }
 
 const availablePlatforms = [
-  'LinkedIn', 'Twitter', 'Facebook', 'Instagram', 
-  'YouTube', 'TikTok', 'Medium', 'Slack'
+  'LinkedIn', 'Twitter'
 ];
 
 export default function ProjectSettingsDialog({ 
@@ -45,7 +42,6 @@ export default function ProjectSettingsDialog({
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description,
-    status: project.status,
     brandVoice: project.brandVoice,
     targetAudience: project.targetAudience,
     platforms: project.platforms,
@@ -120,25 +116,6 @@ export default function ProjectSettingsDialog({
                 placeholder="Describe your project"
                 rows={3}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value: 'active' | 'paused' | 'draft') => 
-                  setFormData(prev => ({ ...prev, status: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
 

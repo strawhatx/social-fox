@@ -11,7 +11,6 @@ export interface Project {
   platforms: string[];
   content_sources: number;
   
-  status: 'active' | 'paused' | 'draft';
   brand_voice: string;
   target_audience: string;
   automation_enabled: boolean;
@@ -62,7 +61,7 @@ export const useProjects = () => {
         platforms: project.platforms || [],
         content_sources: 0,
         
-        status: project.status,
+        
         brand_voice: project.brand_voice || '',
         target_audience: project.target_audience || '',
         automation_enabled: project.automation_enabled || false,
@@ -153,7 +152,6 @@ export const useProjects = () => {
           platforms: updates.platforms,
           brand_voice: updates.brand_voice,
           target_audience: updates.target_audience,
-          status: updates.status,
           automation_enabled: updates.automation_enabled,
           automation_frequency: updates.automation_frequency,
           role_brand_builder: updates.roles?.brand_builder,

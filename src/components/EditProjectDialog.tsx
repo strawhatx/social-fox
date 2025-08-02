@@ -47,10 +47,6 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
   const platforms = [
     { id: 'twitter', name: 'Twitter', color: 'bg-blue-500' },
     { id: 'linkedin', name: 'LinkedIn', color: 'bg-blue-600' },
-    { id: 'instagram', name: 'Instagram', color: 'bg-pink-500' },
-    { id: 'facebook', name: 'Facebook', color: 'bg-blue-700' },
-    { id: 'youtube', name: 'YouTube', color: 'bg-red-500' },
-    { id: 'tiktok', name: 'TikTok', color: 'bg-black' },
   ];
 
   const roles = [
@@ -85,7 +81,6 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
       platforms: selectedPlatforms,
       brand_voice: formData.get('brandVoice') as string,
       target_audience: formData.get('targetAudience') as string,
-      status: formData.get('status') as 'active' | 'paused' | 'draft',
       roles: selectedRoles,
     };
 
@@ -132,20 +127,6 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
                 defaultValue={project.description}
                 disabled={loading}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="edit-status">Status</Label>
-              <Select name="status" defaultValue={project.status}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div>

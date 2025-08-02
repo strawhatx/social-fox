@@ -79,7 +79,7 @@ export const GitHubConnectionDialog = ({
       }
  
       const accountConfig = {
-        repository:{,
+        repository:{
           owner: owner,
           owner_url: `https://github.com/${owner}`,
           repository: repository,

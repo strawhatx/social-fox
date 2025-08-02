@@ -67,8 +67,19 @@ export const GitHubConnectionDialog = ({
         }
       });
 
+      // Wait for OAuth completion before moving to configure step
+      // The OAuth service will handle the popup and callback
+      
+      toast({
+        title: "GitHub connected successfully",
+        description: "Now you can configure your repository settings",
+      });
+
       // Move to configuration step after OAuth success
       setStep('configure');
+      
+      // Refresh connections data to get the latest OAuth info
+      // This will be handled by the parent component calling onConnectionSuccess
     } catch (error) {
       console.error('GitHub connection failed:', error);
       toast({
@@ -83,20 +94,38 @@ export const GitHubConnectionDialog = ({
     if (!owner.trim() || !repository.trim()) {
       toast({
         title: "Missing information",
-        description: "Please enter both GitHub URL and repository name",
+        description: "Please enter both GitHub username and repository name",
         variant: "destructive",
       });
       return;
     }
 
+    // Verify we have a valid GitHub connection with OAuth token
+    const githubIntegration = getIntegrationByProvider('github');
+    if (!githubIntegration) {
+      toast({
+        title: "GitHub not connected",
+        description: "Please complete GitHub authorization first",
+        variant: "destructive",
+      });
+      setStep('connect');
+      return;
+    }
+
+    const existingConnection = getConnectionByIntegration(githubIntegration.id);
+    if (!existingConnection?.account_config?.access_token) {
+      toast({
+        title: "GitHub authorization required",
+        description: "Please complete GitHub authorization first",
+        variant: "destructive",
+      });
+      setStep('connect');
+      return;
+    }
     try {
-      const githubIntegration = getIntegrationByProvider('github');
-      if (!githubIntegration) {
-        throw new Error('GitHub integration not found');
-      }
- 
       const accountConfig = {
-        repository:{
+        ...existingConnection.account_config, // Preserve existing OAuth data
+        repository: {
           owner: owner,
           owner_url: `https://github.com/${owner}`,
           repository: repository,
@@ -104,16 +133,8 @@ export const GitHubConnectionDialog = ({
         }
       };
 
-      // Check if connection already exists
-      const existingConnection = getConnectionByIntegration(githubIntegration.id);
-      
-      if (existingConnection) {
-        // Update existing connection
-        await updateConnection(existingConnection.id, accountConfig);
-      } else {
-        // Create new connection
-        await createConnection(githubIntegration.id, accountConfig);
-      }
+      // Update the existing connection with repository info
+      await updateConnection(existingConnection.id, accountConfig);
 
       toast({
         title: "Success",
@@ -122,7 +143,6 @@ export const GitHubConnectionDialog = ({
 
       onConnectionSuccess?.();
       onClose();
-      // Don't reset form here - it will be reset when dialog reopens
     } catch (error) {
       console.error('Failed to save repository:', error);
       toast({

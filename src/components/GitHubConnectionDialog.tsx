@@ -31,7 +31,7 @@ export const GitHubConnectionDialog = ({
   
   const { connectProvider, isConnecting } = useOAuth();
   const { toast } = useToast();
-  const { createConnection, getIntegrationByProvider } = useConnections(projectId);
+  const { createConnection, updateConnection, getIntegrationByProvider, getConnectionByIntegration } = useConnections(projectId);
 
   // Reset step when dialog opens/closes or connection status changes
   useEffect(() => {
@@ -101,13 +101,24 @@ export const GitHubConnectionDialog = ({
       // Normalize git_url to always be the full GitHub profile URL
       const normalizedGitUrl = gitUrl.startsWith('http') ? gitUrl : `https://github.com/${gitUrl}`;
       
-      await createConnection(githubIntegration.id, {
+      const accountConfig = {
         git_url: normalizedGitUrl,
         owner: ownerName,
         repository: repoName,
         repository_full_name: `${ownerName}/${repoName}`,
         repository_url: `https://github.com/${ownerName}/${repoName}`
-      });
+      };
+
+      // Check if connection already exists
+      const existingConnection = getConnectionByIntegration(githubIntegration.id);
+      
+      if (existingConnection) {
+        // Update existing connection
+        await updateConnection(existingConnection.id, accountConfig);
+      } else {
+        // Create new connection
+        await createConnection(githubIntegration.id, accountConfig);
+      }
 
       toast({
         title: "Success",

@@ -14,27 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      cache: {
-        Row: {
-          created_at: string
-          expires_at: string | null
-          key: string
-          value: Json
-        }
-        Insert: {
-          created_at?: string
-          expires_at?: string | null
-          key: string
-          value: Json
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string | null
-          key?: string
-          value?: Json
-        }
-        Relationships: []
-      }
       connections: {
         Row: {
           account_config: Json
@@ -132,83 +111,6 @@ export type Database = {
         }
         Relationships: []
       }
-      content_sources: {
-        Row: {
-          config: Json | null
-          created_at: string
-          id: string
-          is_active: boolean | null
-          name: string
-          project_id: string
-          type: string
-          updated_at: string
-          url: string | null
-        }
-        Insert: {
-          config?: Json | null
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          name: string
-          project_id: string
-          type: string
-          updated_at?: string
-          url?: string | null
-        }
-        Update: {
-          config?: Json | null
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          project_id?: string
-          type?: string
-          updated_at?: string
-          url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_sources_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      export_configs: {
-        Row: {
-          config: Json | null
-          created_at: string
-          enabled: boolean | null
-          id: string
-          name: string
-          project_id: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          config?: Json | null
-          created_at?: string
-          enabled?: boolean | null
-          id?: string
-          name: string
-          project_id: string
-          type: string
-          updated_at?: string
-        }
-        Update: {
-          config?: Json | null
-          created_at?: string
-          enabled?: boolean | null
-          id?: string
-          name?: string
-          project_id?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       integrations: {
         Row: {
           config_data: Json
@@ -272,42 +174,6 @@ export type Database = {
           pkce_verifier?: string | null
           state_data?: Json
           state_hash?: string
-        }
-        Relationships: []
-      }
-      platform_configs: {
-        Row: {
-          character_limit: number | null
-          config: Json | null
-          created_at: string
-          enabled: boolean | null
-          id: string
-          platform: string
-          project_id: string
-          template: string | null
-          updated_at: string
-        }
-        Insert: {
-          character_limit?: number | null
-          config?: Json | null
-          created_at?: string
-          enabled?: boolean | null
-          id?: string
-          platform: string
-          project_id: string
-          template?: string | null
-          updated_at?: string
-        }
-        Update: {
-          character_limit?: number | null
-          config?: Json | null
-          created_at?: string
-          enabled?: boolean | null
-          id?: string
-          platform?: string
-          project_id?: string
-          template?: string | null
-          updated_at?: string
         }
         Relationships: []
       }

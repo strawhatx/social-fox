@@ -9,7 +9,7 @@ export interface Project {
   description: string;
   platforms: string[];
   contentSources: number;
-  lastGenerated: string;
+  
   status: 'active' | 'paused' | 'draft';
   roles: {
     brand_builder: boolean;
@@ -35,7 +35,7 @@ export const convertDbProjectToLegacy = (dbProject: DbProject): Project => ({
   description: dbProject.description,
   platforms: dbProject.platforms,
   contentSources: dbProject.content_sources,
-  lastGenerated: dbProject.last_generated || 'Never',
+  
   status: dbProject.status,
   roles: dbProject.roles,
   brandVoice: dbProject.brand_voice,

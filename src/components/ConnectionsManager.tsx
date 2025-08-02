@@ -6,7 +6,7 @@ import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, G
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
-import { GitHubConnectionDialog } from './GitHubConnectionDialog';
+
 
 interface Project {
   id: string;
@@ -37,16 +37,8 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
   
   const { toast } = useToast();
   const { connectProvider, isConnecting } = useOAuth();
-  const [gitHubDialogOpen, setGitHubDialogOpen] = useState(false);
-  const [selectedGitHubIntegration, setSelectedGitHubIntegration] = useState<string>('');
 
   const handleConnectIntegration = async (integration: any) => {
-    if (integration.provider === 'github') {
-      setSelectedGitHubIntegration(integration.id);
-      setGitHubDialogOpen(true);
-      return;
-    }
-
     try {
       await connectProvider({
         provider: integration.provider,
@@ -245,13 +237,6 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
         </div>
       </div>
 
-      {/* GitHub Connection Dialog */}
-      <GitHubConnectionDialog
-        open={gitHubDialogOpen}
-        onOpenChange={setGitHubDialogOpen}
-        projectId={project.id}
-        integrationId={selectedGitHubIntegration}
-      />
     </div>
   );
 };

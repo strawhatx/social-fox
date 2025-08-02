@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Zap, Settings, Loader2, Edit } from 'lucide-react';
+import { BarChart3, Users, Settings, Loader2, Edit } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import EditProjectDialog from '@/components/EditProjectDialog';
 import { Project, useProjects } from '@/hooks/useProjects';
@@ -37,18 +37,6 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
     }
   };
 
-  const formatLastGenerated = (lastGenerated: string | null) => {
-    if (!lastGenerated) return 'Never';
-    
-    const date = new Date(lastGenerated);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    if (diffInHours < 48) return '1 day ago';
-    return `${Math.floor(diffInHours / 24)} days ago`;
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -143,8 +131,8 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
                       {Object.values(project.roles).filter(Boolean).length} active AI agents
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <Zap className="w-4 h-4 mr-2" />
-                      Last generated: {formatLastGenerated(project.last_generated)}
+                      <Users className="w-4 h-4 mr-2" />
+                      Target: {project.target_audience || 'Not specified'}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Created: {formatDate(project.created_at)}

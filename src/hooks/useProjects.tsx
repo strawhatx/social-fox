@@ -10,7 +10,7 @@ export interface Project {
   description: string;
   platforms: string[];
   content_sources: number;
-  last_generated: string | null;
+  
   status: 'active' | 'paused' | 'draft';
   brand_voice: string;
   target_audience: string;
@@ -61,7 +61,7 @@ export const useProjects = () => {
         description: project.description || '',
         platforms: project.platforms || [],
         content_sources: 0,
-        last_generated: project.last_generated,
+        
         status: project.status,
         brand_voice: project.brand_voice || '',
         target_audience: project.target_audience || '',

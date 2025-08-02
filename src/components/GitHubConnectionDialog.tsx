@@ -26,7 +26,7 @@ export const GitHubConnectionDialog = ({
 }: GitHubConnectionDialogProps) => {
   // If already connected, start with configure step, otherwise start with connect
   const [step, setStep] = useState<'connect' | 'configure'>(isConnected ? 'configure' : 'connect');
-  const [repoOwner, setRepoOwner] = useState('');
+  const [gitUrl, setGitUrl] = useState('');
   const [repoName, setRepoName] = useState('');
   
   const { connectProvider, isConnecting } = useOAuth();
@@ -39,6 +39,16 @@ export const GitHubConnectionDialog = ({
       setStep(isConnected ? 'configure' : 'connect');
     }
   }, [isOpen, isConnected]);
+
+  // Extract owner name from git URL
+  const extractOwner = (url: string): string => {
+    if (!url) return '';
+    // Handle both full URLs and just usernames
+    const match = url.match(/(?:https?:\/\/github\.com\/)?([^\/\s]+)/);
+    return match ? match[1] : '';
+  };
+
+  const owner = extractOwner(gitUrl);
 
   const handleConnect = async () => {
     try {
@@ -63,10 +73,20 @@ export const GitHubConnectionDialog = ({
   };
 
   const handleSaveRepository = async () => {
-    if (!repoOwner.trim() || !repoName.trim()) {
+    if (!gitUrl.trim() || !repoName.trim()) {
       toast({
         title: "Missing information",
-        description: "Please enter both repository owner and name",
+        description: "Please enter both GitHub URL and repository name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const ownerName = extractOwner(gitUrl);
+    if (!ownerName) {
+      toast({
+        title: "Invalid GitHub URL",
+        description: "Please enter a valid GitHub URL or username",
         variant: "destructive",
       });
       return;
@@ -78,13 +98,15 @@ export const GitHubConnectionDialog = ({
         throw new Error('GitHub integration not found');
       }
 
-      const gitUrl = `https://github.com/${repoOwner}/${repoName}`;
+      // Normalize git_url to always be the full GitHub profile URL
+      const normalizedGitUrl = gitUrl.startsWith('http') ? gitUrl : `https://github.com/${gitUrl}`;
       
       await createConnection(githubIntegration.id, {
-        git_url: gitUrl,
-        owner: repoOwner,
+        git_url: normalizedGitUrl,
+        owner: ownerName,
         repository: repoName,
-        repository_full_name: `${repoOwner}/${repoName}`
+        repository_full_name: `${ownerName}/${repoName}`,
+        repository_url: `https://github.com/${ownerName}/${repoName}`
       });
 
       toast({
@@ -95,7 +117,7 @@ export const GitHubConnectionDialog = ({
       onConnectionSuccess?.();
       onClose();
       setStep('connect');
-      setRepoOwner('');
+      setGitUrl('');
       setRepoName('');
     } catch (error) {
       console.error('Failed to save repository:', error);
@@ -184,12 +206,12 @@ export const GitHubConnectionDialog = ({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="repoOwner">Repository Owner</Label>
+                <Label htmlFor="gitUrl">GitHub URL</Label>
                 <Input
-                  id="repoOwner"
-                  placeholder="e.g., your-username or organization"
-                  value={repoOwner}
-                  onChange={(e) => setRepoOwner(e.target.value)}
+                  id="gitUrl"
+                  placeholder="e.g., https://github.com/username or just username"
+                  value={gitUrl}
+                  onChange={(e) => setGitUrl(e.target.value)}
                 />
               </div>
 
@@ -205,9 +227,11 @@ export const GitHubConnectionDialog = ({
 
               <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
                 <strong>Repository URL:</strong> {
-                  repoOwner || repoName 
-                    ? `https://github.com/${repoOwner || '[owner]'}/${repoName || '[repository]'}` 
-                    : 'Enter owner and name above'
+                  owner && repoName 
+                    ? `https://github.com/${owner}/${repoName}` 
+                    : gitUrl || repoName
+                      ? `https://github.com/${owner || '[owner]'}/${repoName || '[repository]'}` 
+                      : 'Enter GitHub URL and repository name above'
                 }
               </div>
             </div>
@@ -218,7 +242,7 @@ export const GitHubConnectionDialog = ({
               </Button>
               <Button 
                 onClick={handleSaveRepository}
-                disabled={!repoOwner.trim() || !repoName.trim()}
+                disabled={!gitUrl.trim() || !repoName.trim()}
                 className="flex-1"
               >
                 Save Repository

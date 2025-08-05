@@ -6,7 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MoreHorizontal, Edit3, RefreshCw, Send, Eye, Twitter, Linkedin, Instagram, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,6 +37,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('Twitter');
+  const [editingPost, setEditingPost] = useState<ContentPost | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [scheduledDateTime, setScheduledDateTime] = useState('');
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [postToSchedule, setPostToSchedule] = useState<ContentPost | null>(null);
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -94,6 +101,72 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       });
       setNewPostContent('');
       setShowCreateDialog(false);
+    }
+  };
+
+  const handleEditPost = (post: ContentPost) => {
+    setEditingPost(post);
+    setEditContent(post.content);
+  };
+
+  const handleSaveEdit = async (andSchedule = false) => {
+    if (!editingPost || !editContent.trim()) return;
+
+    const updates: Partial<ContentPost> = {
+      content: editContent,
+    };
+
+    if (andSchedule && scheduledDateTime) {
+      updates.status = 'scheduled';
+      updates.scheduled_at = new Date(scheduledDateTime).toISOString();
+    }
+
+    const { error } = await updatePost(editingPost.id, updates);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: andSchedule ? "Post saved and scheduled" : "Post saved successfully",
+      });
+      setEditingPost(null);
+      setEditContent('');
+      setScheduledDateTime('');
+    }
+  };
+
+  const handleSchedulePost = (post: ContentPost) => {
+    setPostToSchedule(post);
+    setShowScheduleDialog(true);
+  };
+
+  const handleConfirmSchedule = async () => {
+    if (!postToSchedule || !scheduledDateTime) return;
+
+    const { error } = await updatePost(postToSchedule.id, {
+      status: 'scheduled',
+      scheduled_at: new Date(scheduledDateTime).toISOString(),
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to schedule post",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Post scheduled successfully",
+      });
+      setShowScheduleDialog(false);
+      setPostToSchedule(null);
+      setScheduledDateTime('');
     }
   };
 
@@ -213,12 +286,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                   <div className="flex items-center space-x-2">
                     {post.status === 'draft' && (
                       <>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditPost(post)}>
                           <Edit3 className="w-4 h-4 mr-2" />
                           Edit
                         </Button>
-                        <Button size="sm">
-                          <Send className="w-4 h-4 mr-2" />
+                        <Button size="sm" onClick={() => handleSchedulePost(post)}>
+                          <Calendar className="w-4 h-4 mr-2" />
                           Schedule
                         </Button>
                       </>
@@ -226,8 +299,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                     
                     {post.status === 'archived' && (
                       <>
-                        <Button variant="outline" size="sm">
-                          <RefreshCw className="w-4 h-4 mr-2" />
+                        <Button variant="outline" size="sm" onClick={() => updatePost(post.id, { status: 'draft' })}>
+                          <Send className="w-4 h-4 mr-2" />
                           Restore
                         </Button>
                       </>
@@ -235,11 +308,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                     
                     {post.status === 'scheduled' && (
                       <>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditPost(post)}>
                           <Edit3 className="w-4 h-4 mr-2" />
-                          Edit Schedule
+                          Edit
                         </Button>
-                        <Button variant="secondary" size="sm">
+                        <Button variant="secondary" size="sm" onClick={() => updatePost(post.id, { status: 'posted', posted_at: new Date().toISOString() })}>
                           <Send className="w-4 h-4 mr-2" />
                           Post Now
                         </Button>
@@ -252,11 +325,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                         View Post
                       </Button>
                     )}
-                    
-                    <Button variant="ghost" size="sm">
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Regenerate
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -264,6 +332,80 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           })}
         </TabsContent>
       </Tabs>
+
+      {/* Edit Post Dialog */}
+      <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-content">Content</Label>
+              <Textarea
+                id="edit-content"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={6}
+                placeholder="Edit your post content..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="schedule-datetime">Schedule for later (optional)</Label>
+              <Input
+                id="schedule-datetime"
+                type="datetime-local"
+                value={scheduledDateTime}
+                onChange={(e) => setScheduledDateTime(e.target.value)}
+                min={new Date().toISOString().slice(0, 16)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setEditingPost(null)}>
+                Cancel
+              </Button>
+              <Button variant="outline" onClick={() => handleSaveEdit(false)}>
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
+              <Button onClick={() => handleSaveEdit(true)} disabled={!scheduledDateTime}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Save & Schedule
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Post Dialog */}
+      <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Schedule Post</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="schedule-time">Schedule Date & Time</Label>
+              <Input
+                id="schedule-time"
+                type="datetime-local"
+                value={scheduledDateTime}
+                onChange={(e) => setScheduledDateTime(e.target.value)}
+                min={new Date().toISOString().slice(0, 16)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmSchedule} disabled={!scheduledDateTime}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Schedule
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

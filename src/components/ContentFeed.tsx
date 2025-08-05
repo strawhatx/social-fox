@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save } from 'lucide-react';
+import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save, Archive } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
 
@@ -294,6 +294,10 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                           <Calendar className="w-4 h-4 mr-2" />
                           Schedule
                         </Button>
+                        <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
+                          <Archive className="w-4 h-4 mr-2" />
+                          Archive
+                        </Button>
                       </>
                     )}
                     
@@ -316,14 +320,24 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                           <Send className="w-4 h-4 mr-2" />
                           Post Now
                         </Button>
+                        <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
+                          <Archive className="w-4 h-4 mr-2" />
+                          Archive
+                        </Button>
                       </>
                     )}
                     
                     {post.status === 'posted' && (
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Post
-                      </Button>
+                      <>
+                        <Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Post
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
+                          <Archive className="w-4 h-4 mr-2" />
+                          Archive
+                        </Button>
+                      </>
                     )}
                   </div>
                 </CardContent>

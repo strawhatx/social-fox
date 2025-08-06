@@ -16,33 +16,36 @@ export type Database = {
     Tables: {
       connections: {
         Row: {
-          account_config: Json
           account_identifier: string | null
+          config_public: Json
           created_at: string
           id: string
           integration_id: string
           is_active: boolean
           project_id: string
+          secrets: Json | null
           updated_at: string
         }
         Insert: {
-          account_config?: Json
           account_identifier?: string | null
+          config_public?: Json
           created_at?: string
           id?: string
           integration_id: string
           is_active?: boolean
           project_id: string
+          secrets?: Json | null
           updated_at?: string
         }
         Update: {
-          account_config?: Json
           account_identifier?: string | null
+          config_public?: Json
           created_at?: string
           id?: string
           integration_id?: string
           is_active?: boolean
           project_id?: string
+          secrets?: Json | null
           updated_at?: string
         }
         Relationships: [
@@ -121,6 +124,7 @@ export type Database = {
           is_active: boolean | null
           name: string
           provider: string
+          secrets: Json | null
           type: string
           updated_at: string
         }
@@ -133,6 +137,7 @@ export type Database = {
           is_active?: boolean | null
           name: string
           provider: string
+          secrets?: Json | null
           type: string
           updated_at?: string
         }
@@ -145,6 +150,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           provider?: string
+          secrets?: Json | null
           type?: string
           updated_at?: string
         }

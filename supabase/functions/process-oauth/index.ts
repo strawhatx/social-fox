@@ -121,8 +121,8 @@ const getProviderConfig = async (integration: any): Promise<ProviderConfig | nul
   // All integrations with OAuth config are supported - don't filter by type
   // since integrations can be data_source, publishing_platform, etc.
   
-  // Handle both flat structure and nested config_data structure
-  const config = integration.config_data || integration;
+  // Handle both separated config structure and legacy config_data structure
+  const config = integration.config_public || integration.config_data || integration;
 
   return {
     type: "oauth", // Always oauth for these integrations

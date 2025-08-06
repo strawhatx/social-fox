@@ -216,11 +216,11 @@ serve(async (req) => {
       id: integrationData.id,
       name: integrationData.name,
       provider: integrationData.provider,
-      token_url: integrationData.config_data?.token_url,
-      client_id: integrationData.config_data?.client_id,
-      client_secret: integrationData.config_data?.client_secret,
-      auth_url: integrationData.config_data?.auth_url,
-      code_challenge_required: integrationData.config_data?.code_challenge_required || false
+      token_url: integrationData.config_public?.token_url,
+      client_id: integrationData.config_public?.client_id,
+      client_secret: integrationData.secrets?.client_secret,
+      auth_url: integrationData.config_public?.auth_url,
+      code_challenge_required: integrationData.config_public?.code_challenge_required || false
     };
 
     // Use the already decoded state data
@@ -248,13 +248,11 @@ serve(async (req) => {
 
     const tokenData = await tokenResponse.json() as TokenResponse;
 
-    const connectionConfig = {
+    // Separate public config from secrets
+    const publicConfig = {
       code,
       state,
-      scope: tokenData.scope || (integrationData.config_data?.scopes || []).join(' '),
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
-      expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
+      scope: tokenData.scope || (integrationData.config_public?.scopes || []).join(' '),
       provider,
       timestamp: new Date().toISOString(),
       // Include any additional parameters from the state (like git_url, repository for GitHub)
@@ -263,6 +261,12 @@ serve(async (req) => {
           !['provider', 'project_id', 'user_id', 'redirectUri', 'timestamp', 'nonce', 'connectionName'].includes(key)
         )
       )
+    };
+
+    const secretsConfig = {
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+      expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
     };
 
     // Get the integration to find the connection
@@ -284,7 +288,8 @@ serve(async (req) => {
         id: existingConnection?.id,
         project_id: project_id,
         integration_id: integrationData.id,
-        account_config: connectionConfig,
+        config_public: publicConfig,
+        secrets: secretsConfig,
         is_active: true
       }, {
         onConflict: 'project_id,integration_id'

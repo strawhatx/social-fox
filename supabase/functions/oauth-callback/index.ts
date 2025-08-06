@@ -16,6 +16,7 @@ interface OAuthCallbackRequest {
 }
 
 interface TokenResponse {
+  scope: string;
   access_token: string;
   refresh_token?: string;
   expires_in?: number;
@@ -41,7 +42,6 @@ interface StateData {
 
 // ✅ Load Environment Variables
 const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-
 
 const createErrorResponse = (message: string, req: Request, status = 400) => {
   return new Response(

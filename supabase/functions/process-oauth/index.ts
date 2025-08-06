@@ -84,14 +84,16 @@ export interface Integration {
   description: string;
   type: IntegrationType;
   provider: string;
-  client_id: string;
-  auth_url: string;
-  token_url: string;
-  redirect_url: string;
-  scopes: string[];
-  required_fields: string[];
-  required_parameters: string[];
-  code_challenge_required: boolean;
+  config_public: {
+    client_id: string;
+    auth_url: string;
+    token_url: string;
+    redirect_url: string;
+    scopes: string[];
+    required_fields: string[];
+    required_parameters: string[];
+    code_challenge_required: boolean;
+  }
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
@@ -99,7 +101,6 @@ export interface Integration {
 
 // ✅ Load Environment Variables
 const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-
 
 const createErrorResponse = (message: string, req: Request, status = 400) => {
   return new Response(
@@ -115,14 +116,13 @@ const createSuccessResponse = (data: unknown, req: Request) => {
   );
 };
 
-
 // Get provider configuration from database
-const getProviderConfig = async (integration: any): Promise<ProviderConfig | null> => {
+const getProviderConfig = async (integration: Integration): Promise<ProviderConfig | null> => {
   // All integrations with OAuth config are supported - don't filter by type
   // since integrations can be data_source, publishing_platform, etc.
   
   // Handle both separated config structure and legacy config_data structure
-  const config = integration.config_public || integration.config_data || integration;
+  const config = integration.config_public;
 
   return {
     type: "oauth", // Always oauth for these integrations
@@ -169,7 +169,7 @@ const buildOAuthParameters = (
       value: state,
       required: true
     },
-    
+
     // PKCE parameters (conditional)
     code_challenge: {
       value: () => providerConfig.code_challenge || '',
@@ -193,7 +193,7 @@ const buildOAuthParameters = (
 
     // Get the value (either static string or function result)
     const value = typeof config.value === 'function' ? config.value() : config.value;
-    
+
     // Only add if value is not empty
     if (value && value.trim() !== '') {
       finalParams[key] = value;
@@ -216,14 +216,14 @@ const buildOAuthUrl = (
   parameters: Record<string, string>
 ): string => {
   const url = new URL(authUrl);
-  
+
   // Add all parameters to the URL
   for (const [key, value] of Object.entries(parameters)) {
     if (value && value.trim() !== '') {
       url.searchParams.append(key, value);
     }
   }
-  
+
   return url.toString();
 };
 
@@ -253,11 +253,11 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
 export const initiateOAuth = async (
   connectionName: string,
   provider: string,
-  config: Integration,
+  integration: Integration,
   params: Record<string, string>,
   userId: string
 ) => {
-  const providerConfig = (await getProviderConfig(config))?.config;
+  const providerConfig = (await getProviderConfig(integration))?.config;
   if (!providerConfig) {
     throw new Error(`Unsupported provider: ${provider}`);
   }
@@ -328,8 +328,6 @@ export const initiateOAuth = async (
   return finalUrl;
 };
 
-
-
 // Main handler
 serve(async (req) => {
   // Apply rate limiting first
@@ -372,7 +370,7 @@ serve(async (req) => {
     }
 
     const oauthUrl = await initiateOAuth(connectionName, provider, integrationData, { ...params, project_id }, user.id);
-    
+
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {
     console.error('OAuth callback error:', error);

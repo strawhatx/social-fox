@@ -20,6 +20,8 @@ interface Project {
   status: 'active' | 'paused' | 'draft';
   brandVoice: string;
   targetAudience: string;
+  automation_enabled?: boolean;
+  automation_frequency?: string;
 }
 
 interface ProjectWorkspaceProps {
@@ -54,9 +56,9 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             {project.status}
           </Badge>
-          <Button variant="outline" onClick={() => setSettingsOpen(true)}>
+          <Button variant="outline" onClick={() => setActiveTab('connections')}>
             <Settings className="w-4 h-4 mr-2" />
-            Settings
+            Project Settings
           </Button>
         </div>
       </div>
@@ -118,20 +120,10 @@ export default function ProjectWorkspace({ project, onBack, onProjectUpdate }: P
         </TabsContent>
 
         <TabsContent value="connections" className="space-y-4">
-          <ConnectionsManager project={project} />
+          <ConnectionsManager project={project} onProjectUpdate={onProjectUpdate} />
         </TabsContent>
       </Tabs>
 
-      <ProjectSettingsDialog
-        project={project}
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        onUpdate={(updates) => {
-          if (onProjectUpdate) {
-            onProjectUpdate(updates);
-          }
-        }}
-      />
     </div>
   );
 }

@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, FileSpreadsheet, Twitter, Linkedin, X } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
@@ -19,14 +24,30 @@ interface Project {
   status: 'active' | 'paused' | 'draft';
   brandVoice: string;
   targetAudience: string;
+  automation_enabled?: boolean;
+  automation_frequency?: string;
 }
 
 interface ConnectionsManagerProps {
   project: Project;
+  onProjectUpdate?: (updates: Partial<Project>) => void;
 }
 
-const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
+const availablePlatforms = [
+  'LinkedIn', 'Twitter'
+];
+
+const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProps) => {
   const [showGitHubDialog, setShowGitHubDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: project.name,
+    description: project.description,
+    brandVoice: project.brandVoice,
+    targetAudience: project.targetAudience,
+    platforms: project.platforms,
+    automation_enabled: project.automation_enabled || false,
+    automation_frequency: project.automation_frequency || 'daily'
+  });
   
   const { 
     connections, 
@@ -188,12 +209,168 @@ const ConnectionsManager = ({ project }: ConnectionsManagerProps) => {
     );
   };
 
+  const handleProjectUpdate = () => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Project name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (onProjectUpdate) {
+      onProjectUpdate(formData);
+      toast({
+        title: "Success",
+        description: "Project settings updated successfully"
+      });
+    }
+  };
+
+  const addPlatform = (platform: string) => {
+    if (!formData.platforms.includes(platform)) {
+      setFormData(prev => ({
+        ...prev,
+        platforms: [...prev.platforms, platform]
+      }));
+    }
+  };
+
+  const removePlatform = (platform: string) => {
+    setFormData(prev => ({
+      ...prev,
+      platforms: prev.platforms.filter(p => p !== platform)
+    }));
+  };
+
   const githubIntegration = integrations.find(integration => integration.provider === 'github');
   const githubConnection = githubIntegration ? getConnectionByIntegration(githubIntegration.id) : null;
 
   return (
     <>
       <div className="space-y-8">
+        {/* Project Settings Section */}
+        <div className="bg-card border rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-6">Project Settings</h2>
+          <div className="space-y-6">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Project Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter project name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="brandVoice">Brand Voice</Label>
+                <Input
+                  id="brandVoice"
+                  value={formData.brandVoice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, brandVoice: e.target.value }))}
+                  placeholder="e.g., Professional, Casual, Friendly"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Describe your project"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="targetAudience">Target Audience</Label>
+              <Input
+                id="targetAudience"
+                value={formData.targetAudience}
+                onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
+                placeholder="Describe your target audience"
+              />
+            </div>
+
+            {/* Platforms */}
+            <div className="space-y-4">
+              <Label>Platforms</Label>
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {formData.platforms.map((platform) => (
+                    <Badge
+                      key={platform}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {platform}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => removePlatform(platform)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+                
+                <Select onValueChange={addPlatform}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Add platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePlatforms
+                      .filter(platform => !formData.platforms.includes(platform))
+                      .map((platform) => (
+                        <SelectItem key={platform} value={platform}>
+                          {platform}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Automation Settings */}
+            <div className="space-y-4">
+              <Label>Automation Settings</Label>
+              <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="automation-toggle">Auto-generate posts</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically create draft posts based on connected data sources
+                    </p>
+                  </div>
+                  <Switch
+                    id="automation-toggle"
+                    checked={formData.automation_enabled}
+                    onCheckedChange={(checked) => 
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        automation_enabled: checked,
+                        automation_frequency: 'daily'
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={handleProjectUpdate} className="bg-brand-orange hover:bg-brand-orange/90 text-brand-orange-foreground">
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
         {/* How It Works Section */}
         <div className="bg-muted/50 rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">How It Works</h2>

@@ -8,44 +8,49 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 250 100% 99%;
-    --foreground: 240 10% 9%;
+    /* Modern SocialFox-inspired theme */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 9%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 20 14.3% 4.1%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 250 30% 96%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 250 20% 95%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 262 70% 92%;
-    --accent-foreground: 262 83% 58%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 0 0% 98%;
 
+    /* Brand colors */
+    --brand-orange: 24 95% 53%;
+    --brand-orange-foreground: 0 0% 98%;
+    
     /* Platform-specific colors */
     --twitter: 203 89% 53%;
     --linkedin: 201 100% 35%;
     --instagram: 315 100% 65%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(252 56% 57%));
-    --gradient-platform: linear-gradient(135deg, hsl(203 89% 53%), hsl(201 100% 35%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(250 20% 98%));
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(20 95% 48%));
+    --gradient-brand: linear-gradient(135deg, hsl(24 95% 53%), hsl(12 95% 45%));
+    --gradient-card: linear-gradient(145deg, hsl(240 10% 3.9%), hsl(240 3.7% 15.9%));
     
     /* Effects */
-    --shadow-elegant: 0 4px 20px -4px hsl(262 83% 58% / 0.15);
-    --shadow-card: 0 2px 10px -2px hsl(240 10% 9% / 0.08);
+    --shadow-elegant: 0 4px 20px -4px hsl(24 95% 53% / 0.25);
+    --shadow-card: 0 2px 10px -2px hsl(0 0% 0% / 0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
@@ -71,29 +76,30 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Light mode override (will be the default) */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

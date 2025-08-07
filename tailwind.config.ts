@@ -55,6 +55,8 @@ export default {
 				twitter: 'hsl(var(--twitter))',
 				linkedin: 'hsl(var(--linkedin))',
 				instagram: 'hsl(var(--instagram))',
+				'brand-orange': 'hsl(var(--brand-orange))',
+				'brand-orange-foreground': 'hsl(var(--brand-orange-foreground))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

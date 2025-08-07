@@ -5,7 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 
 import { applyRateLimit } from "../utils/rate-limiter.ts";
-import { clearOAuthState, clearPkceVerifier, getOAuthState, getPkceVerifier } from "../utils/state.ts";
+import { clearOAuthState, getOAuthData } from "../utils/state.ts";
 
 // Types
 interface OAuthCallbackRequest {
@@ -76,8 +76,17 @@ const prepareTokenRequest = (
     grant_type: 'authorization_code',
   };
 
+  console.log('PKCE check:', {
+    code_challenge_required: connector.code_challenge_required,
+    has_code_verifier: !!code_verifier,
+    code_verifier_length: code_verifier?.length
+  });
+
   if (connector.code_challenge_required && code_verifier) {
     bodyConfig['code_verifier'] = code_verifier;
+    console.log('Added code_verifier to request body');
+  } else if (connector.code_challenge_required && !code_verifier) {
+    console.error('PKCE required but no code_verifier found!');
   }
 
   // Provider-specific token request configuration
@@ -183,22 +192,28 @@ serve(async (req) => {
     const userId = decodedState.user_id;
     const agentType = decodedState.agent_type || 'lead_generator';
 
-    // Verify state parameter from database
-    const storedState = await getOAuthState(state, userId);
+    // Get OAuth state and PKCE verifier from database in a single query
+    const oauthData = await getOAuthData(state, userId);
+    
+    if (!oauthData) {
+      throw new Error("OAuth state not found or expired");
+    }
+    
+    const { state: storedState, pkceVerifier: code_verifier } = oauthData;
+    
     if (!storedState || storedState !== state) {
       throw new Error("Invalid state parameter");
     }
-    await clearOAuthState(state, userId);
     
     // Verify timestamp
     if (Date.now() - decodedState.timestamp > 3600000) { // 1 hour
       throw new Error("OAuth state expired");
     }
 
-    // Retrieve code_verifier from database
-    const code_verifier = await getPkceVerifier(state, userId);
-    await clearPkceVerifier(state, userId);
+    // Clear the OAuth state (this clears both state and PKCE verifier since they're in the same record)
+    await clearOAuthState(state, userId);
 
+    console.log('Retrieved code_verifier:', code_verifier ? 'present' : 'missing');
     
     // Fetch integration configuration
     const { data: integrationData, error: integrationError } = await supabase
@@ -211,6 +226,12 @@ serve(async (req) => {
       throw new Error('Integration not found');
     }
 
+    console.log('Integration config:', {
+      provider: integrationData.provider,
+      code_challenge_required: integrationData.config_public?.code_challenge_required,
+      has_client_secret: !!integrationData.secrets?.client_secret
+    });
+
     //process the data properly to the connector type
     const connector: Connector = {
       id: integrationData.id,
@@ -222,6 +243,12 @@ serve(async (req) => {
       auth_url: integrationData.config_public?.auth_url,
       code_challenge_required: integrationData.config_public?.code_challenge_required || false
     };
+
+    console.log('Connector config:', {
+      provider: connector.provider,
+      code_challenge_required: connector.code_challenge_required,
+      has_code_verifier: !!code_verifier
+    });
 
     // Use the already decoded state data
     const stateData = decodedState as StateData;

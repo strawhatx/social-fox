@@ -280,6 +280,14 @@ export const initiateOAuth = async (
     code_verifier = generateCodeVerifier();
     const code_challenge = await generateCodeChallenge(code_verifier);
     providerConfig.code_challenge = code_challenge;
+    
+    console.log('Generated PKCE:', {
+      code_verifier_length: code_verifier.length,
+      code_challenge_length: code_challenge.length,
+      provider: provider
+    });
+  } else {
+    console.log('PKCE not required for provider:', provider);
   }
 
   // Construct auth URL with placeholders replaced
@@ -305,9 +313,13 @@ export const initiateOAuth = async (
   }));
 
   // Store state and PKCE verifier in database for verification
+  console.log('Storing OAuth state and PKCE verifier...');
   await saveOAuthState(state, userId);
   if (code_verifier) {
     await savePkceVerifier(state, userId, code_verifier);
+    console.log('PKCE verifier stored successfully');
+  } else {
+    console.log('No PKCE verifier to store');
   }
 
   // Build OAuth parameters dynamically

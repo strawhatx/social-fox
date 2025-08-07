@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Zap, Target, BarChart3, Users, MessageSquare, Lightbulb, Monitor, Clock, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, Mail, Heart } from 'lucide-react';
 
 const Landing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [email, setEmail] = useState('');
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -19,39 +20,58 @@ const Landing = () => {
 
   const features = [
     {
-      icon: <Monitor className="h-6 w-6" />,
+      icon: "🤖",
       title: "Auto-generates platform-specific posts",
       description: "Smart AI analyzes your commits, PRs, and releases to create engaging posts tailored for each platform."
     },
     {
-      icon: <div className="flex items-center space-x-1"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div><div className="w-3 h-3 bg-blue-600 rounded-sm"></div></div>,
+      icon: "in",
       title: "Optimized for Twitter/X and LinkedIn",
       description: "Each post is crafted with platform-specific best practices, hashtags, and formatting for maximum engagement."
     },
     {
-      icon: <Target className="h-6 w-6" />,
+      icon: "⚙️",
       title: "Customizable tone and format",
       description: "Choose your voice — professional, casual, or technical. Customize templates to match your personal brand."
     },
     {
-      icon: <Clock className="h-6 w-6" />,
+      icon: "⏰",
       title: "Post on your schedule",
       description: "Get ready-to-post content generated from your commits. Post immediately or save for later."
     },
     {
-      icon: <CheckCircle className="h-6 w-6" />,
+      icon: "✅",
       title: "One-click approval workflow",
       description: "Review and approve posts before they go live. Make quick edits or post instantly with confidence."
-    },
-    {
-      icon: <BarChart3 className="h-6 w-6" />,
-      title: "Analytics & Insights",
-      description: "Track performance and optimize your marketing strategy with detailed analytics and engagement metrics."
     }
   ];
 
+  const audienceTags = [
+    "SaaS Developers",
+    "Solo Founders", 
+    "Open Source Maintainers",
+    "Technical Writers"
+  ];
+
+  const testimonials = [
+    {
+      icon: "💬",
+      quote: "Built to scratch our own itch — now we're opening it up to others who struggle to keep up with posting their progress. No fluff, just what we wish existed."
+    },
+    {
+      icon: "👥",
+      quote: "We're in beta — looking for 10 users to try it and give brutally honest feedback."
+    }
+  ];
+
+  const handleEmailSignup = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle email signup logic here
+    console.log('Email signup:', email);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-white to-orange-50/20">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -82,8 +102,8 @@ const Landing = () => {
           <div className="flex flex-col items-center space-y-4">
             <div className="h-16 w-16 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg relative">
               <span className="text-white text-2xl">🦊</span>
-              <div className="absolute -top-1 -right-1 h-6 w-6 bg-blue-500 rounded-lg flex items-center justify-center">
-                <Zap className="h-3 w-3 text-white" />
+              <div className="absolute -top-1 -right-1 h-6 w-6 bg-orange-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">⚡</span>
               </div>
             </div>
             <div>
@@ -109,7 +129,7 @@ const Landing = () => {
             </div>
             <div className="flex items-center space-x-2">
               <div className="h-0.5 w-8 bg-gray-300"></div>
-              <Zap className="h-5 w-5 text-orange-500" />
+              <span className="text-orange-500 text-sm">⚡</span>
               <div className="h-0.5 w-8 bg-gray-300"></div>
             </div>
             <div className="flex items-center space-x-4">
@@ -139,7 +159,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Build in public, effortlessly</h2>
@@ -147,19 +167,15 @@ const Landing = () => {
             Focus on building great products while Social Fox keeps your audience engaged with your progress.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {features.map((feature, index) => (
             <Card key={index} className="card-modern border-0">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-orange-100 rounded-xl text-orange-600">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-lg text-gray-900">{feature.title}</CardTitle>
-                </div>
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 text-3xl">{feature.icon}</div>
+                <CardTitle className="text-lg text-gray-900">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base text-gray-600">
+                <CardDescription className="text-base text-gray-600 text-center">
                   {feature.description}
                 </CardDescription>
               </CardContent>
@@ -168,32 +184,95 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Perfect for Section */}
       <section className="container mx-auto px-4 py-20">
-        <Card className="border-0 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-          <CardContent className="p-16 text-center">
-            <h2 className="text-4xl font-bold mb-6">Ready to build in public?</h2>
-            <p className="text-white/90 mb-10 max-w-2xl mx-auto text-lg">
-              Join indie hackers and founders who are already using Social Fox to stay active on social media without the hassle.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="modern" onClick={() => navigate('/auth')} className="text-lg px-8">
-                Join the Beta
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white hover:text-gray-900">
-                See How It Works
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl p-16 text-center text-white">
+          <h2 className="text-4xl font-bold mb-6">Perfect for indie hackers and busy founders</h2>
+          <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
+            Stop choosing between building your product and building your audience. With Social Fox, your code commits become ready-to-share content that you can post whenever you want.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {audienceTags.map((tag, index) => (
+              <div key={index} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3 text-white font-medium">
+                {tag}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-12 mt-20 border-t border-gray-200">
-        <div className="text-center text-gray-600">
-          <p>&copy; 2024 Social Fox. All rights reserved.</p>
+      {/* Testimonials Section */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Built by builders, for builders</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            We're scratching our own itch — and we think you'll love it too.
+          </p>
         </div>
-      </footer>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <Card key={index} className="card-modern border-0">
+              <CardContent className="p-8 text-center">
+                <div className="text-3xl mb-4">{testimonial.icon}</div>
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  "{testimonial.quote}"
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="text-center mt-8">
+          <p className="text-gray-600 flex items-center justify-center gap-2">
+            Made with <Heart className="h-4 w-4 text-orange-500 fill-current" /> by indie hackers who get it
+          </p>
+        </div>
+      </section>
+
+      {/* Footer CTA Section */}
+      <section className="bg-gray-900 py-20">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-2xl mx-auto space-y-8">
+            {/* Logo */}
+            <div className="flex justify-center">
+              <div className="h-12 w-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg relative">
+                <span className="text-white text-lg">🦊</span>
+                <div className="absolute -top-1 -right-1 h-4 w-4 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">⚡</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h2 className="text-4xl font-bold text-white mb-6">Ready to let your code do the talking?</h2>
+              <p className="text-xl text-gray-300 mb-8">
+                Join the beta and start turning your GitHub activity into ready-to-share social media content. No more writer's block, no more missed opportunities to build in public.
+              </p>
+            </div>
+
+            <form onSubmit={handleEmailSignup} className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <div className="relative flex-1">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-14 rounded-xl border-gray-600 bg-gray-800 text-white placeholder-gray-400"
+                  required
+                />
+              </div>
+              <Button type="submit" variant="gradient" size="lg" className="h-14 px-8">
+                Join the Beta
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </form>
+
+            <p className="text-sm text-gray-400">
+              Be one of the first to try Social Fox. No spam, unsubscribe anytime.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

@@ -55,7 +55,7 @@ const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     contentType: 'application/x-www-form-urlencoded',
     authMethod: 'basic',
     includeClientId: true,
-    includeClientSecret: false
+    includeClientSecret: true
   },
   linkedin: {
     contentType: 'application/x-www-form-urlencoded',

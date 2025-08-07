@@ -51,8 +51,8 @@ const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
   },
   twitter: {
     contentType: 'application/x-www-form-urlencoded',
-    authMethod: 'none',
-    includeClientId: true,
+    authMethod: 'basic',
+    includeClientId: false,
     includeClientSecret: false
   },
   linkedin: {

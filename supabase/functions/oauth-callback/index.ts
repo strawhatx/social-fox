@@ -36,6 +36,35 @@ interface Connector {
   code_challenge_required: boolean;
 }
 
+// Provider-specific configuration mapper
+interface ProviderConfig {
+  contentType: string;
+  authMethod: 'basic' | 'body' | 'none';
+  includeClientId: boolean;
+  includeClientSecret: boolean;
+}
+
+const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
+  github: {
+    contentType: 'application/x-www-form-urlencoded',
+    authMethod: 'body',
+    includeClientId: true,
+    includeClientSecret: true
+  },
+  twitter: {
+    contentType: 'application/x-www-form-urlencoded',
+    authMethod: 'basic',
+    includeClientId: true,
+    includeClientSecret: false
+  },
+  linkedin: {
+    contentType: 'application/x-www-form-urlencoded',
+    authMethod: 'basic',
+    includeClientId: false,
+    includeClientSecret: false
+  }
+};
+
 interface StateData {
   user_id: string;
   redirectUri: string;
@@ -64,25 +93,29 @@ const prepareTokenRequest = (
   code_verifier: string,
   stateData: StateData
 ): RequestInit => {
-  const baseConfig: RequestInit = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
+  // Get provider configuration
+  const providerConfig = PROVIDER_CONFIGS[connector.provider] || {
+    contentType: 'application/x-www-form-urlencoded',
+    authMethod: 'basic',
+    includeClientId: false,
+    includeClientSecret: false
   };
 
-  const bodyConfig = {
+  console.log('Provider config:', {
+    provider: connector.provider,
+    authMethod: providerConfig.authMethod,
+    includeClientId: providerConfig.includeClientId,
+    includeClientSecret: providerConfig.includeClientSecret
+  });
+
+  // Build base request body
+  const bodyConfig: Record<string, string> = {
     code,
     redirect_uri: stateData.redirectUri,
     grant_type: 'authorization_code',
   };
 
-  console.log('PKCE check:', {
-    code_challenge_required: connector.code_challenge_required,
-    has_code_verifier: !!code_verifier,
-    code_verifier_length: code_verifier?.length
-  });
-
+  // Add PKCE verifier if required
   if (connector.code_challenge_required && code_verifier) {
     bodyConfig['code_verifier'] = code_verifier;
     console.log('Added code_verifier to request body');
@@ -90,62 +123,43 @@ const prepareTokenRequest = (
     console.error('PKCE required but no code_verifier found!');
   }
 
-  // Provider-specific token request configuration
-  if (connector.provider === 'github') {
-    // GitHub uses client_id and client_secret in the body
+  // Add client credentials based on provider config
+  if (providerConfig.includeClientId) {
     bodyConfig['client_id'] = connector.client_id;
-    bodyConfig['client_secret'] = connector.client_secret;
-    
-    return {
-      ...baseConfig,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: new URLSearchParams(bodyConfig).toString()
-    };
-  } else if (connector.provider === 'gmail' || connector.provider === 'google_sheets') {
-    // Google OAuth uses client credentials in body
-    bodyConfig['client_id'] = connector.client_id;
-    bodyConfig['client_secret'] = connector.client_secret;
-    
-    return {
-      ...baseConfig,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams(bodyConfig).toString()
-    };
-  } else if (connector.provider === 'twitter') {
-    // Twitter uses Basic Auth with client credentials
-    bodyConfig['client_id'] = connector.client_id;
-    
-    // Use Deno's built-in base64 encoding
-    const credentials = `${connector.client_id}:${connector.client_secret}`;
-    const encodedCredentials = base64Encode(credentials);
-    
-    return {
-      ...baseConfig,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${encodedCredentials}`
-      },
-      body: new URLSearchParams(bodyConfig).toString()
-    };
-  } else {
-    // Default OAuth implementation
-    const credentials = `${connector.client_id}:${connector.client_secret}`;
-    const encodedCredentials = base64Encode(credentials);
-    
-    return {
-      ...baseConfig,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${encodedCredentials}`
-      },
-      body: new URLSearchParams(bodyConfig).toString()
-    };
   }
+  if (providerConfig.includeClientSecret) {
+    bodyConfig['client_secret'] = connector.client_secret;
+  }
+
+  // Build headers
+  const headers: Record<string, string> = {
+    'Content-Type': providerConfig.contentType
+  };
+
+  // Add authorization header if using Basic Auth
+  if (providerConfig.authMethod === 'basic') {
+    const credentials = `${connector.client_id}:${connector.client_secret}`;
+    const encodedCredentials = base64Encode(credentials);
+    headers['Authorization'] = `Basic ${encodedCredentials}`;
+  }
+
+  // Add Accept header for GitHub
+  if (connector.provider === 'github') {
+    headers['Accept'] = 'application/json';
+  }
+
+  console.log('Token request config:', {
+    provider: connector.provider,
+    authMethod: providerConfig.authMethod,
+    hasAuthorization: !!headers['Authorization'],
+    bodyKeys: Object.keys(bodyConfig)
+  });
+
+  return {
+    method: 'POST',
+    headers,
+    body: new URLSearchParams(bodyConfig).toString()
+  };
 };
 
 // Main handler
@@ -198,7 +212,6 @@ serve(async (req) => {
     // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
     const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
     const userId = decodedState.user_id;
-    const agentType = decodedState.agent_type || 'lead_generator';
 
     // Get OAuth state and PKCE verifier from database in a single query
     const oauthData = await getOAuthData(state, userId);

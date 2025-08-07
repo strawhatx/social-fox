@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Settings, Loader2, Edit } from 'lucide-react';
+import { BarChart3, Users, Settings, Loader2, Edit, Zap } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import EditProjectDialog from '@/components/EditProjectDialog';
 import { Project, useProjects } from '@/hooks/useProjects';
@@ -24,10 +24,9 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
       case 'Facebook': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'YouTube': return 'bg-red-100 text-red-800 border-red-200';
       case 'TikTok': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-muted text-muted-foreground';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
-
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -41,20 +40,20 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading projects...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <span className="ml-2 text-gray-600">Loading projects...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold gradient-text">
             Marketing Agent Dashboard
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-gray-600 mt-3 text-lg">
             AI-powered content generation for multiple projects
           </p>
         </div>
@@ -62,12 +61,14 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
       </div>
 
       {projects.length === 0 ? (
-        <Card className="p-12 text-center">
-          <div className="space-y-4">
-            <div className="text-4xl">🚀</div>
+        <Card className="card-modern p-16 text-center">
+          <div className="space-y-6">
+            <div className="mx-auto h-20 w-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Zap className="h-10 w-10 text-white" />
+            </div>
             <div>
-              <h3 className="text-lg font-semibold">No projects yet</h3>
-              <p className="text-muted-foreground">Create your first marketing project to get started with AI-powered content generation</p>
+              <h3 className="text-2xl font-bold mb-2">No projects yet</h3>
+              <p className="text-gray-600 text-lg">Create your first marketing project to get started with AI-powered content generation</p>
             </div>
             <CreateProjectDialog />
           </div>
@@ -75,84 +76,84 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               {projects.length} project{projects.length !== 1 ? 's' : ''} found
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Projects:</span>
-              <Badge variant="outline" className="bg-primary/10 text-primary">
+              <span className="text-sm text-gray-600">Projects:</span>
+              <Badge variant="outline" className="bg-gradient-to-r from-orange-50 to-blue-50 text-gray-700 border-orange-200">
                 {projects.length} Total
               </Badge>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
               <Card 
                 key={project.id} 
-                className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-2 hover:border-primary/20"
+                className="card-modern relative overflow-hidden cursor-pointer group border-0"
                 onClick={() => onSelectProject(project)}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <CardHeader className="relative">
                   <div className="flex items-start justify-between">
-                    <div className="space-y-1 flex-1">
-                      <CardTitle className="text-lg font-semibold line-clamp-1">{project.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{project.description || 'No description'}</p>
+                    <div className="space-y-2 flex-1">
+                      <CardTitle className="text-xl font-bold line-clamp-1">{project.name}</CardTitle>
+                      <p className="text-gray-600 line-clamp-2">{project.description || 'No description'}</p>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="relative space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <BarChart3 className="w-4 h-4 mr-2" />
+                <CardContent className="relative space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <BarChart3 className="w-4 h-4 mr-2 text-orange-500" />
                       {Object.values(project.roles).filter(Boolean).length} active AI agents
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Users className="w-4 h-4 mr-2" />
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Users className="w-4 h-4 mr-2 text-blue-500" />
                       Target: {project.target_audience || 'Not specified'}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-gray-500">
                       Created: {formatDate(project.created_at)}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Brand Voice</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
+                    <p className="text-sm font-semibold text-gray-700">Brand Voice</p>
+                    <p className="text-xs text-gray-600 line-clamp-2">
                       {project.brand_voice || 'Not specified'}
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Platforms ({project.platforms.length})</p>
-                    <div className="flex flex-wrap gap-1">
+                    <p className="text-sm font-semibold text-gray-700">Platforms ({project.platforms.length})</p>
+                    <div className="flex flex-wrap gap-2">
                       {project.platforms.length > 0 ? (
                         project.platforms.slice(0, 3).map((platform) => (
                           <Badge 
                             key={platform} 
                             variant="outline"
-                            className={`text-xs ${getPlatformColor(platform)}`}
+                            className={`text-xs rounded-full ${getPlatformColor(platform)}`}
                           >
                             {platform}
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-xs text-muted-foreground">No platforms selected</span>
+                        <span className="text-xs text-gray-500">No platforms selected</span>
                       )}
                       {project.platforms.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs rounded-full">
                           +{project.platforms.length - 3} more
                         </Badge>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-3 pt-4">
                     <Button 
-                      variant="secondary" 
+                      variant="gradient" 
                       size="sm" 
                       className="flex-1"
                       onClick={(e) => {
@@ -168,6 +169,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="rounded-xl"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <Edit className="w-4 h-4" />

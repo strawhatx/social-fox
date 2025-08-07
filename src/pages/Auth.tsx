@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
@@ -69,41 +69,44 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate('/')}
-            className="h-10 w-10"
+            className="h-12 w-12 rounded-xl"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Welcome Back</h1>
-            <p className="text-muted-foreground">Sign in to your marketing agent account</p>
+            <h1 className="text-3xl font-bold gradient-text">Welcome Back</h1>
+            <p className="text-gray-600">Sign in to your marketing agent account</p>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Authentication</CardTitle>
-            <CardDescription>
+        <Card className="card-modern">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 h-16 w-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Zap className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl">Authentication</CardTitle>
+            <CardDescription className="text-base">
               Sign in to your account or create a new one to get started.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-gray-100">
+                <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
+              <TabsContent value="signin" className="mt-6">
+                <form onSubmit={handleSignIn} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email" className="text-sm font-medium text-gray-700">Email</Label>
                     <Input
                       id="signin-email"
                       name="email"
@@ -114,7 +117,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password" className="text-sm font-medium text-gray-700">Password</Label>
                     <Input
                       id="signin-password"
                       name="password"
@@ -124,17 +127,17 @@ const Auth = () => {
                       disabled={isLoading}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" variant="gradient" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign In
                   </Button>
                 </form>
               </TabsContent>
               
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
+              <TabsContent value="signup" className="mt-6">
+                <form onSubmit={handleSignUp} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name" className="text-sm font-medium text-gray-700">Full Name</Label>
                     <Input
                       id="signup-name"
                       name="fullName"
@@ -145,7 +148,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">Email</Label>
                     <Input
                       id="signup-email"
                       name="email"
@@ -156,7 +159,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">Password</Label>
                     <Input
                       id="signup-password"
                       name="password"
@@ -167,7 +170,7 @@ const Auth = () => {
                       minLength={6}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" variant="gradient" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Account
                   </Button>
@@ -176,8 +179,8 @@ const Auth = () => {
             </Tabs>
 
             {error && (
-              <Alert className="mt-4">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert className="mt-6 border-red-200 bg-red-50">
+                <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
             )}
           </CardContent>

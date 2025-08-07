@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Zap, Target, BarChart3, Users, MessageSquare, Lightbulb } from 'lucide-react';
+import { ArrowRight, Zap, Target, BarChart3, Users, MessageSquare, Lightbulb, Monitor, Clock, CheckCircle } from 'lucide-react';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -19,66 +19,57 @@ const Landing = () => {
 
   const features = [
     {
-      icon: <Zap className="h-6 w-6" />,
-      title: "AI-Powered Content Generation",
-      description: "Generate engaging content across multiple platforms with advanced AI agents"
+      icon: <Monitor className="h-6 w-6" />,
+      title: "Auto-generates platform-specific posts",
+      description: "Smart AI analyzes your commits, PRs, and releases to create engaging posts tailored for each platform."
+    },
+    {
+      icon: <div className="flex items-center space-x-1"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div><div className="w-3 h-3 bg-blue-600 rounded-sm"></div></div>,
+      title: "Optimized for Twitter/X and LinkedIn",
+      description: "Each post is crafted with platform-specific best practices, hashtags, and formatting for maximum engagement."
     },
     {
       icon: <Target className="h-6 w-6" />,
-      title: "Multi-Platform Management",
-      description: "Manage Twitter, LinkedIn, Instagram and more from a single dashboard"
+      title: "Customizable tone and format",
+      description: "Choose your voice — professional, casual, or technical. Customize templates to match your personal brand."
+    },
+    {
+      icon: <Clock className="h-6 w-6" />,
+      title: "Post on your schedule",
+      description: "Get ready-to-post content generated from your commits. Post immediately or save for later."
+    },
+    {
+      icon: <CheckCircle className="h-6 w-6" />,
+      title: "One-click approval workflow",
+      description: "Review and approve posts before they go live. Make quick edits or post instantly with confidence."
     },
     {
       icon: <BarChart3 className="h-6 w-6" />,
       title: "Analytics & Insights",
-      description: "Track performance and optimize your marketing strategy with detailed analytics"
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      title: "Audience Research",
-      description: "Understand your audience better with AI-driven research and insights"
-    },
-    {
-      icon: <MessageSquare className="h-6 w-6" />,
-      title: "Community Engagement",
-      description: "Build and nurture your community with automated engagement tools"
-    },
-    {
-      icon: <Lightbulb className="h-6 w-6" />,
-      title: "Campaign Planning",
-      description: "Plan and execute marketing campaigns with AI-assisted strategy development"
+      description: "Track performance and optimize your marketing strategy with detailed analytics and engagement metrics."
     }
   ];
 
-  const roles = [
-    "Brand Builder",
-    "Content Creator", 
-    "Audience Researcher",
-    "Campaign Planner",
-    "Channel Manager",
-    "Analytics Tracker",
-    "Lead Generator",
-    "Community Engager",
-    "Growth Hacker"
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/10">
+    <div className="min-h-screen bg-gradient-to-br from-white via-white to-orange-50/20">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+            <div className="h-8 w-8 bg-orange-500 rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white text-sm">🦊</span>
             </div>
-            <span className="text-xl font-bold">Social Story Shaper</span>
+            <span className="text-xl font-bold">
+              <span className="text-gray-900">Social</span>
+              <span className="text-orange-500"> Fox</span>
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" onClick={() => navigate('/auth')}>
               Sign In
             </Button>
-            <Button onClick={() => navigate('/auth')}>
-              Get Started
+            <Button variant="gradient" onClick={() => navigate('/auth')}>
+              Join the Beta
             </Button>
           </div>
         </nav>
@@ -87,48 +78,88 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <div className="max-w-4xl mx-auto space-y-8">
-          <Badge variant="secondary" className="mb-4">
-            AI-Powered Marketing Platform
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Transform Your Social Media Strategy with AI Agents
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Harness the power of 9 specialized AI marketing agents to create, manage, and optimize your social media presence across all platforms.
+          {/* Logo */}
+          <div className="flex flex-col items-center space-y-4">
+            <div className="h-16 w-16 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg relative">
+              <span className="text-white text-2xl">🦊</span>
+              <div className="absolute -top-1 -right-1 h-6 w-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                <Zap className="h-3 w-3 text-white" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold">
+                <span className="text-gray-900">Social</span>
+                <span className="text-orange-500"> Fox</span>
+              </h1>
+              <p className="text-xl text-gray-700 mt-2">Let your code do the talking.</p>
+            </div>
+          </div>
+          
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Social Fox turns your GitHub activity into engaging, ready-to-post content for Twitter/X and LinkedIn — so indie hackers and busy founders can stay active on their own schedule.
           </p>
+
+          {/* Process Flow */}
+          <div className="flex items-center justify-center space-x-8 py-8">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm">🐙</span>
+              </div>
+              <span className="text-gray-700 font-medium">GitHub Activity</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="h-0.5 w-8 bg-gray-300"></div>
+              <Zap className="h-5 w-5 text-orange-500" />
+              <div className="h-0.5 w-8 bg-gray-300"></div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm">🐦</span>
+                </div>
+                <span className="text-gray-700 font-medium">Twitter/X</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">in</span>
+                </div>
+                <span className="text-gray-700 font-medium">LinkedIn</span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate('/auth')} className="text-lg px-8">
-              Start Free Trial
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" variant="gradient" onClick={() => navigate('/auth')} className="text-lg px-8">
+              Join the Beta
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/auth')}>
-              View Demo
+            <Button size="lg" variant="modern" onClick={() => navigate('/auth')}>
+              See How It Works
             </Button>
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Powerful Features for Modern Marketers</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to build a successful social media presence, powered by artificial intelligence.
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Build in public, effortlessly</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Focus on building great products while Social Fox keeps your audience engaged with your progress.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={index} className="card-modern border-0">
               <CardHeader>
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-orange-100 rounded-xl text-orange-600">
                     {feature.icon}
                   </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900">{feature.title}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">
+                <CardDescription className="text-base text-gray-600">
                   {feature.description}
                 </CardDescription>
               </CardContent>
@@ -137,38 +168,20 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* AI Agents Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">9 Specialized AI Marketing Agents</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Each agent is designed with a specific expertise to handle different aspects of your marketing strategy.
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-center gap-3">
-          {roles.map((role, index) => (
-            <Badge key={index} variant="secondary" className="text-sm py-2 px-4">
-              {role}
-            </Badge>
-          ))}
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16">
-        <Card className="border-0 bg-gradient-to-r from-primary/5 to-secondary/5">
-          <CardContent className="p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Marketing?</h2>
-            <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join thousands of marketers who are already using AI agents to scale their social media presence and drive real business results.
+      <section className="container mx-auto px-4 py-20">
+        <Card className="border-0 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+          <CardContent className="p-16 text-center">
+            <h2 className="text-4xl font-bold mb-6">Ready to build in public?</h2>
+            <p className="text-white/90 mb-10 max-w-2xl mx-auto text-lg">
+              Join indie hackers and founders who are already using Social Fox to stay active on social media without the hassle.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate('/auth')} className="text-lg px-8">
-                Start Your Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" variant="modern" onClick={() => navigate('/auth')} className="text-lg px-8">
+                Join the Beta
               </Button>
-              <Button size="lg" variant="outline">
-                Schedule a Demo
+              <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white hover:text-gray-900">
+                See How It Works
               </Button>
             </div>
           </CardContent>
@@ -176,9 +189,9 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 mt-16 border-t">
-        <div className="text-center text-muted-foreground">
-          <p>&copy; 2024 Social Story Shaper. All rights reserved.</p>
+      <footer className="container mx-auto px-4 py-12 mt-20 border-t border-gray-200">
+        <div className="text-center text-gray-600">
+          <p>&copy; 2024 Social Fox. All rights reserved.</p>
         </div>
       </footer>
     </div>

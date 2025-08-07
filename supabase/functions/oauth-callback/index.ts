@@ -52,7 +52,7 @@ const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
   twitter: {
     contentType: 'application/x-www-form-urlencoded',
     authMethod: 'basic',
-    includeClientId: false,
+    includeClientId: true,
     includeClientSecret: false
   },
   linkedin: {
@@ -122,11 +122,17 @@ const prepareTokenRequest = (
   }
 
   // Add client credentials based on provider config
-  if (providerConfig.includeClientId) {
+  if (connector.provider === 'twitter') {
     bodyConfig['client_id'] = connector.client_id;
+    bodyConfig['client_secret'] = '';
   }
-  if (providerConfig.includeClientSecret) {
-    bodyConfig['client_secret'] = connector.client_secret;
+  else {
+    if (providerConfig.includeClientId) {
+      bodyConfig['client_id'] = connector.client_id;
+    }
+    if (providerConfig.includeClientSecret) {
+      bodyConfig['client_secret'] = connector.client_secret;
+    }
   }
 
   // Build headers
@@ -176,17 +182,17 @@ serve(async (req) => {
 
   try {
     let project_id, provider, code, state, params;
-    
+
     if (req.method === 'GET') {
       // Handle OAuth redirect from provider (GET request with query params)
       const url = new URL(req.url);
       code = url.searchParams.get('code');
       state = url.searchParams.get('state');
-      
+
       if (!code || !state) {
         throw new Error('Missing required OAuth parameters');
       }
-      
+
       // Extract provider and project_id from state
       const decodedState = JSON.parse(atob(state));
       console.log('Decoded state from GET request:', decodedState);
@@ -197,33 +203,33 @@ serve(async (req) => {
       const body = await req.json() as OAuthCallbackRequest;
       ({ project_id, provider, code, state, params } = body);
     }
-    
+
     // Validate required parameters
     if (!provider) {
       throw new Error('Provider not specified');
     }
-    
+
     if (!project_id) {
       throw new Error('Project ID not found in request');
     }
-    
+
     // Extract user ID from state parameter (OAuth callbacks don't have auth headers)
     const decodedState = req.method === 'GET' ? JSON.parse(atob(state)) : JSON.parse(atob(state));
     const userId = decodedState.user_id;
 
     // Get OAuth state and PKCE verifier from database in a single query
     const oauthData = await getOAuthData(state, userId);
-    
+
     if (!oauthData) {
       throw new Error("OAuth state not found or expired");
     }
-    
+
     const { state: storedState, pkceVerifier: code_verifier } = oauthData;
-    
+
     if (!storedState || storedState !== state) {
       throw new Error("Invalid state parameter");
     }
-    
+
     // Verify timestamp
     if (Date.now() - decodedState.timestamp > 3600000) { // 1 hour
       throw new Error("OAuth state expired");
@@ -233,7 +239,7 @@ serve(async (req) => {
     await clearOAuthState(state, userId);
 
     console.log('Retrieved code_verifier:', code_verifier ? 'present' : 'missing');
-    
+
     // Fetch integration configuration
     const { data: integrationData, error: integrationError } = await supabase
       .from('integrations')
@@ -303,7 +309,7 @@ serve(async (req) => {
       timestamp: new Date().toISOString(),
       // Include any additional parameters from the state (like git_url, repository for GitHub)
       ...Object.fromEntries(
-        Object.entries(decodedState).filter(([key]) => 
+        Object.entries(decodedState).filter(([key]) =>
           !['provider', 'project_id', 'user_id', 'redirectUri', 'timestamp', 'nonce', 'connectionName'].includes(key)
         )
       )

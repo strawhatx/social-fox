@@ -93,7 +93,10 @@ export interface Integration {
     required_fields: string[];
     required_parameters: string[];
     code_challenge_required: boolean;
-  }
+  };
+  secrets?: {
+    client_secret?: string;
+  };
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
@@ -121,7 +124,6 @@ const getProviderConfig = async (integration: Integration): Promise<ProviderConf
   // All integrations with OAuth config are supported - don't filter by type
   // since integrations can be data_source, publishing_platform, etc.
   
-  // Handle both separated config structure and legacy config_data structure
   const config = integration.config_public;
 
   return {

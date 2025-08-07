@@ -38,9 +38,9 @@ export const GitHubConnectionDialog = ({
       const githubIntegration = getIntegrationByProvider('github');
       if (githubIntegration) {
         const connection = getConnectionByIntegration(githubIntegration.id);
-        if (connection?.account_config?.repository) {
-          setOwner(connection.account_config.repository.owner || '');
-          setRepository(connection.account_config.repository.repository || '');
+        if (connection?.config_public?.repository) {
+          setOwner(connection.config_public.repository.owner || '');
+          setRepository(connection.config_public.repository.repository || '');
         }
       }
     } else {
@@ -79,12 +79,12 @@ export const GitHubConnectionDialog = ({
       }
 
       const connection = getConnectionByIntegration(githubIntegration.id);
-      if (!connection?.account_config?.access_token) {
+      if (!connection?.secrets?.access_token) {
         throw new Error('GitHub authorization failed - no access token received');
       }
 
-      const accountConfig = {
-        ...connection.account_config,
+      const configPublic = {
+        ...connection.config_public,
         repository: {
           owner: owner,
           owner_url: `https://github.com/${owner}`,
@@ -93,7 +93,7 @@ export const GitHubConnectionDialog = ({
         }
       };
 
-      await updateConnection(connection.id, accountConfig);
+      await updateConnection(connection.id, configPublic);
 
       toast({
         title: "Success",

@@ -6,7 +6,8 @@ export interface Connection {
   id: string;
   project_id: string;
   integration_id: string;
-  account_config: Record<string, any>;
+  config_public: Record<string, any>;
+  secrets?: Record<string, any>;
   account_identifier: string | null;
   is_active: boolean;
   created_at: string;
@@ -20,7 +21,8 @@ export interface Integration {
   type: string;
   description: string | null;
   icon: string | null;
-  config_data: Record<string, any>;
+  config_public: Record<string, any>;
+  secrets?: Record<string, any>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -49,7 +51,14 @@ export const useConnections = (projectId?: string) => {
         .eq('is_active', true);
 
       if (integrationsError) throw integrationsError;
-      setIntegrations((integrationsData || []) as Integration[]);
+      
+      // Adapt data to match our interface (handle legacy config_data -> config_public)
+      const adaptedIntegrations = (integrationsData || []).map((integration: any) => ({
+        ...integration,
+        config_public: integration.config_public || integration.config_data || {}
+      }));
+      
+      setIntegrations(adaptedIntegrations as Integration[]);
 
       // Fetch connections for the project if projectId is provided
       if (projectId) {
@@ -75,7 +84,8 @@ export const useConnections = (projectId?: string) => {
 
   const createConnection = async (
     integrationId: string,
-    accountConfig: Record<string, any>
+    configPublic: Record<string, any>,
+    secrets?: Record<string, any>
   ) => {
     if (!user || !projectId) return { error: 'User not authenticated or no project ID' };
 
@@ -85,7 +95,8 @@ export const useConnections = (projectId?: string) => {
         .insert({
           project_id: projectId,
           integration_id: integrationId,
-          account_config: accountConfig
+          config_public: configPublic,
+          secrets: secrets
         })
         .select()
         .single();
@@ -102,14 +113,19 @@ export const useConnections = (projectId?: string) => {
 
   const updateConnection = async (
     connectionId: string,
-    accountConfig: Record<string, any>
+    configPublic?: Record<string, any>,
+    secrets?: Record<string, any>
   ) => {
     if (!user) return { error: 'User not authenticated' };
+
+    const updateData: any = {};
+    if (configPublic !== undefined) updateData.config_public = configPublic;
+    if (secrets !== undefined) updateData.secrets = secrets;
 
     try {
       const { data, error } = await supabase
         .from('connections')
-        .update({ account_config: accountConfig })
+        .update(updateData)
         .eq('id', connectionId)
         .select()
         .single();

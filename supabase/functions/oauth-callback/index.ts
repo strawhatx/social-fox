@@ -232,7 +232,7 @@ serve(async (req) => {
       has_client_secret: !!integrationData.secrets?.client_secret
     });
 
-    //process the data properly to the connector type
+    // Process the data properly to the connector type
     const connector: Connector = {
       id: integrationData.id,
       name: integrationData.name,

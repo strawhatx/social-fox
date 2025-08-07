@@ -3,6 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
+import { encode as base64Encode } from "https://deno.land/std@0.177.0/encoding/base64.ts";
 
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { clearOAuthState, getOAuthData } from "../utils/state.ts";
@@ -119,21 +120,28 @@ const prepareTokenRequest = (
     // Twitter uses Basic Auth with client credentials
     bodyConfig['client_id'] = connector.client_id;
     
+    // Use Deno's built-in base64 encoding
+    const credentials = `${connector.client_id}:${connector.client_secret}`;
+    const encodedCredentials = base64Encode(credentials);
+    
     return {
       ...baseConfig,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${btoa(`${connector.client_id}:${connector.client_secret}`)}`
+        'Authorization': `Basic ${encodedCredentials}`
       },
       body: new URLSearchParams(bodyConfig).toString()
     };
   } else {
     // Default OAuth implementation
+    const credentials = `${connector.client_id}:${connector.client_secret}`;
+    const encodedCredentials = base64Encode(credentials);
+    
     return {
       ...baseConfig,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${btoa(`${connector.client_id}:${connector.client_secret}`)}`
+        'Authorization': `Basic ${encodedCredentials}`
       },
       body: new URLSearchParams(bodyConfig).toString()
     };

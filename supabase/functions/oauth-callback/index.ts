@@ -3,8 +3,6 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
-import { encode as base64Encode } from "https://deno.land/std@0.177.0/encoding/base64.ts";
-
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { clearOAuthState, getOAuthData } from "../utils/state.ts";
 
@@ -139,7 +137,7 @@ const prepareTokenRequest = (
   // Add authorization header if using Basic Auth
   if (providerConfig.authMethod === 'basic') {
     const credentials = `${connector.client_id}:${connector.client_secret}`;
-    const encodedCredentials = base64Encode(credentials);
+    const encodedCredentials = btoa(credentials);
     headers['Authorization'] = `Basic ${encodedCredentials}`;
   }
 

@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.process-oauth]
 verify_jwt = true
 
+[functions.get-connection-secrets]
+verify_jwt = false
+
 [db]
 port = 54322
 

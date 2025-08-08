@@ -5,6 +5,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { clearOAuthState, getOAuthData } from "../utils/state.ts";
+import { encrypt } from "../utils/encryption.ts";
+import { getMasterKey } from "../utils/vault.ts";
 
 // Types
 interface OAuthCallbackRequest {
@@ -304,6 +306,7 @@ serve(async (req) => {
     const publicConfig = {
       code,
       state,
+      access_token_expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
       scope: tokenData.scope || (integrationData.config_public?.scopes || []).join(' '),
       provider,
       timestamp: new Date().toISOString(),
@@ -315,10 +318,19 @@ serve(async (req) => {
       )
     };
 
-    const secretsConfig = {
+    const masterKey = getMasterKey();
+
+    const plaintextSecrets = JSON.stringify({
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
-      expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
+    });
+
+    const encryptedSecrets = await encrypt(plaintextSecrets, masterKey);
+
+    const secretsConfig = {
+      v: 1,
+      alg: 'AES-256-GCM',
+      encrypted: encryptedSecrets
     };
 
     // Get the integration to find the connection

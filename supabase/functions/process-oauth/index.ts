@@ -232,10 +232,6 @@ const buildOAuthUrl = (
 // Helper function to get provider-specific parameters
 const getProviderSpecificParameters = (provider: string): Record<string, string> => {
   const providerParams: Record<string, Record<string, string>> = {
-    'google_sheets': {
-      access_type: 'offline',
-      prompt: 'consent'
-    },
     'gmail': {
       access_type: 'offline',
       prompt: 'consent'
@@ -244,8 +240,9 @@ const getProviderSpecificParameters = (provider: string): Record<string, string>
       prompt: 'consent'
     },
     'twitter': {},
-    'linkedin': {},
-    'linkedin_oidc': {}
+    'linkedin': {
+      prompt: 'consent'
+    }
   };
 
   return providerParams[provider] || {};

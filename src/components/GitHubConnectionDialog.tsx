@@ -79,8 +79,8 @@ export const GitHubConnectionDialog = ({
       }
 
       const connection = getConnectionByIntegration(githubIntegration.id);
-      if (!connection?.secrets?.access_token) {
-        throw new Error('GitHub authorization failed - no access token received');
+      if (!connection?.secrets) {
+        throw new Error('GitHub authorization failed - no credentials stored');
       }
 
       const configPublic = {

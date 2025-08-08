@@ -303,10 +303,12 @@ serve(async (req) => {
     const tokenData = await tokenResponse.json() as TokenResponse;
 
     // Separate public config from secrets
+    const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
     const publicConfig = {
       code,
       state,
       access_token_expires_at: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
+      refresh_token_expires_at: tokenData.refresh_token ? Date.now() + NINETY_DAYS_MS : null,
       scope: tokenData.scope || (integrationData.config_public?.scopes || []).join(' '),
       provider,
       timestamp: new Date().toISOString(),
@@ -354,7 +356,8 @@ serve(async (req) => {
         integration_id: integrationData.id,
         config_public: publicConfig,
         secrets: secretsConfig,
-        is_active: true
+        is_active: true,
+        status: 'connected'
       }, {
         onConflict: 'project_id,integration_id'
       })

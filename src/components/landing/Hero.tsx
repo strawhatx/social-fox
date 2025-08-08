@@ -1,11 +1,25 @@
 import React from 'react';
-import { Github, Twitter, Linkedin, Zap } from 'lucide-react';
+import { Github, Twitter, Linkedin, Zap, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 const Hero: React.FC = () => {
+  const { user } = useAuth();
+
   return (
     <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-20 overflow-hidden">
       <div className="absolute inset-0 bg-white/20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Navigation Header */}
+        <div className="flex justify-end mb-8">
+          <Link to={user ? "/dashboard" : "/auth"}>
+            <Button variant="outline" className="flex items-center space-x-2">
+              <User className="w-4 h-4" />
+              <span>{user ? "Dashboard" : "Sign In"}</span>
+            </Button>
+          </Link>
+        </div>
         <div className="text-center">
           <div className="flex justify-center items-center mb-8">
             <div className="relative">

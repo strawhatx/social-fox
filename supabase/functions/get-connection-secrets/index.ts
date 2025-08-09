@@ -8,9 +8,8 @@ import { decrypt } from "../utils/encryption.ts";
 import { getMasterKey } from "../utils/vault.ts";
 
 interface RequestBody {
-  connection_id?: string;
   project_id?: string;
-  integration_id?: string;
+  provider?: string;
 }
 
 const supabase = createClient(
@@ -44,23 +43,22 @@ serve(async (req) => {
 
   try {
     const body = (await req.json()) as RequestBody;
-    const { connection_id, project_id, integration_id } = body;
+    const {project_id, provider } = body;
 
-    if (!connection_id && !(project_id && integration_id)) {
-      return jsonResponse({ error: 'Provide connection_id or project_id + integration_id' }, req, 400);
+    if (!project_id || !provider) {
+      return jsonResponse({ error: 'Provide project_id and provider' }, req, 400);
     }
 
     // Fetch connection
-    let query = supabase.from('connections').select('id, integration_id, secrets, config_public, project_id').limit(1);
-    if (connection_id) {
-      query = query.eq('id', connection_id);
-    } else {
-      query = query.eq('project_id', project_id!).eq('integration_id', integration_id!);
-    }
+    const { data: connection, error } = await supabase
+    .from('connections')
+    .select('id, integration_id, secrets, config_public, project_id')
+    .eq('project_id', project_id)
+    .eq('provider', provider)
+    .single();
 
-    const { data: rows, error } = await query;
     if (error) throw error;
-    const connection = rows?.[0];
+
     if (!connection) {
       return jsonResponse({ error: 'Connection not found' }, req, 404);
     }
@@ -71,7 +69,8 @@ serve(async (req) => {
     if (connection.secrets && connection.secrets.encrypted) {
       const plaintext = await decrypt(connection.secrets.encrypted, masterKey);
       decryptedSecrets = JSON.parse(plaintext);
-    } else if (connection.secrets) {
+    } 
+    else if (connection.secrets) {
       decryptedSecrets = connection.secrets;
     }
 
@@ -83,7 +82,8 @@ serve(async (req) => {
       access_token_expires_at: connection.config_public?.access_token_expires_at ?? null,
       refresh_token_expires_at: connection.config_public?.refresh_token_expires_at ?? null
     }, req);
-  } catch (e) {
+  } 
+  catch (e) {
     console.error('get-connection-secrets error:', e);
     return jsonResponse({ error: e instanceof Error ? e.message : 'Unknown error' }, req, 500);
   }

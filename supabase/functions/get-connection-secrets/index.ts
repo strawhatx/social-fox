@@ -17,6 +17,13 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
+const incomingProviderMap = {
+  'github': 'github',
+  'twitter': 'twitter',
+  'x': 'twitter',
+  'linkedin': 'linkedin',
+}
+
 const jsonResponse = (data: unknown, req: Request, status = 200) =>
   new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });
 
@@ -49,11 +56,14 @@ serve(async (req) => {
       return jsonResponse({ error: 'Provide project_id and provider' }, req, 400);
     }
 
+    // Normalize provider name
+    const normalizedProvider = incomingProviderMap[provider] || provider;
+
     // Fetch integration id for provider
     const { data: integration, error: integrationError } = await supabase
       .from('integrations')
       .select('id')
-      .eq('provider', provider)
+      .eq('provider', normalizedProvider)
       .single();
 
     if (integrationError || !integration) {

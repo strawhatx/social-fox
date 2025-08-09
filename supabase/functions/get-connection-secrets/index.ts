@@ -52,9 +52,9 @@ serve(async (req) => {
     // Fetch connection
     const { data: connection, error } = await supabase
     .from('connections')
-    .select('id, integration_id, secrets, config_public, project_id')
+    .select('id, integration_id, secrets, config_public, project_id, integrations!inner(provider)')
     .eq('project_id', project_id)
-    .eq('provider', provider)
+    .eq('integrations.provider', provider)
     .single();
 
     if (error) throw error;

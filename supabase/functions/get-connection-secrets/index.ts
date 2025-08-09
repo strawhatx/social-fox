@@ -6,6 +6,7 @@ import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { decrypt } from "../utils/encryption.ts";
 import { getMasterKey } from "../utils/vault.ts";
+import { getValidAccessToken } from "../utils/access.ts";
 
 interface RequestBody {
   project_id?: string;
@@ -95,9 +96,14 @@ serve(async (req) => {
       decryptedSecrets = connection.secrets;
     }
 
+    // 5) Return connection with valid access token
+    const data = { ...connection, secrets: decryptedSecrets }
+    
+    const validAccessToken = await getValidAccessToken(data);
+
     return jsonResponse({
-      ...connection,
-      secrets: decryptedSecrets,
+      ...data,
+      secrets: { ...data.secrets, access_token: validAccessToken }
     }, req);
   }
   catch (e) {

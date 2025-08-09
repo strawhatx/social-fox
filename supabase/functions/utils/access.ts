@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { getMasterKey } from "./vault";
+import { encrypt } from "./encryption";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
 
@@ -8,29 +10,53 @@ interface Connector {
     client_secret: string;
 }
 
-export async function getValidAccessToken(connectionId: string): Promise<string> {
-    // 1) Load connection data
-    const { data: connection, error } = await supabase
-        .from("connections")
-        .select("config, connector_id")
-        .eq("id", connectionId)
-        .single();
+interface Connection {
+    id: string;
+    connector_id: string;
+    project_id: string;
+    integration_id: string;
+    config_public: Record<string, unknown>;
+    secrets: Record<string, unknown>;
+    status: string;
+    created_at: string;
+}
 
-    if (error || !connection) {
+export async function getValidAccessToken(connection: Connection): Promise<string> {
+    // 1) Load connection data
+    if (!connection) {
         throw new Error("Connection not found");
     }
 
-    const { config } = connection;
-    const { access_token, refresh_token, expires_at } = config;
+    // 2) Load connection data
+    const { secrets, config_public } = connection;
+    const { access_token_expires_at, refresh_token_expires_at } = config_public;
+    const { access_token, refresh_token } = secrets;
 
     const now = Date.now();
 
-    if (expires_at && now < expires_at - 60 * 1000) {
+    // 3) Check if accesstoken is valid
+    if (!access_token_expires_at || access_token_expires_at && now < (access_token_expires_at as number) - 60 * 1000) {
         // token valid for at least another minute
-        return access_token;
+        return access_token as string;
     }
 
-    // 2) Load connector details
+    // 4) If no refresh token or if its expired  users has to re-connect
+    if (!refresh_token || refresh_token_expires_at && now > (refresh_token_expires_at as number)) {
+        // 4.1) first update connection status to expired
+        const { error: updateError } = await supabase
+            .from("connections")
+            .update({ status: "expired" })
+            .eq("id", connection.id);
+
+        if (updateError) {
+            throw new Error("Failed to update connection status");
+        }
+
+        // 4.2) throw error to trigger re-connect
+        throw new Error("Refresh token expired");
+    }
+
+    // 5) Load connector details
     const { data: connectorData, error: connectorError } = await supabase
         .from("connectors")
         .select("config")
@@ -47,10 +73,10 @@ export async function getValidAccessToken(connectionId: string): Promise<string>
         client_secret: connectorData.config.client_secret
     };
 
-    // 3) Refresh the token
+    // 6) Refresh the token
     const body = new URLSearchParams({
         grant_type: "refresh_token",
-        refresh_token: refresh_token,
+        refresh_token: refresh_token as string,
         client_id: connector.client_id,
         client_secret: connector.client_secret,
     });
@@ -71,18 +97,35 @@ export async function getValidAccessToken(connectionId: string): Promise<string>
     const newAccessToken = tokenData.access_token;
     const newExpiresAt = Date.now() + tokenData.expires_in * 1000;
 
-    // 4) Update Supabase
+    // 7) Re-encrypt secrets & update
+    const masterKey = getMasterKey();
+
+    const plaintextSecrets = JSON.stringify({
+        ...secrets,
+        access_token: newAccessToken,
+    });
+
+    const encryptedSecrets = await encrypt(plaintextSecrets, masterKey);
+
+    const updateData = {
+        config_public: {
+            ...config_public,
+            access_token: newAccessToken,
+            expires_at: newExpiresAt,
+            refresh_token: tokenData.refresh_token || refresh_token,
+        },
+        secrets: {
+            v: 1,
+            alg: 'AES-256-GCM',
+            encrypted: encryptedSecrets
+        }
+    }
+
+    // 8) Update Supabase
     const { error: updateError } = await supabase
         .from("connections")
-        .update({
-            config: {
-                ...config,
-                access_token: newAccessToken,
-                expires_at: newExpiresAt,
-                refresh_token: tokenData.refresh_token || refresh_token,
-            }
-        })
-        .eq("id", connectionId);
+        .update(updateData)
+        .eq("id", connection.id);
 
     if (updateError) {
         throw new Error("Failed to update token in database");

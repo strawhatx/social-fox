@@ -43,7 +43,7 @@ serve(async (req) => {
 
   try {
     const body = (await req.json()) as RequestBody;
-    const {project_id, provider } = body;
+    const { project_id, provider } = body;
 
     if (!project_id || !provider) {
       return jsonResponse({ error: 'Provide project_id and provider' }, req, 400);
@@ -63,7 +63,7 @@ serve(async (req) => {
     // Fetch connection by project and integration
     const { data: connection, error } = await supabase
       .from('connections')
-      .select('id, integration_id, secrets, config_public, project_id')
+      .select('*')
       .eq('project_id', project_id)
       .eq('integration_id', integration.id)
       .single();
@@ -80,20 +80,16 @@ serve(async (req) => {
     if (connection.secrets && connection.secrets.encrypted) {
       const plaintext = await decrypt(connection.secrets.encrypted, masterKey);
       decryptedSecrets = JSON.parse(plaintext);
-    } 
+    }
     else if (connection.secrets) {
       decryptedSecrets = connection.secrets;
     }
 
     return jsonResponse({
-      connection_id: connection.id,
-      integration_id: connection.integration_id,
-      project_id: connection.project_id,
+      ...connection,
       secrets: decryptedSecrets,
-      access_token_expires_at: connection.config_public?.access_token_expires_at ?? null,
-      refresh_token_expires_at: connection.config_public?.refresh_token_expires_at ?? null
     }, req);
-  } 
+  }
   catch (e) {
     console.error('get-connection-secrets error:', e);
     return jsonResponse({ error: e instanceof Error ? e.message : 'Unknown error' }, req, 500);

@@ -49,13 +49,24 @@ serve(async (req) => {
       return jsonResponse({ error: 'Provide project_id and provider' }, req, 400);
     }
 
-    // Fetch connection
+    // Fetch integration id for provider
+    const { data: integration, error: integrationError } = await supabase
+      .from('integrations')
+      .select('id')
+      .eq('provider', provider)
+      .single();
+
+    if (integrationError || !integration) {
+      return jsonResponse({ error: `Integration not found for provider: ${provider}` }, req, 404);
+    }
+
+    // Fetch connection by project and integration
     const { data: connection, error } = await supabase
-    .from('connections')
-    .select('id, integration_id, secrets, config_public, project_id, integrations!inner(provider)')
-    .eq('project_id', project_id)
-    .eq('integrations.provider', provider)
-    .single();
+      .from('connections')
+      .select('id, integration_id, secrets, config_public, project_id')
+      .eq('project_id', project_id)
+      .eq('integration_id', integration.id)
+      .single();
 
     if (error) throw error;
 

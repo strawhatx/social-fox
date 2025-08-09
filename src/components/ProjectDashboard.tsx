@@ -54,10 +54,10 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
             Marketing Agent Dashboard
           </h1>
           <p className="text-gray-600 mt-3 text-lg">
-            AI-powered content generation for multiple projects
+            AI-powered content generation for your project
           </p>
         </div>
-        <CreateProjectDialog />
+        {projects.length === 0 && <CreateProjectDialog />}
       </div>
 
       {projects.length === 0 ? (
@@ -77,12 +77,11 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
         <>
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              {projects.length} project{projects.length !== 1 ? 's' : ''} found
+              Your project
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Projects:</span>
               <Badge variant="outline" className="bg-gradient-to-r from-orange-50 to-blue-50 text-gray-700 border-orange-200">
-                {projects.length} Total
+                1 Project Limit
               </Badge>
             </div>
           </div>

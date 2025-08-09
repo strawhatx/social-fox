@@ -97,6 +97,16 @@ export const useProjects = () => {
   const createProject = async (projectData: Partial<Project>) => {
     if (!user) return null;
 
+    // Check if user already has a project
+    if (projects.length >= 1) {
+      toast({
+        title: "Project Limit Reached",
+        description: "You can only have one project. Please delete your existing project to create a new one.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
     try {
       const { data, error } = await supabase
         .from('projects' as any)

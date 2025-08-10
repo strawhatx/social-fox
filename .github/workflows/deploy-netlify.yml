@@ -38,7 +38,7 @@ jobs:
     permissions:
       contents: read
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
+      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Stage' }}
 
     steps:
       - name: Checkout repository
@@ -70,7 +70,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
-            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_PROD. Configure repository or environment secrets for Production." >&2
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID. Configure repository or environment secrets for Production." >&2
             exit 1
           fi
 

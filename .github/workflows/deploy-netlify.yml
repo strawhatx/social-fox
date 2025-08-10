@@ -67,7 +67,7 @@ jobs:
       # Production deploy to PROD site on pushes to main
       - name: Deploy to Netlify (production - main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: netlify/actions/cli@v5
+        uses: netlify/actions/cli@master
         with:
           args: deploy --dir=dist --prod --message "GitHub Actions deploy ${GITHUB_SHA} (main)"
         env:
@@ -77,7 +77,7 @@ jobs:
       # Production deploy to STAGING site on pushes to stage
       - name: Deploy to Netlify (staging - stage)
         if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-        uses: netlify/actions/cli@v5
+        uses: netlify/actions/cli@master
         with:
           args: deploy --dir=dist --prod --message "GitHub Actions deploy ${GITHUB_SHA} (stage)"
         env:
@@ -87,7 +87,7 @@ jobs:
       # Preview deploys for PRs targeting main
       - name: Deploy Preview to Netlify (PR to main)
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
-        uses: netlify/actions/cli@v5
+        uses: netlify/actions/cli@master
         with:
           args: deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to main - ${GITHUB_SHA}"
         env:
@@ -97,7 +97,7 @@ jobs:
       # Preview deploys for PRs targeting stage
       - name: Deploy Preview to Netlify (PR to stage)
         if: github.event_name == 'pull_request' && github.base_ref == 'stage'
-        uses: netlify/actions/cli@v5
+        uses: netlify/actions/cli@master
         with:
           args: deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to stage - ${GITHUB_SHA}"
         env:

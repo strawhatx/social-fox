@@ -1,8 +1,8 @@
-name: Deploy to Netlify
+name: Deploy Frontend (Production)
 
 on:
   push:
-    branches: [ main, stage ]
+    branches: [ main ]
     paths:
       - 'src/**'
       - 'public/**'
@@ -11,7 +11,7 @@ on:
       - 'vite.config.ts'
       - 'tailwind.config.ts'
       - 'tsconfig.json'
-      - '.github/workflows/deploy-netlify.yml'
+      - '.github/workflows/deploy-netlify-prod.yml'
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
@@ -22,14 +22,14 @@ on:
       - 'vite.config.ts'
       - 'tailwind.config.ts'
       - 'tsconfig.json'
-      - '.github/workflows/deploy-netlify.yml'
+      - '.github/workflows/deploy-netlify-prod.yml'
   workflow_dispatch:
 
 env:
   NODE_VERSION: '20'
 
 concurrency:
-  group: netlify-${{ github.ref }}
+  group: netlify-prod-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,8 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Stage' }}
+    environment: Production
 
     steps:
       - name: Checkout repository
@@ -67,29 +66,16 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Verify Netlify secrets (production)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
-            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID. Configure repository or environment secrets for Production." >&2
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID. Configure environment secrets for Production." >&2
             exit 1
           fi
 
-      # Production deploy to PROD site on pushes to main
       - name: Deploy to Netlify (production - main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (main)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
 
-      # Production deploy to STAGING site on pushes to stage
-      - name: Deploy to Netlify (staging - stage)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (stage)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
-
-      # Preview deploys for PRs targeting main
       - name: Deploy Preview to Netlify (PR to main)
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
-        run: npx netlify-cli@latest deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to main - $GITHUB_SHA" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_PROD }}"
-
-      # Preview deploys for PRs targeting stage
-      - name: Deploy Preview to Netlify (PR to stage)
-        if: github.event_name == 'pull_request' && github.base_ref == 'stage'
-        run: npx netlify-cli@latest deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to stage - $GITHUB_SHA" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_STAGE }}" 
+        run: npx netlify-cli@latest deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to main - $GITHUB_SHA" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}" 

@@ -1,0 +1,105 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [ main, stage ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy-netlify.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy-netlify.yml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+concurrency:
+  group: netlify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: |
+          echo "VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
+          VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+          VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
+          npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      # Production deploy to PROD site on pushes to main
+      - name: Deploy to Netlify (production - main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: netlify/actions/cli@v5
+        with:
+          args: deploy --dir=dist --prod --message "GitHub Actions deploy ${GITHUB_SHA} (main)"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_PROD }}
+
+      # Production deploy to STAGING site on pushes to stage
+      - name: Deploy to Netlify (staging - stage)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
+        uses: netlify/actions/cli@v5
+        with:
+          args: deploy --dir=dist --prod --message "GitHub Actions deploy ${GITHUB_SHA} (stage)"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_STAGE }}
+
+      # Preview deploys for PRs targeting main
+      - name: Deploy Preview to Netlify (PR to main)
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        uses: netlify/actions/cli@v5
+        with:
+          args: deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to main - ${GITHUB_SHA}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_PROD }}
+
+      # Preview deploys for PRs targeting stage
+      - name: Deploy Preview to Netlify (PR to stage)
+        if: github.event_name == 'pull_request' && github.base_ref == 'stage'
+        uses: netlify/actions/cli@v5
+        with:
+          args: deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to stage - ${GITHUB_SHA}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_STAGE }} 

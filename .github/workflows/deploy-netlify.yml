@@ -69,7 +69,7 @@ jobs:
       - name: Verify Netlify secrets (production)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID_PROD }}" ]; then
+          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
             echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_PROD. Configure repository or environment secrets for Production." >&2
             exit 1
           fi
@@ -77,20 +77,12 @@ jobs:
       # Production deploy to PROD site on pushes to main
       - name: Deploy to Netlify (production - main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (main)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_PROD }}"
-
-      - name: Verify Netlify secrets (staging)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-        run: |
-          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID_STAGE }}" ]; then
-            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_STAGE. Configure repository or environment secrets for Staging." >&2
-            exit 1
-          fi
+        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (main)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
 
       # Production deploy to STAGING site on pushes to stage
       - name: Deploy to Netlify (staging - stage)
         if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (stage)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_STAGE }}"
+        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (stage)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
 
       # Preview deploys for PRs targeting main
       - name: Deploy Preview to Netlify (PR to main)

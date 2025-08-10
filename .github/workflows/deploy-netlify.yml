@@ -37,6 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
 
     steps:
       - name: Checkout repository
@@ -45,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -64,10 +66,26 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
+      - name: Verify Netlify secrets (production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID_PROD }}" ]; then
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_PROD. Configure repository or environment secrets for Production." >&2
+            exit 1
+          fi
+
       # Production deploy to PROD site on pushes to main
       - name: Deploy to Netlify (production - main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (main)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_PROD }}"
+
+      - name: Verify Netlify secrets (staging)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
+        run: |
+          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID_STAGE }}" ]; then
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_STAGE. Configure repository or environment secrets for Staging." >&2
+            exit 1
+          fi
 
       # Production deploy to STAGING site on pushes to stage
       - name: Deploy to Netlify (staging - stage)

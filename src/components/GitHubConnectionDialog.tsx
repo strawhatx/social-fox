@@ -73,19 +73,38 @@ export const GitHubConnectionDialog = ({
         }
       });
 
-      // After OAuth success, save the repository
+      // After OAuth success, re-fetch latest connection to avoid using stale config_public
       const githubIntegration = getIntegrationByProvider('github');
       if (!githubIntegration) {
         throw new Error('GitHub integration not found after authorization');
       }
 
-      const connection = getConnectionByIntegration(githubIntegration.id);
+      // Ensure local state is refreshed; the hook's fetch runs inside update calls, but here we need fresh data post-OAuth
+      const refreshed = await supabase
+        .from('connections')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('integration_id', githubIntegration.id)
+        .maybeSingle();
+
+      if (refreshed.error) {
+        throw new Error(`Failed to fetch updated GitHub connection: ${refreshed.error.message}`);
+      }
+
+      const connection = refreshed.data || getConnectionByIntegration(githubIntegration.id);
       if (!connection?.secrets) {
         throw new Error('GitHub authorization failed - no credentials stored');
       }
 
-      const configPublic = {
-        ...connection.config_public,
+      console.log('refreshed', refreshed);
+
+      const currentConfigPublic: Record<string, any> =
+        connection && typeof connection.config_public === 'object' && connection.config_public !== null
+          ? (connection.config_public as Record<string, any>)
+          : {};
+
+      const configPublic: Record<string, any> = {
+        ...currentConfigPublic,
         repository: {
           owner: owner,
           owner_url: `https://github.com/${owner}`,
@@ -94,7 +113,9 @@ export const GitHubConnectionDialog = ({
         }
       };
 
-      const wasRepoConfiguredBefore = Boolean(connection.config_public?.repository?.owner && connection.config_public?.repository?.repository);
+      const wasRepoConfiguredBefore = Boolean(
+        (currentConfigPublic as any)?.repository?.owner && (currentConfigPublic as any)?.repository?.repository
+      );
 
       await updateConnection(connection.id, configPublic);
 

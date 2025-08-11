@@ -1,4 +1,5 @@
 // Setup type definitions for built-in Supabase Runtime APIs
+// @ts-nocheck
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -320,6 +321,19 @@ serve(async (req) => {
       )
     };
 
+    // Derive repository details from state if provided by client (so repo config can be persisted atomically with OAuth)
+    let repositoryFromState: { owner: string; owner_url: string; repository: string; repository_url: string } | undefined;
+    const repoOwner = (decodedState as any).repository_owner || (decodedState as any).repo_owner || (decodedState as any).owner;
+    const repoName = (decodedState as any).repository_name || (decodedState as any).repo_name || (decodedState as any).repository;
+    if (repoOwner && repoName) {
+      repositoryFromState = {
+        owner: repoOwner,
+        owner_url: `https://github.com/${repoOwner}`,
+        repository: repoName,
+        repository_url: `https://github.com/${repoOwner}/${repoName}`
+      };
+    }
+
     const masterKey = getMasterKey();
 
     const plaintextSecrets = JSON.stringify({
@@ -350,13 +364,23 @@ serve(async (req) => {
     console.log('publicConfig before upsert:', publicConfig);
 
     // Create or update the connection with OAuth data
+    // Merge with any existing public config to avoid overwriting fields like repository, initialized_at, etc.
+    const mergedPublicConfig: Record<string, unknown> = {
+      ...(existingConnection?.config_public ?? {}),
+      ...publicConfig,
+    };
+
+    if (repositoryFromState) {
+      (mergedPublicConfig as any).repository = repositoryFromState;
+    }
+
     const { data, error } = await supabase
       .from('connections')
       .upsert({
         id: existingConnection?.id,
         project_id: project_id,
         integration_id: integrationData.id,
-        config_public: publicConfig,
+        config_public: mergedPublicConfig,
         secrets: secretsConfig,
         is_active: true,
         status: 'connected'

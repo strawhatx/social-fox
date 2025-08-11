@@ -388,7 +388,7 @@ serve(async (req) => {
 
     return createSuccessResponse(oauthUrl, req);
   } catch (error) {
-    console.error('OAuth callback error:', error);
+    console.error('Process OAuth error:', error);
     return createErrorResponse(error instanceof Error ? error.message : 'Unknown error occurred', req);
   }
 });

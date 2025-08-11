@@ -11,7 +11,7 @@ if (!supabaseUrl) {
 }
 
 if (!supabaseAnonKey) {
-  throw new Error('VITE_SUPABASE_KEY is not defined');
+  throw new Error('VITE_SUPABASE_ANON_KEY is not defined');
 }
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

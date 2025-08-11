@@ -296,7 +296,11 @@ export const initiateOAuth = async (
   }
 
   // Build redirect URI - use the correct app domain
-  const redirectUri = `https://dd958eb1-3890-4e73-83b6-074d7e649f8c.lovableproject.com/oauth/callback`;
+  const redirectUri = providerConfig.redirectUrl;
+  
+  if (!redirectUri) {
+    throw new Error(`Missing redirect URL for provider: ${provider}`);
+  }
 
   // Build state parameter with connection info and security measures
   const state = btoa(JSON.stringify({

@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, FileSpreadsheet, Twitter, Linkedin, X } from 'lucide-react';
+import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, GitBranch, FileSpreadsheet, Twitter, Linkedin } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
@@ -228,21 +227,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
     }
   };
 
-  const addPlatform = (platform: string) => {
-    if (!formData.platforms.includes(platform)) {
-      setFormData(prev => ({
-        ...prev,
-        platforms: [...prev.platforms, platform]
-      }));
-    }
-  };
-
-  const removePlatform = (platform: string) => {
-    setFormData(prev => ({
-      ...prev,
-      platforms: prev.platforms.filter(p => p !== platform)
-    }));
-  };
+  // Platforms are display-only; editing disabled
 
   const githubIntegration = integrations.find(integration => integration.provider === 'github');
   const githubConnection = githubIntegration ? getConnectionByIntegration(githubIntegration.id) : null;
@@ -297,7 +282,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
               />
             </div>
 
-            {/* Platforms */}
+            {/* Platforms (display-only) */}
             <div className="space-y-4">
               <Label>Platforms</Label>
               <div className="space-y-3">
@@ -309,32 +294,9 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
                       className="flex items-center gap-1"
                     >
                       {platform}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={() => removePlatform(platform)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
                     </Badge>
                   ))}
                 </div>
-                
-                <Select onValueChange={addPlatform}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Add platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availablePlatforms
-                      .filter(platform => !formData.platforms.includes(platform))
-                      .map((platform) => (
-                        <SelectItem key={platform} value={platform}>
-                          {platform}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
 

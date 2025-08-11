@@ -54,16 +54,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: |
-          echo "VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-
-          VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-          VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
-          npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: npm run build
 
       - name: Verify Netlify secrets (staging)
         run: |

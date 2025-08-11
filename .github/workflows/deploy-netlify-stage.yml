@@ -53,11 +53,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check Vite env presence (Stage)
+        run: |
+          [ -n "$VITE_SUPABASE_URL" ] || (echo "Missing VITE_SUPABASE_URL for build" >&2; exit 1)
+          [ -n "$VITE_SUPABASE_ANON_KEY" ] || (echo "Missing VITE_SUPABASE_ANON_KEY for build" >&2; exit 1)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
       - name: Build
         run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Verify build contains injected Supabase env
+        run: |
+          if grep -R "VITE_SUPABASE_URL" dist >/dev/null; then
+            echo "VITE_SUPABASE_URL placeholder still present in build (env not injected)" >&2
+            exit 1
+          fi
+          if ! grep -R "https://.*supabase\.co" dist >/dev/null; then
+            echo "Supabase URL not found in built assets; injection likely failed" >&2
+            exit 1
+          fi
 
       - name: Verify Netlify secrets (staging)
         run: |

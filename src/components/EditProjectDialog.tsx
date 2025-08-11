@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -49,17 +48,7 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
     { id: 'linkedin', name: 'LinkedIn', color: 'bg-blue-600' },
   ];
 
-  const roles = [
-    { key: 'brand_builder', label: 'Brand Builder' },
-    { key: 'content_creator', label: 'Content Creator' },
-    { key: 'audience_researcher', label: 'Audience Researcher' },
-    { key: 'campaign_planner', label: 'Campaign Planner' },
-    { key: 'channel_manager', label: 'Channel Manager' },
-    { key: 'analytics_tracker', label: 'Analytics Tracker' },
-    { key: 'lead_generator', label: 'Lead Generator' },
-    { key: 'community_engager', label: 'Community Engager' },
-    { key: 'growth_hacker', label: 'Growth Hacker' },
-  ];
+  // Roles removed from schema/UI
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,18 +59,12 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
       .filter(platform => formData.get(`platform_${platform.id}`))
       .map(platform => platform.name);
 
-    const selectedRoles = roles.reduce((acc, role) => {
-      acc[role.key as keyof Project['roles']] = !!formData.get(`role_${role.key}`);
-      return acc;
-    }, {} as Project['roles']);
-
     const updates: Partial<Project> = {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       platforms: selectedPlatforms,
       brand_voice: formData.get('brandVoice') as string,
       target_audience: formData.get('targetAudience') as string,
-      roles: selectedRoles,
     };
 
     await updateProject(project.id, updates);
@@ -172,22 +155,7 @@ const EditProjectDialog = ({ project, trigger }: EditProjectDialogProps) => {
               </div>
             </div>
 
-            <div>
-              <Label>AI Marketing Agents</Label>
-              <div className="grid grid-cols-1 gap-3 mt-2">
-                {roles.map((role) => (
-                  <div key={role.key} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`edit_role_${role.key}`} 
-                      name={`role_${role.key}`}
-                      defaultChecked={project.roles[role.key as keyof Project['roles']]}
-                      disabled={loading}
-                    />
-                    <Label htmlFor={`edit_role_${role.key}`}>{role.label}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Roles removed from schema */}
           </div>
 
           <div className="flex justify-between">

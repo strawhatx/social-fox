@@ -222,15 +222,6 @@ export type Database = {
           last_generated: string | null
           name: string
           platforms: string[] | null
-          role_analytics_tracker: boolean | null
-          role_audience_researcher: boolean | null
-          role_brand_builder: boolean | null
-          role_campaign_planner: boolean | null
-          role_channel_manager: boolean | null
-          role_community_engager: boolean | null
-          role_content_creator: boolean | null
-          role_growth_hacker: boolean | null
-          role_lead_generator: boolean | null
           target_audience: string | null
           updated_at: string
           user_id: string
@@ -246,15 +237,6 @@ export type Database = {
           last_generated?: string | null
           name: string
           platforms?: string[] | null
-          role_analytics_tracker?: boolean | null
-          role_audience_researcher?: boolean | null
-          role_brand_builder?: boolean | null
-          role_campaign_planner?: boolean | null
-          role_channel_manager?: boolean | null
-          role_community_engager?: boolean | null
-          role_content_creator?: boolean | null
-          role_growth_hacker?: boolean | null
-          role_lead_generator?: boolean | null
           target_audience?: string | null
           updated_at?: string
           user_id: string
@@ -270,15 +252,6 @@ export type Database = {
           last_generated?: string | null
           name?: string
           platforms?: string[] | null
-          role_analytics_tracker?: boolean | null
-          role_audience_researcher?: boolean | null
-          role_brand_builder?: boolean | null
-          role_campaign_planner?: boolean | null
-          role_channel_manager?: boolean | null
-          role_community_engager?: boolean | null
-          role_content_creator?: boolean | null
-          role_growth_hacker?: boolean | null
-          role_lead_generator?: boolean | null
           target_audience?: string | null
           updated_at?: string
           user_id?: string

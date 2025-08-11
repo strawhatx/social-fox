@@ -9,18 +9,6 @@ export interface Project {
   description: string;
   platforms: string[];
   contentSources: number;
-  
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
   brandVoice: string;
   targetAudience: string;
   automation_enabled?: boolean;
@@ -34,8 +22,6 @@ export const convertDbProjectToLegacy = (dbProject: DbProject): Project => ({
   description: dbProject.description,
   platforms: dbProject.platforms,
   contentSources: dbProject.content_sources,
-  
-  roles: dbProject.roles,
   brandVoice: dbProject.brand_voice,
   targetAudience: dbProject.target_audience,
   automation_enabled: dbProject.automation_enabled,
@@ -50,7 +36,6 @@ export const convertLegacyToDbProject = (legacyProject: Partial<Project>): Parti
   platforms: legacyProject.platforms,
   brand_voice: legacyProject.brandVoice,
   target_audience: legacyProject.targetAudience,
-  roles: legacyProject.roles,
   automation_enabled: legacyProject.automation_enabled,
   automation_frequency: legacyProject.automation_frequency,
 });

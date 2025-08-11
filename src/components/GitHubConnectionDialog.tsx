@@ -8,6 +8,7 @@ import { GitBranch, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import { useOAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useConnections } from '@/hooks/useConnections';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GitHubConnectionDialogProps {
   isOpen: boolean;
@@ -93,12 +94,38 @@ export const GitHubConnectionDialog = ({
         }
       };
 
+      const wasRepoConfiguredBefore = Boolean(connection.config_public?.repository?.owner && connection.config_public?.repository?.repository);
+
       await updateConnection(connection.id, configPublic);
 
-      toast({
-        title: "Success",
-        description: "GitHub repository connected successfully",
-      });
+      // One-time initialization: only trigger when repository is first saved
+      if (!wasRepoConfiguredBefore) {
+        try {
+          await supabase.functions.invoke('init-github-content', {
+            body: {
+              project_id: projectId,
+              connection_id: connection.id,
+            },
+          });
+          toast({
+            title: "GitHub initialized",
+            description: "Initial content import has started.",
+          });
+        } catch (err) {
+          console.error('Initialization webhook failed:', err);
+          // Non-blocking: show info but don't revert connection save
+          toast({
+            title: "Initialization failed",
+            description: err instanceof Error ? err.message : 'Could not start initial import',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "GitHub repository connected successfully",
+        });
+      }
 
       onConnectionSuccess?.();
       onClose();

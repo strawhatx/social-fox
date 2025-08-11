@@ -347,6 +347,8 @@ serve(async (req) => {
       throw new Error(`Failed to fetch existing connection: ${connectionError.message}`);
     }
 
+    console.log('publicConfig before upsert:', publicConfig);
+
     // Create or update the connection with OAuth data
     const { data, error } = await supabase
       .from('connections')

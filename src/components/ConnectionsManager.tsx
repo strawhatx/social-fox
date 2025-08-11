@@ -55,7 +55,8 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
     createConnection, 
     updateConnection, 
     deleteConnection,
-    getConnectionByIntegration 
+    getConnectionByIntegration,
+    refetch 
   } = useConnections(project.id);
   
   const { toast } = useToast();
@@ -397,8 +398,9 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
         projectId={project.id}
         isConnected={!!githubConnection}
         onConnectionSuccess={() => {
-          // Refresh connections data
-          window.location.reload();
+          // Refresh connections data without a full reload
+          refetch();
+          setShowGitHubDialog(false);
         }}
       />
     </>

@@ -104,7 +104,8 @@ serve(async (req) => {
 
     // Optional webhook: call after all work is done with Basic Auth (n8n)
     let webhookStatus: "sent" | "skipped" | "failed" = "skipped";
-    const webhookUrl = "https://primary-production-146e9.up.railway.app/webhook/intitalize";
+    const webhookUrl = `${Deno.env.get("8N8_WEBHOOK_BASE_URL")}/intitalize`;
+    
     const N8NUSER = Deno.env.get("8N8_USERNAME");
     const N8NPASSWORD = Deno.env.get("N8N_PASSWORD");
     
@@ -118,14 +119,19 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           event: "init_github_content",
-          project_id
+          project_id,
+
         }),
       });
+
+      console.log('res', res);
+
       webhookStatus = res.ok ? "sent" : "failed";
     } catch (_e) {
       webhookStatus = "failed";
+      console.error('Webhook failed:', _e);
+      throw _e;
     }
-
 
     return jsonResponse({ status: "initialized", webhook: webhookStatus }, req, 200);
   } catch (err) {

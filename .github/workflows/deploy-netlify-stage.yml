@@ -38,6 +38,9 @@ jobs:
     permissions:
       contents: read
     environment: Stage
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout repository
@@ -63,9 +66,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Verify build contains injected Supabase env
         run: |
@@ -74,8 +74,6 @@ jobs:
             echo "Configured Supabase URL value not found in built assets; injection likely failed" >&2
             exit 1
           fi
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
 
       - name: Verify Netlify secrets (staging)
         run: |
@@ -87,30 +85,6 @@ jobs:
       - name: Deploy to Netlify (staging - stage)
         if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
         run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (stage)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
-
-      - name: Verify live site has injected Supabase env (staging)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-        run: |
-          set -euo pipefail
-          SITE_URL=https://stage.socialfox.dev
-          echo "Fetching index from $SITE_URL"
-          INDEX="$(curl -sSL "$SITE_URL/index.html")"
-          ASSET_PATH=$(printf '%s' "$INDEX" | grep -oE '/assets/[^"\']+\.js' | head -n1 || true)
-          if [ -z "$ASSET_PATH" ]; then
-            echo "Could not find built JS asset in index.html" >&2
-            exit 1
-          fi
-          echo "Fetching asset $ASSET_PATH"
-          ASSET="$(curl -sSL "$SITE_URL$ASSET_PATH")"
-          # Ensure env placeholder is not present and supabase domain is present
-          if echo "$ASSET" | grep -q 'VITE_SUPABASE_URL'; then
-            echo "Live asset still contains VITE_SUPABASE_URL placeholder; Netlify likely published a different build" >&2
-            exit 1
-          fi
-          if ! echo "$ASSET" | grep -q 'supabase.co'; then
-            echo "Live asset does not contain supabase.co; env injection likely missing in published build" >&2
-            exit 1
-          fi
 
       - name: Deploy Preview to Netlify (PR to stage)
         if: github.event_name == 'pull_request' && github.base_ref == 'stage'

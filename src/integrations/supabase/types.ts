@@ -24,6 +24,7 @@ export type Database = {
           is_active: boolean
           project_id: string
           secrets: Json | null
+          status: Database["public"]["Enums"]["connection_status"]
           updated_at: string
         }
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           is_active?: boolean
           project_id: string
           secrets?: Json | null
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
         }
         Update: {
@@ -46,6 +48,7 @@ export type Database = {
           is_active?: boolean
           project_id?: string
           secrets?: Json | null
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
         }
         Relationships: [
@@ -64,11 +67,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "connections_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_connections"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_profiles"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -116,7 +140,7 @@ export type Database = {
       }
       integrations: {
         Row: {
-          config_data: Json
+          config_public: Json
           created_at: string
           description: string | null
           icon: string | null
@@ -129,7 +153,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          config_data?: Json
+          config_public?: Json
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -142,7 +166,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          config_data?: Json
+          config_public?: Json
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -219,6 +243,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          last_fetched_at: string | null
           last_generated: string | null
           name: string
           platforms: string[] | null
@@ -234,6 +259,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          last_fetched_at?: string | null
           last_generated?: string | null
           name: string
           platforms?: string[] | null
@@ -249,6 +275,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          last_fetched_at?: string | null
           last_generated?: string | null
           name?: string
           platforms?: string[] | null
@@ -260,6 +287,91 @@ export type Database = {
       }
     }
     Views: {
+      connections_public: {
+        Row: {
+          access_expires_at: number | null
+          account_identifier: string | null
+          config_public: Json | null
+          created_at: string | null
+          id: string | null
+          integration_id: string | null
+          is_active: boolean | null
+          project_id: string | null
+          refresh_token_expires_at: number | null
+          status: Database["public"]["Enums"]["connection_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_expires_at?: never
+          account_identifier?: string | null
+          config_public?: Json | null
+          created_at?: string | null
+          id?: string | null
+          integration_id?: string | null
+          is_active?: boolean | null
+          project_id?: string | null
+          refresh_token_expires_at?: never
+          status?: Database["public"]["Enums"]["connection_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_expires_at?: never
+          account_identifier?: string | null
+          config_public?: Json | null
+          created_at?: string | null
+          id?: string | null
+          integration_id?: string | null
+          is_active?: boolean | null
+          project_id?: string | null
+          refresh_token_expires_at?: never
+          status?: Database["public"]["Enums"]["connection_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_flat"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_connections"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_profiles"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       integrations_flat: {
         Row: {
           auth_url: string | null
@@ -320,12 +432,76 @@ export type Database = {
         }
         Relationships: []
       }
+      integrations_public: {
+        Row: {
+          config_public: Json | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          provider: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          config_public?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          config_public?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      projects_with_connections: {
+        Row: {
+          connections: Json | null
+          project_id: string | null
+          project_name: string | null
+        }
+        Relationships: []
+      }
+      projects_with_profiles: {
+        Row: {
+          content_sources: number | null
+          created_at: string | null
+          description: string | null
+          last_generated: string | null
+          name: string | null
+          platforms: string[] | null
+          project_id: string | null
+          updated_at: string | null
+          user_avatar_url: string | null
+          user_email: string | null
+          user_full_name: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      connection_status: "connected" | "revoked" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -452,6 +628,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      connection_status: ["connected", "revoked", "expired"],
+    },
   },
 } as const

@@ -121,26 +121,34 @@ export const GitHubConnectionDialog = ({
 
       // One-time initialization: only trigger when repository is first saved
       if (!wasRepoConfiguredBefore) {
-        try {
-          await supabase.functions.invoke('init-github-content', {
+        // Inform the user immediately; run kickoff in background
+        toast({
+          title: "Starting GitHub import",
+          description: "We'll continue this in the background. You can close this dialog.",
+        });
+
+        void supabase.functions
+          .invoke('init-github-content', {
             body: {
               project_id: projectId,
               connection_id: connection.id,
             },
+          })
+          .then(() => {
+            toast({
+              title: "GitHub initialized",
+              description: "Initial content import has started.",
+            });
+          })
+          .catch((err) => {
+            console.error('Initialization webhook failed:', err);
+            // Non-blocking: show info but don't revert connection save
+            toast({
+              title: "Initialization failed",
+              description: err instanceof Error ? err.message : 'Could not start initial import',
+              variant: 'destructive',
+            });
           });
-          toast({
-            title: "GitHub initialized",
-            description: "Initial content import has started.",
-          });
-        } catch (err) {
-          console.error('Initialization webhook failed:', err);
-          // Non-blocking: show info but don't revert connection save
-          toast({
-            title: "Initialization failed",
-            description: err instanceof Error ? err.message : 'Could not start initial import',
-            variant: 'destructive',
-          });
-        }
       } else {
         toast({
           title: "Success",

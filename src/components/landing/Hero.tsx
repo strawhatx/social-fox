@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
           <div className="flex justify-center items-center mb-8">
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-3">
-                <span className="text-4xl">🦊</span>
+                <img src="/fox-logo.png" alt="Fox Logo" className="w-10 h-10" />
               </div>
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />

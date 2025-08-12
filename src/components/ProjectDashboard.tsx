@@ -108,7 +108,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
                   <div className="space-y-3">
                     <div className="flex items-center text-sm text-gray-600">
                       <BarChart3 className="w-4 h-4 mr-2 text-orange-500" />
-                      {Object.values(project.roles).filter(Boolean).length} active AI agents
+                      {project.platforms.length} platforms connected
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="w-4 h-4 mr-2 text-blue-500" />

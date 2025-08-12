@@ -1,5 +1,4 @@
 import { supabase } from '@/integrations/supabase/client';
-import { saveOAuthState, savePkceVerifier } from './oauthState';
 
 export interface OAuthConfig {
   provider: string;

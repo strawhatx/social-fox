@@ -8,6 +8,7 @@ import { GitBranch, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import { useOAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useConnections } from '@/hooks/useConnections';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GitHubConnectionDialogProps {
   isOpen: boolean;
@@ -72,19 +73,38 @@ export const GitHubConnectionDialog = ({
         }
       });
 
-      // After OAuth success, save the repository
+      // After OAuth success, re-fetch latest connection to avoid using stale config_public
       const githubIntegration = getIntegrationByProvider('github');
       if (!githubIntegration) {
         throw new Error('GitHub integration not found after authorization');
       }
 
-      const connection = getConnectionByIntegration(githubIntegration.id);
+      // Ensure local state is refreshed; the hook's fetch runs inside update calls, but here we need fresh data post-OAuth
+      const refreshed = await supabase
+        .from('connections')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('integration_id', githubIntegration.id)
+        .maybeSingle();
+
+      if (refreshed.error) {
+        throw new Error(`Failed to fetch updated GitHub connection: ${refreshed.error.message}`);
+      }
+
+      const connection = refreshed.data || getConnectionByIntegration(githubIntegration.id);
       if (!connection?.secrets) {
         throw new Error('GitHub authorization failed - no credentials stored');
       }
 
-      const configPublic = {
-        ...connection.config_public,
+      console.log('refreshed', refreshed);
+
+      const currentConfigPublic: Record<string, any> =
+        connection && typeof connection.config_public === 'object' && connection.config_public !== null
+          ? (connection.config_public as Record<string, any>)
+          : {};
+
+      const configPublic: Record<string, any> = {
+        ...currentConfigPublic,
         repository: {
           owner: owner,
           owner_url: `https://github.com/${owner}`,
@@ -93,12 +113,48 @@ export const GitHubConnectionDialog = ({
         }
       };
 
+      const wasRepoConfiguredBefore = Boolean(
+        (currentConfigPublic as any)?.repository?.owner && (currentConfigPublic as any)?.repository?.repository
+      );
+
       await updateConnection(connection.id, configPublic);
 
-      toast({
-        title: "Success",
-        description: "GitHub repository connected successfully",
-      });
+      // One-time initialization: only trigger when repository is first saved
+      if (!wasRepoConfiguredBefore) {
+        // Inform the user immediately; run kickoff in background
+        toast({
+          title: "Starting GitHub import",
+          description: "We'll continue this in the background. You can close this dialog.",
+        });
+
+        void supabase.functions
+          .invoke('init-github-content', {
+            body: {
+              project_id: projectId,
+              connection_id: connection.id,
+            },
+          })
+          .then(() => {
+            toast({
+              title: "GitHub initialized",
+              description: "Initial content import has started.",
+            });
+          })
+          .catch((err) => {
+            console.error('Initialization webhook failed:', err);
+            // Non-blocking: show info but don't revert connection save
+            toast({
+              title: "Initialization failed",
+              description: err instanceof Error ? err.message : 'Could not start initial import',
+              variant: 'destructive',
+            });
+          });
+      } else {
+        toast({
+          title: "Success",
+          description: "GitHub repository connected successfully",
+        });
+      }
 
       onConnectionSuccess?.();
       onClose();

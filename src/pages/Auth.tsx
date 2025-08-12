@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,6 +35,19 @@ const Auth = () => {
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
 
+    // Basic client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setIsLoading(false);
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      setIsLoading(false);
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
     const { error } = await signUp(email, password, fullName);
     
     if (error) {
@@ -41,8 +55,10 @@ const Auth = () => {
     } else {
       toast({
         title: "Account created successfully!",
-        description: "Please check your email to verify your account.",
+        description: "Please check your email to verify your account. You can now sign in.",
       });
+      // Redirect to login tab after successful signup
+      setActiveTab('signin');
     }
     
     setIsLoading(false);
@@ -56,6 +72,19 @@ const Auth = () => {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+
+    // Basic client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setIsLoading(false);
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setIsLoading(false);
+      setError('Please enter your password.');
+      return;
+    }
 
     const { error } = await signIn(email, password);
     
@@ -97,7 +126,7 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'signin' | 'signup')} className="w-full">
               <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-gray-100">
                 <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
                 <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>

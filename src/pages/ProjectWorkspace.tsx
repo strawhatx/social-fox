@@ -71,11 +71,7 @@ const ProjectWorkspacePage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Marketing Agent Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user?.email}</p>
-          </div>
+        <div className="flex items-center justify-end">
           <Button 
             variant="outline" 
             onClick={() => signOut()}

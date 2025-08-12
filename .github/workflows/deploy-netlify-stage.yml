@@ -1,0 +1,91 @@
+name: Deploy Frontend (Staging)
+
+on:
+  push:
+    branches: [ stage ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy-netlify-stage.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy-netlify-stage.yml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+concurrency:
+  group: netlify-stage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: Stage
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Vite env presence (Stage)
+        run: |
+          [ -n "$VITE_SUPABASE_URL" ] || (echo "Missing VITE_SUPABASE_URL for build" >&2; exit 1)
+          [ -n "$VITE_SUPABASE_ANON_KEY" ] || (echo "Missing VITE_SUPABASE_ANON_KEY for build" >&2; exit 1)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build contains injected Supabase env
+        run: |
+          # Check for the actual configured Supabase URL value in built assets
+          if ! grep -R -F "$VITE_SUPABASE_URL" dist >/dev/null; then
+            echo "Configured Supabase URL value not found in built assets; injection likely failed" >&2
+            exit 1
+          fi
+
+      - name: Verify Netlify secrets (staging)
+        run: |
+          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ] || [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID. Configure environment secrets for Staging." >&2
+            exit 1
+          fi
+
+      - name: Deploy to Netlify (staging - stage)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
+        run: npx netlify-cli@latest deploy --dir=dist --prod --message "GitHub Actions deploy $GITHUB_SHA (stage)" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}"
+
+      - name: Deploy Preview to Netlify (PR to stage)
+        if: github.event_name == 'pull_request' && github.base_ref == 'stage'
+        run: npx netlify-cli@latest deploy --dir=dist --alias pr-${{ github.event.number }} --message "PR #${{ github.event.number }} to stage - $GITHUB_SHA" --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID }}" 

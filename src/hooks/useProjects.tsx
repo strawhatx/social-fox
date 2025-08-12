@@ -15,17 +15,6 @@ export interface Project {
   target_audience: string;
   automation_enabled: boolean;
   automation_frequency: string;
-  roles: {
-    brand_builder: boolean;
-    content_creator: boolean;
-    audience_researcher: boolean;
-    campaign_planner: boolean;
-    channel_manager: boolean;
-    analytics_tracker: boolean;
-    lead_generator: boolean;
-    community_engager: boolean;
-    growth_hacker: boolean;
-  };
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +47,7 @@ export const useProjects = () => {
         user_id: project.user_id,
         name: project.name,
         description: project.description || '',
-        platforms: project.platforms || [],
+        platforms: project.platforms && project.platforms.length > 0 ? project.platforms : ['Twitter', 'LinkedIn'],
         content_sources: 0,
         
         
@@ -66,17 +55,6 @@ export const useProjects = () => {
         target_audience: project.target_audience || '',
         automation_enabled: project.automation_enabled || false,
         automation_frequency: project.automation_frequency || 'daily',
-        roles: {
-          brand_builder: project.role_brand_builder || false,
-          content_creator: project.role_content_creator || false,
-          audience_researcher: project.role_audience_researcher || false,
-          campaign_planner: project.role_campaign_planner || false,
-          channel_manager: project.role_channel_manager || false,
-          analytics_tracker: project.role_analytics_tracker || false,
-          lead_generator: project.role_lead_generator || false,
-          community_engager: project.role_community_engager || false,
-          growth_hacker: project.role_growth_hacker || false,
-        },
         created_at: project.created_at,
         updated_at: project.updated_at,
       }));
@@ -118,15 +96,7 @@ export const useProjects = () => {
             platforms: projectData.platforms || [],
             brand_voice: projectData.brand_voice,
             target_audience: projectData.target_audience,
-            role_brand_builder: projectData.roles?.brand_builder || false,
-            role_content_creator: projectData.roles?.content_creator || false,
-            role_audience_researcher: projectData.roles?.audience_researcher || false,
-            role_campaign_planner: projectData.roles?.campaign_planner || false,
-            role_channel_manager: projectData.roles?.channel_manager || false,
-            role_analytics_tracker: projectData.roles?.analytics_tracker || false,
-            role_lead_generator: projectData.roles?.lead_generator || false,
-            role_community_engager: projectData.roles?.community_engager || false,
-            role_growth_hacker: projectData.roles?.growth_hacker || false,
+            // role columns removed from schema
           }
         ])
         .select()
@@ -164,15 +134,7 @@ export const useProjects = () => {
           target_audience: updates.target_audience,
           automation_enabled: updates.automation_enabled,
           automation_frequency: updates.automation_frequency,
-          role_brand_builder: updates.roles?.brand_builder,
-          role_content_creator: updates.roles?.content_creator,
-          role_audience_researcher: updates.roles?.audience_researcher,
-          role_campaign_planner: updates.roles?.campaign_planner,
-          role_channel_manager: updates.roles?.channel_manager,
-          role_analytics_tracker: updates.roles?.analytics_tracker,
-          role_lead_generator: updates.roles?.lead_generator,
-          role_community_engager: updates.roles?.community_engager,
-          role_growth_hacker: updates.roles?.growth_hacker,
+          // role columns removed from schema
         })
         .eq('id', id);
 

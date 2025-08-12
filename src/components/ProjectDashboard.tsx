@@ -50,16 +50,6 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" asChild>
-            <a
-              href="https://twitter.com/heynathanielj"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Twitter: @heynathanielj"
-            >
-              <Twitter className="h-4 w-4 text-orange-500" />
-            </a>
-          </Button>
           {projects.length === 0 && <CreateProjectDialog />}
         </div>
       </div>

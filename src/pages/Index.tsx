@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, Zap } from 'lucide-react';
+import { LogOut, Twitter, Zap } from 'lucide-react';
 import ProjectDashboard from '@/components/ProjectDashboard';
 import { Project as DatabaseProject } from '@/hooks/useProjects';
 
@@ -27,17 +27,31 @@ const Index = () => {
               <p className="text-gray-600">Welcome back, {user?.email}</p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => signOut()}
-            className="flex items-center gap-2 rounded-xl"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" asChild>
+              <a
+                href="https://twitter.com/heynathanielj"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter: @heynathanielj"
+              >
+                <Twitter className="h-4 w-4 text-orange-500 fill-orange-500" />
+              </a>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => signOut()}
+              className="flex items-center gap-2 rounded-xl"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
+
         </div>
       </header>
-      
+
       {/* Main Content */}
       <div className="p-6">
         <ProjectDashboard onSelectProject={handleSelectProject} />

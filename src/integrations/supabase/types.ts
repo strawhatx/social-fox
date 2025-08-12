@@ -74,6 +74,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "connections_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -350,6 +357,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "connections_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -430,6 +444,45 @@ export type Database = {
         Relationships: []
       }
       integrations_public: {
+        Row: {
+          config_public: Json | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          provider: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          config_public?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          config_public?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          provider?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      integrations_public_safe: {
         Row: {
           config_public: Json | null
           created_at: string | null

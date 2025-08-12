@@ -376,7 +376,6 @@ export type Database = {
         Row: {
           auth_url: string | null
           client_id: string | null
-          client_secret: string | null
           code_challenge_required: boolean | null
           created_at: string | null
           description: string | null
@@ -395,7 +394,6 @@ export type Database = {
         Insert: {
           auth_url?: never
           client_id?: never
-          client_secret?: never
           code_challenge_required?: never
           created_at?: string | null
           description?: string | null
@@ -414,7 +412,6 @@ export type Database = {
         Update: {
           auth_url?: never
           client_id?: never
-          client_secret?: never
           code_challenge_required?: never
           created_at?: string | null
           description?: string | null

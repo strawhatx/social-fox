@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
-import { LogOut, X } from 'lucide-react';
+import { LogOut, Twitter } from 'lucide-react';
 import ProjectWorkspace from '@/components/ProjectWorkspace';
 import { convertDbProjectToLegacy } from '@/types/project';
 import { Loader2 } from 'lucide-react';
@@ -79,7 +79,7 @@ const ProjectWorkspacePage = () => {
               rel="noopener noreferrer"
               aria-label="Twitter: @heynathanielj"
             >
-              <X className="h-4 w-4" />
+              <Twitter className="h-4 w-4 text-brand-orange" />
             </a>
           </Button>
           <Button 

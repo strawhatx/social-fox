@@ -89,7 +89,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
 
   const getPlatformColor = (platform: string) => {
     switch (platform) {
-      case 'Twitter': return 'bg-twitter/10 text-twitter';
+      case 'Twitter': return 'bg-brand-orange/10 text-brand-orange';
       case 'LinkedIn': return 'bg-linkedin/10 text-linkedin';
       case 'Instagram': return 'bg-instagram/10 text-instagram';
       default: return 'bg-muted text-muted-foreground';

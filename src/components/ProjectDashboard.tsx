@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Settings, Loader2, Edit, Zap, X } from 'lucide-react';
+import { BarChart3, Users, Settings, Loader2, Edit, Zap, Twitter } from 'lucide-react';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import EditProjectDialog from '@/components/EditProjectDialog';
 import { Project, useProjects } from '@/hooks/useProjects';
@@ -49,14 +49,6 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold gradient-text">
-            Marketing Agent Dashboard
-          </h1>
-          <p className="text-gray-600 mt-3 text-lg">
-            AI-powered content generation for your project
-          </p>
-        </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" asChild>
             <a
@@ -65,7 +57,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               rel="noopener noreferrer"
               aria-label="Twitter: @heynathanielj"
             >
-              <X className="h-4 w-4" />
+              <Twitter className="h-4 w-4 text-orange-500" />
             </a>
           </Button>
           {projects.length === 0 && <CreateProjectDialog />}

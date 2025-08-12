@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Linkedin, Zap, User, X } from 'lucide-react';
+import { Github, Linkedin, Zap, User, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,7 +21,7 @@ const Hero: React.FC = () => {
                 rel="noopener noreferrer"
                 aria-label="Twitter: @heynathanielj"
               >
-                <X className="w-4 h-4" />
+                <Twitter className="w-4 h-4 text-brand-orange" />
               </a>
             </Button>
             <Link to={user ? "/dashboard" : "/auth"}>
@@ -71,7 +71,7 @@ const Hero: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-gray-600">
-                <X className="w-6 h-6" />
+                <Twitter className="w-6 h-6 text-brand-orange" />
                 <span className="text-sm font-medium">Twitter/X</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600">

@@ -79,7 +79,7 @@ const ProjectWorkspacePage = () => {
               rel="noopener noreferrer"
               aria-label="Twitter: @heynathanielj"
             >
-              <Twitter className="h-4 w-4 text-brand-orange" />
+              <Twitter className="h-4 w-4 text-brand-orange fill-orange-500" />
             </a>
           </Button>
           <Button 

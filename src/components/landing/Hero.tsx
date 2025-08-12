@@ -21,7 +21,7 @@ const Hero: React.FC = () => {
                 rel="noopener noreferrer"
                 aria-label="Twitter: @heynathanielj"
               >
-                <Twitter className="w-4 h-4 text-brand-orange" />
+                <Twitter className="w-4 h-4 text-brand-orange fill-orange-500" />
               </a>
             </Button>
             <Link to={user ? "/dashboard" : "/auth"}>

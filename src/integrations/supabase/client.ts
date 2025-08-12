@@ -3,16 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl) {
-  throw new Error('VITE_SUPABASE_URL is not defined');
-}
-
-if (!supabaseAnonKey) {
-  throw new Error('VITE_SUPABASE_ANON_KEY is not defined');
-}
+const supabaseUrl = "https://nmdmgdbbiivqazqjejdc.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tZG1nZGJiaWl2cWF6cWplamRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3OTE0MDYsImV4cCI6MjA2OTM2NzQwNn0.PdpPmL_TduFqpFlmUSo3--e_vJIyXbM-gV7l0n0LcPM";
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

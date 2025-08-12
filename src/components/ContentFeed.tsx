@@ -46,6 +46,10 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const { toast } = useToast();
   const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
 
+  const platformToProvider = {
+    "x": 'twitter'
+  };
+
   const getProviderForPlatform = (platform: string) => {
     switch (platform) {
       case 'Twitter':
@@ -60,10 +64,15 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   };
 
   const isPlatformConnected = (platform: string) => {
-    const provider = getProviderForPlatform(platform);
+    //try to map platform to expected provider
+    const  mapped_platform  = platformToProvider[platform] || platform;
+
+    const provider = getProviderForPlatform(mapped_platform);
     if (!provider) return false;
+
     const integration = getIntegrationByProvider(provider);
     if (!integration) return false;
+    
     const connection = getConnectionByIntegration(integration.id);
     return !!connection;
   };

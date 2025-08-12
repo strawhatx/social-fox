@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import ProjectWorkspace from '@/components/ProjectWorkspace';
 import { convertDbProjectToLegacy } from '@/types/project';
 import { Loader2 } from 'lucide-react';
@@ -71,7 +71,17 @@ const ProjectWorkspacePage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b px-6 py-4">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-3">
+          <Button variant="outline" size="icon" asChild>
+            <a
+              href="https://twitter.com/heynathanielj"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter: @heynathanielj"
+            >
+              <X className="h-4 w-4" />
+            </a>
+          </Button>
           <Button 
             variant="outline" 
             onClick={() => signOut()}

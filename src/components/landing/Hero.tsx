@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Twitter, Linkedin, Zap, User } from 'lucide-react';
+import { Github, Linkedin, Zap, User, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,12 +13,24 @@ const Hero: React.FC = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation Header */}
         <div className="flex justify-end mb-8">
-          <Link to={user ? "/dashboard" : "/auth"}>
-            <Button variant="outline" className="flex items-center space-x-2">
-              <User className="w-4 h-4" />
-              <span>{user ? "Dashboard" : "Sign In"}</span>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="icon" asChild>
+              <a
+                href="https://twitter.com/heynathanielj"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter: @heynathanielj"
+              >
+                <X className="w-4 h-4" />
+              </a>
             </Button>
-          </Link>
+            <Link to={user ? "/dashboard" : "/auth"}>
+              <Button variant="outline" className="flex items-center space-x-2">
+                <User className="w-4 h-4" />
+                <span>{user ? "Dashboard" : "Sign In"}</span>
+              </Button>
+            </Link>
+          </div>
         </div>
         <div className="text-center">
           <div className="flex justify-center items-center mb-8">
@@ -59,7 +71,7 @@ const Hero: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-gray-600">
-                <Twitter className="w-6 h-6" />
+                <X className="w-6 h-6" />
                 <span className="text-sm font-medium">Twitter/X</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600">

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save, Archive } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
+import { useConnections } from '@/hooks/useConnections';
 
 interface Project {
   id: string;
@@ -43,6 +44,29 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [postToSchedule, setPostToSchedule] = useState<ContentPost | null>(null);
   const { toast } = useToast();
+  const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
+
+  const getProviderForPlatform = (platform: string) => {
+    switch (platform) {
+      case 'Twitter':
+        return 'twitter';
+      case 'LinkedIn':
+        return 'linkedin';
+      case 'Instagram':
+        return 'instagram';
+      default:
+        return '';
+    }
+  };
+
+  const isPlatformConnected = (platform: string) => {
+    const provider = getProviderForPlatform(platform);
+    if (!provider) return false;
+    const integration = getIntegrationByProvider(provider);
+    if (!integration) return false;
+    const connection = getConnectionByIntegration(integration.id);
+    return !!connection;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -117,6 +141,14 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     };
 
     if (andSchedule && scheduledDateTime) {
+      if (!isPlatformConnected(editingPost.platform)) {
+        toast({
+          title: 'Connection required',
+          description: `Connect ${editingPost.platform} before scheduling a post. Go to Connections to link your account.`,
+          variant: 'destructive',
+        });
+        return;
+      }
       updates.status = 'scheduled';
       updates.scheduled_at = new Date(scheduledDateTime).toISOString();
     }
@@ -141,12 +173,28 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   };
 
   const handleSchedulePost = (post: ContentPost) => {
+    if (!isPlatformConnected(post.platform)) {
+      toast({
+        title: 'Connection required',
+        description: `Connect ${post.platform} before scheduling a post. Go to Connections to link your account.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     setPostToSchedule(post);
     setShowScheduleDialog(true);
   };
 
   const handleConfirmSchedule = async () => {
     if (!postToSchedule || !scheduledDateTime) return;
+    if (!isPlatformConnected(postToSchedule.platform)) {
+      toast({
+        title: 'Connection required',
+        description: `Connect ${postToSchedule.platform} before scheduling a post. Go to Connections to link your account.`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const { error } = await updatePost(postToSchedule.id, {
       status: 'scheduled',
@@ -290,7 +338,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                           <Edit3 className="w-4 h-4 mr-2" />
                           Edit
                         </Button>
-                        <Button size="sm" onClick={() => handleSchedulePost(post)}>
+                        <Button
+                          size="sm"
+                          onClick={() => handleSchedulePost(post)}
+                          disabled={connectionsLoading || !isPlatformConnected(post.platform)}
+                          title={!isPlatformConnected(post.platform) ? `Connect ${post.platform} to schedule` : undefined}
+                        >
                           <Calendar className="w-4 h-4 mr-2" />
                           Schedule
                         </Button>
@@ -382,7 +435,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                 <Save className="w-4 h-4 mr-2" />
                 Save
               </Button>
-              <Button onClick={() => handleSaveEdit(true)} disabled={!scheduledDateTime}>
+              <Button
+                onClick={() => handleSaveEdit(true)}
+                disabled={!scheduledDateTime || !editingPost || connectionsLoading || !isPlatformConnected(editingPost.platform)}
+                title={editingPost && !isPlatformConnected(editingPost.platform) ? `Connect ${editingPost.platform} to schedule` : undefined}
+              >
                 <Calendar className="w-4 h-4 mr-2" />
                 Save & Schedule
               </Button>
@@ -412,7 +469,16 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleConfirmSchedule} disabled={!scheduledDateTime}>
+              <Button
+                onClick={handleConfirmSchedule}
+                disabled={
+                  !scheduledDateTime ||
+                  !postToSchedule ||
+                  connectionsLoading ||
+                  !isPlatformConnected(postToSchedule.platform)
+                }
+                title={postToSchedule && !isPlatformConnected(postToSchedule.platform) ? `Connect ${postToSchedule.platform} to schedule` : undefined}
+              >
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule
               </Button>

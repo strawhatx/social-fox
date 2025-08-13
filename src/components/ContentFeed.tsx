@@ -40,7 +40,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [selectedPlatform, setSelectedPlatform] = useState('Twitter');
   const [editingPost, setEditingPost] = useState<ContentPost | null>(null);
   const [editContent, setEditContent] = useState('');
-  const [scheduledDateTime, setScheduledDateTime] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [postToSchedule, setPostToSchedule] = useState<ContentPost | null>(null);
   const { toast } = useToast();
@@ -141,7 +141,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       content: editContent,
     };
 
-    if (andSchedule && scheduledDateTime) {
+    if (andSchedule && scheduledDate) {
       if (!isPlatformConnected(editingPost.platform)) {
         toast({
           title: 'Connection required',
@@ -151,7 +151,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         return;
       }
       updates.status = 'scheduled';
-      updates.scheduled_at = new Date(scheduledDateTime).toISOString();
+      updates.scheduled_at = scheduledDate;
     }
 
     const { error } = await updatePost(editingPost.id, updates);
@@ -169,7 +169,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       });
       setEditingPost(null);
       setEditContent('');
-      setScheduledDateTime('');
+      setScheduledDate('');
     }
   };
 
@@ -187,7 +187,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   };
 
   const handleConfirmSchedule = async () => {
-    if (!postToSchedule || !scheduledDateTime) return;
+    if (!postToSchedule || !scheduledDate) return;
     if (!isPlatformConnected(postToSchedule.platform)) {
       toast({
         title: 'Connection required',
@@ -199,7 +199,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
 
     const { error } = await updatePost(postToSchedule.id, {
       status: 'scheduled',
-      scheduled_at: new Date(scheduledDateTime).toISOString(),
+      scheduled_at: scheduledDate,
     });
 
     if (error) {
@@ -215,7 +215,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       });
       setShowScheduleDialog(false);
       setPostToSchedule(null);
-      setScheduledDateTime('');
+      setScheduledDate('');
     }
   };
 
@@ -307,7 +307,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {post.status === 'scheduled' && post.scheduled_at ? 
-                            `Scheduled for ${new Date(post.scheduled_at).toLocaleString()}` : 
+                            `Scheduled for ${new Date(post.scheduled_at).toLocaleDateString()}` : 
                             `Created ${new Date(post.created_at).toLocaleDateString()}`
                           }
                         </p>
@@ -419,13 +419,13 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="schedule-datetime">Schedule for later (optional)</Label>
+              <Label htmlFor="schedule-date">Schedule for later (optional)</Label>
               <Input
-                id="schedule-datetime"
-                type="datetime-local"
-                value={scheduledDateTime}
-                onChange={(e) => setScheduledDateTime(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
+                id="schedule-date"
+                type="date"
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 10)}
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -438,7 +438,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               </Button>
               <Button
                 onClick={() => handleSaveEdit(true)}
-                disabled={!scheduledDateTime || !editingPost || connectionsLoading || !isPlatformConnected(editingPost.platform)}
+                disabled={!scheduledDate || !editingPost || connectionsLoading || !isPlatformConnected(editingPost.platform)}
                 title={editingPost && !isPlatformConnected(editingPost.platform) ? `Connect ${editingPost.platform} to schedule` : undefined}
               >
                 <Calendar className="w-4 h-4 mr-2" />
@@ -457,13 +457,13 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="schedule-time">Schedule Date & Time</Label>
+              <Label htmlFor="schedule-date-2">Schedule Date</Label>
               <Input
-                id="schedule-time"
-                type="datetime-local"
-                value={scheduledDateTime}
-                onChange={(e) => setScheduledDateTime(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
+                id="schedule-date-2"
+                type="date"
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 10)}
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -473,7 +473,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               <Button
                 onClick={handleConfirmSchedule}
                 disabled={
-                  !scheduledDateTime ||
+                  !scheduledDate ||
                   !postToSchedule ||
                   connectionsLoading ||
                   !isPlatformConnected(postToSchedule.platform)

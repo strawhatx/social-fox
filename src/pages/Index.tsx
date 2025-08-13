@@ -23,7 +23,7 @@ const Index = () => {
               <Zap className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold gradient-text">Marketing Agent Dashboard</h1>
+              <h1 className="text-2xl font-bold">Dashboard</h1>
               <p className="text-gray-600">Welcome back, {user?.email}</p>
             </div>
           </div>

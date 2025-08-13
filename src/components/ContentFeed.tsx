@@ -46,33 +46,23 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const { toast } = useToast();
   const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
 
-  const platformToProvider = {
-    "x": 'twitter'
-  };
-
   const getProviderForPlatform = (platform: string) => {
     switch (platform) {
-      case 'Twitter':
+      case 'x':
         return 'twitter';
-      case 'LinkedIn':
-        return 'linkedin';
-      case 'Instagram':
-        return 'instagram';
+
       default:
-        return '';
+        return platform;
     }
   };
 
   const isPlatformConnected = (platform: string) => {
-    //try to map platform to expected provider
-    const  mapped_platform  = platformToProvider[platform] || platform;
-
-    const provider = getProviderForPlatform(mapped_platform);
+    const provider = getProviderForPlatform(platform);
     if (!provider) return false;
 
     const integration = getIntegrationByProvider(provider);
     if (!integration) return false;
-    
+
     const connection = getConnectionByIntegration(integration.id);
     return !!connection;
   };
@@ -89,18 +79,20 @@ export default function ContentFeed({ project }: ContentFeedProps) {
 
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
-      case 'Twitter': return Twitter;
-      case 'LinkedIn': return Linkedin;
-      case 'Instagram': return Instagram;
-      default: return Twitter;
+      case 'x': return Twitter;
+      case 'twitter': return Twitter;
+      case 'linkedin': return Linkedin;
+      case 'instagram': return Instagram;
+      default: '';
     }
   };
 
   const getPlatformColor = (platform: string) => {
     switch (platform) {
-      case 'Twitter': return 'bg-brand-orange/10 text-brand-orange';
-      case 'LinkedIn': return 'bg-linkedin/10 text-linkedin';
-      case 'Instagram': return 'bg-instagram/10 text-instagram';
+      case 'x': return 'bg-brand-orange/10 text-brand-orange';
+      case 'twitter': return 'bg-brand-orange/10 text-brand-orange';
+      case 'linkedin': return 'bg-linkedin/10 text-linkedin';
+      case 'instagram': return 'bg-instagram/10 text-instagram';
       default: return 'bg-muted text-muted-foreground';
     }
   };

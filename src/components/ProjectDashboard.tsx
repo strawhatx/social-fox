@@ -11,7 +11,7 @@ interface ProjectDashboardProps {
 }
 
 export default function ProjectDashboard({ onSelectProject }: ProjectDashboardProps) {
-  const { projects, loading } = useProjects();
+  const { projects, loading, refetch } = useProjects();
 
   console.log('ProjectDashboard: projects loaded:', projects);
   console.log('ProjectDashboard: loading state:', loading);
@@ -50,7 +50,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {projects.length === 0 && <CreateProjectDialog />}
+          {projects.length === 0 && <CreateProjectDialog onCreated={() => refetch()} />}
         </div>
       </div>
 
@@ -64,7 +64,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               <h3 className="text-2xl font-bold mb-2">No projects yet</h3>
               <p className="text-gray-600 text-lg">Create your first marketing project to get started with AI-powered content generation</p>
             </div>
-            <CreateProjectDialog />
+            <CreateProjectDialog onCreated={() => refetch()} />
           </div>
         </Card>
       ) : (

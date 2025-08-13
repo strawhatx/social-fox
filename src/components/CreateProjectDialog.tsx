@@ -14,7 +14,11 @@ import {
 import { Plus, Loader2 } from 'lucide-react';
 import { Project, useProjects } from '@/hooks/useProjects';
 
-const CreateProjectDialog = () => {
+interface CreateProjectDialogProps {
+  onCreated?: () => void;
+}
+
+const CreateProjectDialog = ({ onCreated }: CreateProjectDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { createProject } = useProjects();
@@ -43,6 +47,7 @@ const CreateProjectDialog = () => {
     if (result) {
       setOpen(false);
       e.currentTarget.reset();
+      onCreated?.();
     }
     
     setLoading(false);

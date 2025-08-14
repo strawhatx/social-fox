@@ -61,7 +61,7 @@ export class TwitterStrategy implements ProcessOauthStrategy {
         await this.saveRequestTokenSecret(user_id, oauth_token, oauth_token_secret, project_id);
 
         const oauthUrl = `${auth_url}?oauth_token=${oauth_token}`;
-
+        console.log('OAuth URL:', oauthUrl);
         return oauthUrl;
     }
 }

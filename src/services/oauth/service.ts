@@ -66,6 +66,8 @@ export class OAuthService {
   async startOAuthFlow(config: OAuthConfig): Promise<void> {
     try {
       const authUrl = await this.initiateOAuth(config);
+
+      console.log('Auth URL:', authUrl);
       
       // Open popup window
       const popup = window.open(

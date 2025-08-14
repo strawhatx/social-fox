@@ -303,7 +303,7 @@ export class DefaultStrategy implements ProcessOauthStrategy {
             }
 
             const oauthUrl = await this.initiate(provider, integrationData, { ...params, project_id }, user_id);
-
+            console.log('OAuth URL:', oauthUrl);
             return oauthUrl;
         } catch (error) {
             console.error('Process OAuth error:', error);

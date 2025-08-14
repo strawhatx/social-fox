@@ -25,7 +25,7 @@ const OAuthCallback = () => {
         navigate('/dashboard');
         return;
       }
-
+      console.log('params', searchParams.toString());
       if (!code || !state) {
         const errorMsg = 'Missing authorization code or state parameter';
         if (window.opener) {

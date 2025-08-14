@@ -43,13 +43,28 @@ export class TwitterStrategy implements ProcessOauthStrategy {
             .single();
         if (!integration || integrationError) throw new Error("Integration not found");
 
-        const { consumer_key, auth_url, request_token_url } = integration.config_public;
+        const { consumer_key, auth_url, redirect_url, request_token_url } = integration.config_public;
         const { consumer_secret } = integration.secrets;
         const oauth = this.createOAuth1Client(consumer_key, consumer_secret);
 
+        // Build signed request with oauth_callback
+        const requestData = {
+            url: request_token_url,
+            method: "POST",
+            data: { oauth_callback: redirect_url }
+        };
+        
+        const headers = oauth.toHeader(
+            oauth.authorize(requestData)
+        );
+        
         const requestTokenRes = await fetch(request_token_url, {
             method: "POST",
-            headers: oauth.toHeader(oauth.authorize({ url: request_token_url, method: "POST" })),
+            headers: {
+                ...headers,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ oauth_callback: redirect_url }).toString()
         });
 
         const requestTokenText = await requestTokenRes.text();

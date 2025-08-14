@@ -56,9 +56,9 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
 
             const consumerKey = consumer_key;
             const consumerSecret = consumer_secret;
-            const oauth_token_secret = (tokenRecord.value as any).oauth_token_secret;
-            const user_id = (tokenRecord.value as any).user_id;
-            const project_id = (tokenRecord.value as any).project_id;
+            const oauth_token_secret = (tokenData.value as any).oauth_token_secret;
+            const user_id = (tokenData.value as any).user_id;
+            const project_id = (tokenData.value as any).project_id;
 
             const oauth = this.createOAuth1Client(consumerKey, consumerSecret);
 

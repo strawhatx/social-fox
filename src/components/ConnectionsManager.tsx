@@ -372,6 +372,29 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {dataSourceIntegrations.map(renderConnectionCard)}
+            
+            {/* Request More Integration Card */}
+            <Card className="p-6 border-dashed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <ExternalLink className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Need another integration?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Request a new data source integration
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('https://twitter.com/lovabledev', '_blank')}
+                  className="w-full"
+                >
+                  Request Integration
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
 
@@ -387,6 +410,29 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {publishingPlatformIntegrations.map(renderConnectionCard)}
+            
+            {/* Request More Integration Card */}
+            <Card className="p-6 border-dashed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <ExternalLink className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Need another platform?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Request a new publishing platform
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('https://twitter.com/lovabledev', '_blank')}
+                  className="w-full"
+                >
+                  Request Platform
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
 

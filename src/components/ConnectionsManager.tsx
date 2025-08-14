@@ -380,7 +380,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
                   <ExternalLink className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Need another integration?</h3>
+                  <h3 className="font-semibold">Need another source?</h3>
                   <p className="text-sm text-muted-foreground">
                     Request a new data source integration
                   </p>
@@ -388,7 +388,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => window.open('https://twitter.com/lovabledev', '_blank')}
+                  onClick={() => window.open('https://twitter.com/heynathanielj', '_blank')}
                   className="w-full"
                 >
                   Request Integration
@@ -426,7 +426,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => window.open('https://twitter.com/lovabledev', '_blank')}
+                  onClick={() => window.open('https://twitter.com/heynathanielj', '_blank')}
                   className="w-full"
                 >
                   Request Platform

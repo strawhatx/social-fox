@@ -2,6 +2,7 @@ import { supabase } from "../../utils/supabase.ts";
 import { clearOAuthState, getOAuthData } from "../../utils/state.ts";
 import { encrypt } from "../../utils/encryption.ts";
 import { getMasterKey } from "../../utils/vault.ts";
+import { OAuthCallbackStrategy } from "./index.ts";
 
 // Types
 interface OAuthCallbackRequest {
@@ -133,9 +134,9 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
             body: new URLSearchParams(bodyConfig).toString()
         };
     };
-
+    
     // Main handler
-    public async handleRequest(req: Request): Promise<Response> {
+    public async handleRequest(req: Request): Promise<string> {
         try {
             let project_id, provider, code, state, params;
 
@@ -241,7 +242,7 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
             let tokenUrl = connector.token_url;
 
             // Exchange code for tokens
-            const tokenRequestConfig = prepareTokenRequest(connector, code, code_verifier || '', stateData);
+            const tokenRequestConfig = this.prepareTokenRequest(connector, code, code_verifier || '', stateData);
             const tokenResponse = await fetch(tokenUrl, tokenRequestConfig);
 
             if (!tokenResponse.ok) {
@@ -349,10 +350,10 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 throw error;
             }
 
-            return data[0];
+            return "Twitter connected! You can close this window.";
         } catch (error) {
             console.error('OAuth callback error:', error);
-            return createErrorResponse(error instanceof Error ? error.message : 'Unknown error occurred', req);
+            throw error;
         }
     }
 }

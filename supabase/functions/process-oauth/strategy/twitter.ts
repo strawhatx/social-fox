@@ -29,7 +29,7 @@ export class TwitterStrategy implements ProcessOauthStrategy {
     }
 
     // config: { provider: 'twitter_oauth1', project_id: string }
-    async handleRequest(req: Request): Promise<Record<string, any>> {
+    async handleRequest(req: Request): Promise<string> {
         const { provider, project_id, user_id } = config;
         if (provider !== "twitter_oauth1") {
             throw new Error("Unsupported provider for OAuth1.0a");
@@ -61,6 +61,7 @@ export class TwitterStrategy implements ProcessOauthStrategy {
         await this.saveRequestTokenSecret(user_id, oauth_token, oauth_token_secret, project_id);
 
         const oauthUrl = `${auth_url}?oauth_token=${oauth_token}`;
+        
         return oauthUrl;
     }
 }

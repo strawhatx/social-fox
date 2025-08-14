@@ -2,7 +2,7 @@ import { DefaultStrategy } from "./default.ts";
 import { TwitterStrategy } from "./twitter.ts";
 
 export interface ProcessOauthStrategy {
-    handleRequest(req: Request): Promise<Response>;
+    handleRequest(req: Request): Promise<string>;
 }
 
 export class ProcessOauthStrategyFactory {

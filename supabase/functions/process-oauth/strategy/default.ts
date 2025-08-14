@@ -285,7 +285,7 @@ export class DefaultStrategy implements ProcessOauthStrategy {
     }
 
     // Main handler
-    public async handleRequest(req: Request): Promise<Response> {
+    public async handleRequest(req: Request): Promise<string> {
         try {
             const { project_id, provider, user_id, ...params } = await req.json() as OAuthCallbackRequest;
             if (!project_id || !provider || !user_id)
@@ -304,10 +304,7 @@ export class DefaultStrategy implements ProcessOauthStrategy {
 
             const oauthUrl = await this.initiate(provider, integrationData, { ...params, project_id }, user_id);
 
-            return new Response(JSON.stringify({ oauth_url: oauthUrl }), { 
-                headers: { 'Content-Type': 'application/json' }, 
-                status: 200 
-            });
+            return oauthUrl;
         } catch (error) {
             console.error('Process OAuth error:', error);
             throw error;

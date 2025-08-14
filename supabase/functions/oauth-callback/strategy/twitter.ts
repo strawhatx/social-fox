@@ -146,7 +146,7 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
                 })
                 .select();
 
-            return "Twitter connected! You can close this window.";
+            return `${integration.name} connected! You can close this window.`;
 
         } catch (err) {
             throw err;

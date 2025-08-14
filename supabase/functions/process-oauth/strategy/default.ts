@@ -152,7 +152,7 @@ export class DefaultStrategy implements ProcessOauthStrategy {
         }
 
         // Add provider-specific parameters
-        const providerSpecificParams = getProviderSpecificParameters(provider);
+        const providerSpecificParams = DefaultStrategy.getProviderSpecificParameters(provider);
         Object.assign(finalParams, providerSpecificParams);
 
         // Add any additional parameters from the params object (these override defaults)
@@ -178,8 +178,8 @@ export class DefaultStrategy implements ProcessOauthStrategy {
         return url.toString();
     }
 
-    // Helper function to get provider-specific parameters
-    private getProviderSpecificParameters(provider: string): Record<string, string> {
+    // Helper function to get provider-specific parameters (static method accessible without instance)
+    private static getProviderSpecificParameters(provider: string): Record<string, string> {
         const providerParams: Record<string, Record<string, string>> = {
             'gmail': {
                 access_type: 'offline',
@@ -302,9 +302,12 @@ export class DefaultStrategy implements ProcessOauthStrategy {
                 throw new Error(`Integration not found: ${provider}`);
             }
 
-            const oauthUrl = await this.initiate(provider, integrationData, { ...params, project_id }, user.id);
+            const oauthUrl = await this.initiate(provider, integrationData, { ...params, project_id }, user_id);
 
-            return oauthUrl
+            return new Response(JSON.stringify({ oauth_url: oauthUrl }), { 
+                headers: { 'Content-Type': 'application/json' }, 
+                status: 200 
+            });
         } catch (error) {
             console.error('Process OAuth error:', error);
             throw error;

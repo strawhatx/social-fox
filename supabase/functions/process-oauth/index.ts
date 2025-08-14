@@ -4,6 +4,14 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { ProcessOauthStrategyFactory } from "./strategy/index.ts";
+import { supabase } from "../utils/supabase.ts";
+
+const createErrorResponse = (message: string, req: Request, status = 400) => {
+  return new Response(
+    JSON.stringify({ error: message }),
+    { headers: handleReturnCORS(req), status }
+  );
+};
 
 
 // Main handler

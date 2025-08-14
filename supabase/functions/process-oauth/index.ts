@@ -41,8 +41,9 @@ serve(async (req) => {
   }
 
   try {
-    const { provider } = await req.json() as { provider: string };
-    const oauthUrl = await ProcessOauthStrategyFactory.getStrategy(provider).handleRequest(req);
+    const body = await req.json();
+    const provider = body.provider;
+    const oauthUrl = await ProcessOauthStrategyFactory.getStrategy(provider).handleRequest(req, body);
     
     return new Response(JSON.stringify({ oauth_url: oauthUrl }), { headers: handleReturnCORS(req), status: 200 });
   } catch (error) {

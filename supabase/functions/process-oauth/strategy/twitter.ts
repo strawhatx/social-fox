@@ -29,8 +29,8 @@ export class TwitterStrategy implements ProcessOauthStrategy {
     }
 
     // config: { provider: 'twitter_oauth1', project_id: string }
-    async handleRequest(req: Request): Promise<string> {
-        const { provider, project_id, user_id } = await req.json() as OAuthCallbackRequest;
+    async handleRequest(req: Request, body: Record<string, any>): Promise<string> {
+        const { provider, project_id, user_id } = body;
         if (!project_id || !provider || !user_id)
             throw new Error('Missing required parameters project_id, provider, user_id');
 

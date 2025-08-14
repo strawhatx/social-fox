@@ -134,9 +134,9 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
             body: new URLSearchParams(bodyConfig).toString()
         };
     };
-    
+
     // Main handler
-    public async handleRequest(req: Request): Promise<string> {
+    public async handleRequest(req: Request, body: Record<string, any>): Promise<string> {
         try {
             let project_id, provider, code, state, params;
 
@@ -159,8 +159,6 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 project_id = decodedState.project_id;
             }
             else {
-                // Handle POST request with JSON body
-                const body = await req.json() as OAuthCallbackRequest;
                 ({ project_id, provider, code, state, params } = body);
             }
 

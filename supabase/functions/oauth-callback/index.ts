@@ -34,8 +34,9 @@ serve(async (req) => {
   if (corsResponse) return corsResponse;
 
   try {
-    const { provider } = await req.json() as { provider: string };
-    const message = await OAuthCallbackStrategyFactory.getStrategy(provider).handleRequest(req);
+    const body = await req.json()
+    const provider = body.provider;
+    const message = await OAuthCallbackStrategyFactory.getStrategy(provider).handleRequest(req, body);
 
     return createSuccessResponse(message, req);
   } catch (error) {

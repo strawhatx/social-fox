@@ -285,9 +285,9 @@ export class DefaultStrategy implements ProcessOauthStrategy {
     }
 
     // Main handler
-    public async handleRequest(req: Request): Promise<string> {
+    public async handleRequest(req: Request, body: Record<string, any>): Promise<string> {
         try {
-            const { project_id, provider, user_id, ...params } = await req.json() as OAuthCallbackRequest;
+            const { project_id, provider, user_id, ...params } = body;
             if (!project_id || !provider || !user_id)
                 throw new Error('Missing required parameters project_id, provider, user_id');
 

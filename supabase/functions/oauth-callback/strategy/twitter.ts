@@ -18,7 +18,7 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
     };
 
 
-    public async handleRequest(req: Request): Promise<string> {
+    public async handleRequest(req: Request, body: Record<string, any>): Promise<string> {
         if (req.method !== "GET") {
             throw new Error("Method Not Allowed");
         }

@@ -1,4 +1,4 @@
-// Server-side OAuth state management for edge functions
+// Server-side OAuth state management for edge functions (via kv_store)
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const supabase = createClient(
@@ -19,20 +19,29 @@ const createStateHash = async (state: string): Promise<string> => {
 export const cleanupExpiredStates = async () => {
   try {
     console.log('Cleaning up expired OAuth states...');
-    
-    const { count, error } = await supabase
-      .from('oauth_states')
-      .delete()
-      .lt('expires_at', new Date().toISOString())
-      .select('*', { count: 'exact', head: true });
-    
+
+    // No TTL index in kv_store; perform time-based cleanup by scanning keys with expiry
+    const cutoffIso = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('kv_store')
+      .select('key, value')
+      .limit(1000);
+
     if (error) {
       console.error('Failed to cleanup expired states:', error);
       return { success: false, error: error.message };
     }
-    
-    console.log(`Cleaned up ${count || 0} expired OAuth states`);
-    return { success: true, cleanedCount: count || 0 };
+
+    const expiredKeys = (data || [])
+      .filter((row: any) => row.value?.expires_at && row.value.expires_at < cutoffIso)
+      .map((row: any) => row.key);
+
+    for (const key of expiredKeys) {
+      await supabase.from('kv_store').delete().eq('key', key);
+    }
+
+    console.log(`Cleaned up ${expiredKeys.length} expired OAuth states`);
+    return { success: true, cleanedCount: expiredKeys.length };
   } catch (error) {
     console.error('Error during cleanup:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
@@ -40,126 +49,63 @@ export const cleanupExpiredStates = async () => {
 };
 
 export const saveOAuthState = async (state: string, userId: string, expiresInMinutes: number = 60) => {
-  
   const stateHash = await createStateHash(state);
-  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
-  
-  console.log('Saving OAuth state:', {
-    stateHash: stateHash.substring(0, 8) + '...',
-    userId,
-    expiresAt: expiresAt.toISOString()
-  });
-  
-  console.log('Attempting to insert OAuth state with data:', {
-    state_hash: stateHash.substring(0, 8) + '...',
-    state_data: { state: state.substring(0, 20) + '...', user_id: userId },
-    expires_at: expiresAt.toISOString()
-  });
+  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000).toISOString();
 
-  const { data, error } = await supabase
-    .from('oauth_states')
-    .insert({
-      state_hash: stateHash,
-      state_data: { state, user_id: userId },
-      expires_at: expiresAt.toISOString()
-    })
-    .select();
+  const key = `oauth:${stateHash}`;
+  const value = { state, user_id: userId, expires_at: expiresAt };
+
+  const { error } = await supabase
+    .from('kv_store')
+    .upsert({ key, value, updated_at: new Date().toISOString() });
 
   if (error) {
     console.error('Failed to save OAuth state:', error);
-    console.error('Error details:', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint
-    });
     throw new Error(`Failed to save OAuth state: ${error.message}`);
   }
-  
-  console.log('OAuth state insert result:', data);
-  
-  console.log('OAuth state saved successfully');
 };
 
-export const savePkceVerifier = async (state: string, userId: string, verifier: string) => {
+export const savePkceVerifier = async (state: string, _userId: string, verifier: string) => {
   const stateHash = await createStateHash(state);
-  
-  console.log('Saving PKCE verifier:', {
-    stateHash: stateHash.substring(0, 8) + '...',
-    verifierLength: verifier.length
-  });
-  
-  console.log('Attempting to update PKCE verifier for state hash:', stateHash.substring(0, 8) + '...');
+  const key = `oauth:${stateHash}`;
 
   const { data, error } = await supabase
-    .from('oauth_states')
-    .update({ pkce_verifier: verifier })
-    .eq('state_hash', stateHash)
-    .select();
+    .from('kv_store')
+    .select('value')
+    .eq('key', key)
+    .maybeSingle();
 
-  if (error) {
-    console.error('Failed to save PKCE verifier:', error);
-    console.error('Error details:', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint
-    });
-    throw new Error(`Failed to save PKCE verifier: ${error.message}`);
-  }
-  
-  console.log('PKCE verifier update result:', data);
-  
-  console.log('PKCE verifier saved successfully');
+  if (error) throw error;
+
+  const updated = { ...(data?.value || {}), pkce_verifier: verifier };
+  const { error: upsertError } = await supabase
+    .from('kv_store')
+    .upsert({ key, value: updated, updated_at: new Date().toISOString() });
+
+  if (upsertError) throw upsertError;
 };
 
 // Combined function to get both OAuth state and PKCE verifier in one database query
 export const getOAuthData = async (state: string, userId: string): Promise<{ state: string | null; pkceVerifier: string | null } | null> => {
   const stateHash = await createStateHash(state);
-  
-  console.log('Retrieving OAuth data:', {
-    stateHash: stateHash.substring(0, 8) + '...',
-    userId
-  });
-  
+  const key = `oauth:${stateHash}`;
+
   const { data, error } = await supabase
-    .from('oauth_states')
-    .select('state_data, pkce_verifier, expires_at')
-    .eq('state_hash', stateHash)
-    .single();
+    .from('kv_store')
+    .select('value')
+    .eq('key', key)
+    .maybeSingle();
 
-  if (error || !data) {
-    console.log('OAuth data not found or error:', error);
-    return null;
-  }
+  if (error || !data?.value) return null;
 
-  // Check if expired
-  if (new Date(data.expires_at) < new Date()) {
-    console.log('OAuth state expired');
-    return null;
-  }
+  const value = data.value as any;
+  if (value.expires_at && new Date(value.expires_at) < new Date()) return null;
+  if (value.user_id !== userId) return null;
 
-  // Verify the user_id matches
-  if (data.state_data?.user_id !== userId) {
-    console.log('User ID mismatch:', {
-      expected: userId,
-      actual: data.state_data?.user_id
-    });
-    return null;
-  }
-
-  const result = {
-    state: data.state_data?.state || null,
-    pkceVerifier: data.pkce_verifier || null
+  return {
+    state: value.state || null,
+    pkceVerifier: value.pkce_verifier || null
   };
-
-  console.log('OAuth data retrieved successfully:', {
-    hasState: !!result.state,
-    hasPkceVerifier: !!result.pkceVerifier,
-    pkceVerifierLength: result.pkceVerifier?.length || 0
-  });
-
-  return result;
 };
 
 // Individual functions for backward compatibility (now just call the combined function)
@@ -174,24 +120,10 @@ export const getPkceVerifier = async (state: string, userId: string): Promise<st
 };
 
 // Single cleanup function that removes the entire OAuth state record
-export const clearOAuthState = async (state: string, userId: string) => {
+export const clearOAuthState = async (state: string, _userId: string) => {
   const stateHash = await createStateHash(state);
-  
-  console.log('Clearing OAuth state:', {
-    stateHash: stateHash.substring(0, 8) + '...',
-    userId
-  });
-  
-  const { error } = await supabase
-    .from('oauth_states')
-    .delete()
-    .eq('state_hash', stateHash);
-
-  if (error) {
-    console.error('Failed to clear OAuth state:', error);
-  } else {
-    console.log('OAuth state cleared successfully');
-  }
+  const key = `oauth:${stateHash}`;
+  await supabase.from('kv_store').delete().eq('key', key);
 };
 
 // Alias for backward compatibility - both state and PKCE verifier are cleared together

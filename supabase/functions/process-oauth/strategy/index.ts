@@ -1,0 +1,17 @@
+import { DefaultStrategy } from "./default.ts";
+import { TwitterStrategy } from "./twitter.ts";
+
+export interface ProcessOauthStrategy {
+    handleRequest(req: Request): Promise<Response>;
+}
+
+export class ProcessOauthStrategyFactory {
+    static getStrategy(provider: string): ProcessOauthStrategy {
+        switch (provider) {
+            case "twitter":
+                return new TwitterStrategy();
+            default:
+                return new DefaultStrategy();
+        }
+    }
+}

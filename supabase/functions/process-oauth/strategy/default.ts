@@ -1,7 +1,7 @@
 import { supabase } from "../../utils/supabase.ts";
 import { ProcessOauthStrategy } from "./index";
-import { generateCodeChallenge, generateCodeVerifier } from "../utils/pkce-utils.ts";
-import { saveOAuthState, savePkceVerifier } from "../utils/state.ts";
+import { generateCodeChallenge, generateCodeVerifier } from "../../utils/pkce-utils.ts";
+import { saveOAuthState, savePkceVerifier } from "../../utils/state.ts";
 
 interface OAuthCallbackRequest {
     project_id: string;

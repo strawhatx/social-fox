@@ -1,7 +1,7 @@
 import { supabase } from "../../utils/supabase.ts";
-import { clearOAuthState, getOAuthData } from "../utils/state.ts";
-import { encrypt } from "../utils/encryption.ts";
-import { getMasterKey } from "../utils/vault.ts";
+import { clearOAuthState, getOAuthData } from "../../utils/state.ts";
+import { encrypt } from "../../utils/encryption.ts";
+import { getMasterKey } from "../../utils/vault.ts";
 
 // Types
 interface OAuthCallbackRequest {

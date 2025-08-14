@@ -13,7 +13,6 @@ const createErrorResponse = (message: string, req: Request, status = 400) => {
   );
 };
 
-
 // Main handler
 serve(async (req) => {
   // Apply rate limiting first
@@ -45,7 +44,7 @@ serve(async (req) => {
     const provider = body.provider;
     const oauthUrl = await ProcessOauthStrategyFactory.getStrategy(provider).handleRequest(req, body);
     
-    return new Response(JSON.stringify({ oauth_url: oauthUrl }), { headers: handleReturnCORS(req), status: 200 });
+    return new Response(JSON.stringify(oauthUrl), { headers: handleReturnCORS(req), status: 200 });
   } catch (error) {
     console.error('Process OAuth error:', error);
     return createErrorResponse(error instanceof Error ? error.message : 'Unknown error occurred', req);

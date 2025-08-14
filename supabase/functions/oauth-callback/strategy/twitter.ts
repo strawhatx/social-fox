@@ -1,7 +1,9 @@
 import { supabase } from "../../utils/supabase.ts";
-import OAuth from "oauth-1.0a";
-import crypto from "crypto";
-import { ProcessOauthStrategy } from "./index";
+import OAuth from "npm:oauth-1.0a";
+import CryptoJS from "https://esm.sh/crypto-js@4.2.0";
+import { OAuthCallbackStrategy } from "./index.ts";
+import { encrypt } from "../../utils/encryption.ts";
+import { getMasterKey } from "../../utils/vault.ts";
 
 export class TwitterStrategy implements OAuthCallbackStrategy {
 
@@ -10,7 +12,7 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
             consumer: { key: consumerKey, secret: consumerSecret },
             signature_method: "HMAC-SHA1",
             hash_function(base_string, key) {
-                return crypto.createHmac("sha1", key).update(base_string).digest("base64");
+                return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
             }
         });
     };
@@ -54,11 +56,11 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
 
             const consumerKey = consumer_key;
             const consumerSecret = consumer_secret;
-            const oauth_token_secret = tokenData.oauth_token_secret;
-            const user_id = tokenData.user_id;
-            const project_id = tokenData.project_id;
+            const oauth_token_secret = (tokenRecord.value as any).oauth_token_secret;
+            const user_id = (tokenRecord.value as any).user_id;
+            const project_id = (tokenRecord.value as any).project_id;
 
-            const oauth = createOAuth1Client(consumerKey, consumerSecret);
+            const oauth = this.createOAuth1Client(consumerKey, consumerSecret);
 
             // Step 3: Exchange temp token for access token
             const accessTokenRes = await fetch(access_token_url, {
@@ -114,7 +116,7 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
                 .from('connections')
                 .select('*')
                 .eq('project_id', project_id)
-                .eq('integration_id', integrationData.id)
+                .eq('integration_id', integration.id)
                 .maybeSingle();
 
             if (connectionError && connectionError.code !== 'PGRST116') {

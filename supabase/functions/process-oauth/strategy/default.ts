@@ -1,5 +1,5 @@
 import { supabase } from "../../utils/supabase.ts";
-import { ProcessOauthStrategy } from "./index";
+import { ProcessOauthStrategy } from "./index.ts";
 import { generateCodeChallenge, generateCodeVerifier } from "../../utils/pkce-utils.ts";
 import { saveOAuthState, savePkceVerifier } from "../../utils/state.ts";
 

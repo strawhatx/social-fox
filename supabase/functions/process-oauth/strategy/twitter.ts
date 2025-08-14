@@ -1,7 +1,7 @@
 import { supabase } from "../../utils/supabase.ts";
-import OAuth from "oauth-1.0a";
-import crypto from "crypto";
-import { ProcessOauthStrategy } from "./index";
+import OAuth from "npm:oauth-1.0a";
+import CryptoJS from "https://esm.sh/crypto-js@4.2.0";
+import { ProcessOauthStrategy } from "./index.ts";
 
 export class TwitterStrategy implements ProcessOauthStrategy {
     private createOAuth1Client(consumerKey: string, consumerSecret: string) {
@@ -9,20 +9,20 @@ export class TwitterStrategy implements ProcessOauthStrategy {
             consumer: { key: consumerKey, secret: consumerSecret },
             signature_method: "HMAC-SHA1",
             hash_function(base_string, key) {
-                return crypto.createHmac("sha1", key).update(base_string).digest("base64");
+                return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
             },
         });
     }
 
     private async saveRequestTokenSecret(userId: string, oauth_token: string, oauth_token_secret: string, project_id: string) {
-        const key = `oauth1:${oauth_token}`;
+        const key = `twitter_oauth1:${oauth_token}`;
         const value = {
             user_id: userId,
             project_id,
             oauth_token_secret,
             expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
         };
-        const { error } = await this.supabase
+        const { error } = await supabase
             .from("kv_store")
             .upsert({ key, value, updated_at: new Date().toISOString() });
         if (error) throw error;
@@ -30,20 +30,20 @@ export class TwitterStrategy implements ProcessOauthStrategy {
 
     // config: { provider: 'twitter_oauth1', project_id: string }
     async handleRequest(req: Request): Promise<string> {
-        const { provider, project_id, user_id } = config;
-        if (provider !== "twitter_oauth1") {
-            throw new Error("Unsupported provider for OAuth1.0a");
-        }
+        const { provider, project_id, user_id } = await req.json() as OAuthCallbackRequest;
+        if (!project_id || !provider || !user_id)
+            throw new Error('Missing required parameters project_id, provider, user_id');
+
 
         // Fetch integration config (consumer key/secret)
-        const { data: integration, error: integrationError } = await this.supabase
+        const { data: integration, error: integrationError } = await supabase
             .from("integrations")
             .select("*")
             .eq("provider", provider)
             .single();
         if (!integration || integrationError) throw new Error("Integration not found");
 
-        const { consumer_key, request_token_url } = integration.config_public;
+        const { consumer_key, auth_url, request_token_url } = integration.config_public;
         const { consumer_secret } = integration.secrets;
         const oauth = this.createOAuth1Client(consumer_key, consumer_secret);
 
@@ -61,7 +61,7 @@ export class TwitterStrategy implements ProcessOauthStrategy {
         await this.saveRequestTokenSecret(user_id, oauth_token, oauth_token_secret, project_id);
 
         const oauthUrl = `${auth_url}?oauth_token=${oauth_token}`;
-        
+
         return oauthUrl;
     }
 }

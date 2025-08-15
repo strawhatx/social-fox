@@ -84,7 +84,7 @@ serve(async (req) => {
 
   console.log('req', req);
 
-  if (!isAuthorized(req)) {
+  if (!validateRequestAuthorization(req)) {
     return jsonResponse({ error: 'Forbidden' }, req, 403);
   }
 

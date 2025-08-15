@@ -19,3 +19,10 @@ export async function validateSupabaseToken(authHeader: string | null): Promise<
   const user = await response.json();
   return user as { id: string };
 }
+
+export function validateRequestAuthorization(req: Request): boolean {
+  const keys = ['EDGE_FUNCTIONS_KEY', 'SUPABASE_ANON_KEY'];
+
+  const header = req.headers.get("Authorization");
+  return keys.some(key => header && header === `Bearer ${Deno.env.get(key)}`);
+}

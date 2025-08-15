@@ -24,12 +24,6 @@ const incomingProviderMap = {
 const jsonResponse = (data: unknown, req: Request, status = 200) =>
   new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });
 
-function isAuthorized(req: Request): boolean {
-  const header = req.headers.get("Authorization");
-  const expected = `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`;
-  return !!header && header === expected;
-}
-
 serve(async (req) => {
   const rateLimitResponse = await applyRateLimit(req, 'get-connection-secrets');
   if (rateLimitResponse) return rateLimitResponse;
@@ -41,9 +35,7 @@ serve(async (req) => {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
-  console.log('req', req);
-
-  if (!isAuthorized(req)) {
+  if (!validateRequestAuthorization(req)) {
     return jsonResponse({ error: 'Forbidden' }, req, 403);
   }
 

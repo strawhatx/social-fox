@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getMasterKey } from "./vault";
-import { encrypt } from "./encryption";
+import { getMasterKey } from "./vault.ts";
+import { encrypt } from "./encryption.ts";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
 

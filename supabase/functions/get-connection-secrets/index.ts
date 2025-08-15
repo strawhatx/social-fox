@@ -7,16 +7,12 @@ import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { decrypt } from "../utils/encryption.ts";
 import { getMasterKey } from "../utils/vault.ts";
 import { getValidAccessToken } from "../utils/access.ts";
+import { supabase } from "../utils/supabase.ts";
 
 interface RequestBody {
   project_id?: string;
   provider?: string;
 }
-
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-);
 
 const incomingProviderMap = {
   'github': 'github',
@@ -44,6 +40,8 @@ serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
+
+  console.log('req', req);
 
   if (!isAuthorized(req)) {
     return jsonResponse({ error: 'Forbidden' }, req, 403);

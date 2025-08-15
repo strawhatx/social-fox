@@ -4,17 +4,13 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
+import { supabase } from "../utils/supabase.ts";
 
 interface RequestBody {
   project_id?: string;
   connection_id?: string;
   provider?: string; // optional; used only as a fallback when connection_id is not provided
 }
-
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-);
 
 const jsonResponse = (data: unknown, req: Request, status = 200) =>
   new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });

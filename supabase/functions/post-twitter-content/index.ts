@@ -1,6 +1,8 @@
 // File: functions/post-twitter/edge.ts
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
+import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import CryptoJS from "https://esm.sh/crypto-js@4.2.0";
 import { supabase } from "../utils/supabase.ts";
@@ -70,8 +72,20 @@ function generateOAuth1Header({
 
 // Edge function
 serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
+  const rateLimitResponse = await applyRateLimit(req, 'post-twitter-content');
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const cors = handleCORS(req);
+  if (cors) return cors;
+
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
+
+  console.log('req', req);
+
+  if (!isAuthorized(req)) {
+    return jsonResponse({ error: 'Forbidden' }, req, 403);
   }
 
   try {
@@ -140,18 +154,12 @@ serve(async (req) => {
 
     const result = await response.json();
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: result }), {
-        status: response.status,
-      });
+      return jsonResponse({ error: result }, req, response.status);
     }
 
-    return new Response(JSON.stringify({ success: true, data: result }), {
-      status: 200,
-    });
+    return jsonResponse({ success: true, data: result }, req, 200);
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-    });
+    return jsonResponse({ error: err.message }, req, 500);
   }
 });

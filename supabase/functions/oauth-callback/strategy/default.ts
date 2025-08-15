@@ -163,12 +163,8 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
             }
 
             // Validate required parameters
-            if (!provider) {
-                throw new Error('Provider not specified');
-            }
-
-            if (!project_id) {
-                throw new Error('Project ID not found in request');
+            if (!provider || !project_id || !code || !state) {
+                throw new Error('Missing required parameters provider, project_id, code, state');
             }
 
             // Extract user ID from state parameter (OAuth callbacks don't have auth headers)

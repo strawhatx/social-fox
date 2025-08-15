@@ -35,19 +35,11 @@ export class OAuthService {
     }
   }
 
-  async handleCallback(params: {
-    code: string;
-    state: string;
-    provider: string;
-    projectId: string;
-  }) {
+  async handleCallback(params: Record<string, any>) {
     try {
       const { data, error } = await supabase.functions.invoke('oauth-callback', {
         body: {
-          code: params.code,
-          state: params.state,
-          provider: params.provider,
-          project_id: params.projectId,
+          ...params,
           params: {}
         }
       });

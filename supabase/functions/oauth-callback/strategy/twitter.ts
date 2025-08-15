@@ -19,16 +19,14 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
 
 
     public async handleRequest(req: Request, body: Record<string, any>): Promise<string> {
-        if (req.method !== "GET") {
+        if (req.method !== "POST") {
             throw new Error("Method Not Allowed");
         }
 
         try {
-            const url = new URL(req.url);
-            const oauth_token = url.searchParams.get("oauth_token");
-            const oauth_verifier = url.searchParams.get("oauth_verifier");
+            const { oauth_token, oauth_verifier, provider } = body;
 
-            if (!oauth_token || !oauth_verifier) {
+            if (!oauth_token || !oauth_verifier || !provider) {
                 throw new Error("Missing oauth_token or oauth_verifier");
             }
 

@@ -159,10 +159,8 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 project_id = decodedState.project_id;
             }
             else {
-                ({ project_id, provider, code, state, params } = body);
+                ({ project_id, provider, code, state } = body);
             }
-
-            console.log('body', body);
 
             // Validate required parameters
             if (!provider || !project_id || !code || !state) {

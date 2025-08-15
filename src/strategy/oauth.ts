@@ -103,7 +103,7 @@ class DefaultCallbackStrategy implements OauthCallbackStrategy {
             code,
             state,
             provider: stateData.provider,
-            projectId: stateData.project_id || stateData.team_id
+            project_id: stateData.project_id || stateData.team_id
           });
   
           // Send success message to parent window

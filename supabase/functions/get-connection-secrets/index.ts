@@ -8,6 +8,7 @@ import { decrypt } from "../utils/encryption.ts";
 import { getMasterKey } from "../utils/vault.ts";
 import { getValidAccessToken } from "../utils/access.ts";
 import { supabase } from "../utils/supabase.ts";
+import { validateRequestAuthorization } from "../utils/auth.ts";
 
 interface RequestBody {
   project_id?: string;

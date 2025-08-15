@@ -6,6 +6,7 @@ import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import CryptoJS from "https://esm.sh/crypto-js@4.2.0";
 import { supabase } from "../utils/supabase.ts";
+import { validateRequestAuthorization } from "../utils/auth.ts";
 
 // Helper: generate OAuth1 header
 function generateOAuth1Header({

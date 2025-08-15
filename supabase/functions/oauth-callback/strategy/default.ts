@@ -162,6 +162,8 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 ({ project_id, provider, code, state, params } = body);
             }
 
+            console.log('body', body);
+
             // Validate required parameters
             if (!provider || !project_id || !code || !state) {
                 throw new Error('Missing required parameters provider, project_id, code, state');

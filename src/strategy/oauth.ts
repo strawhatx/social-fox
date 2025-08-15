@@ -96,6 +96,8 @@ class DefaultCallbackStrategy implements OauthCallbackStrategy {
         try {
           // Parse state to get provider and project info
           const stateData = JSON.parse(atob(state));
+
+          console.log('stateData', stateData);
           
           const result = await oauthService.handleCallback({
             code,

@@ -94,13 +94,16 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
                 twitter_user_id,
                 provider,
                 timestamp: new Date().toISOString(),
+                consumer_key
             };
 
+            // encrypt secrets
             const masterKey = getMasterKey();
 
             const plaintextSecrets = JSON.stringify({
                 access_token: final_access_token,
                 access_secret: final_access_secret,
+                consumer_secret
             });
 
             const encryptedSecrets = await encrypt(plaintextSecrets, masterKey);

@@ -4,10 +4,11 @@ import { OauthCallbackStrategyFactory } from '@/strategy/oauth';
 
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
-  const { provider } = useParams()
+  const { provider } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('provider', provider);
     const strategy = OauthCallbackStrategyFactory.getStrategy(provider);
     strategy.handleCallback(searchParams, navigate);
   }, [searchParams, navigate]);

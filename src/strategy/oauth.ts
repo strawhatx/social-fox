@@ -9,6 +9,8 @@ class TwitterCallbackStrategy implements OauthCallbackStrategy {
     async handleCallback(searchParams: URLSearchParams, navigate: (path: string) => void) {
         const oauth_token = searchParams.get('oauth_token');
         const oauth_verifier = searchParams.get('oauth_verifier');
+        console.log('oauth_token', oauth_token);
+        console.log('oauth_verifier', oauth_verifier); 
   
         if (!oauth_token || !oauth_verifier) {
           const errorMsg = 'Missing oauth token or oauth verifier';
@@ -24,9 +26,7 @@ class TwitterCallbackStrategy implements OauthCallbackStrategy {
           return;
         }
   
-        try {
-          console.log('oauth_token', oauth_token);
-          console.log('oauth_verifier', oauth_verifier);    
+        try {   
           const result = await oauthService.handleCallback({
             oauth_token,
             oauth_verifier,

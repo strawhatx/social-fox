@@ -33,7 +33,7 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
             }
 
             // Fetch integration config (consumer key/secret)
-            const { data: integration, error: integrationError } = await this.supabase
+            const { data: integration, error: integrationError } = await supabase
                 .from("integrations")
                 .select("*")
                 .eq("provider", provider)

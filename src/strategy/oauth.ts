@@ -25,6 +25,8 @@ class TwitterCallbackStrategy implements OauthCallbackStrategy {
         }
   
         try {
+          console.log('oauth_token', oauth_token);
+          console.log('oauth_verifier', oauth_verifier);    
           const result = await oauthService.handleCallback({
             oauth_token,
             oauth_verifier,

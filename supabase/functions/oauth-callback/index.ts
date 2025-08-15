@@ -34,7 +34,7 @@ serve(async (req) => {
   if (corsResponse) return corsResponse;
 
   try {
-    const body = await req.json()
+    const body = await req.json();
     const provider = body.provider;
     const message = await OAuthCallbackStrategyFactory.getStrategy(provider).handleRequest(req, body);
 

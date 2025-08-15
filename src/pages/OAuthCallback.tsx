@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
-import { oauthService } from '@/services/oauth/service';
 import { OauthCallbackStrategyFactory } from '@/strategy/oauth';
 
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
-  const { provider } =useParams()
+  const { provider } = useParams()
   const navigate = useNavigate();
 
   useEffect(() => {

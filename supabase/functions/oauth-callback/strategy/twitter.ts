@@ -26,6 +26,8 @@ export class TwitterStrategy implements OAuthCallbackStrategy {
         try {
             const { oauth_token, oauth_verifier, provider } = body;
 
+            console.log('body', body);
+
             if (!oauth_token || !oauth_verifier || !provider) {
                 throw new Error("Missing oauth_token or oauth_verifier");
             }

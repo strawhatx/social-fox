@@ -33,11 +33,7 @@ serve(async (req) => {
   if (cors) return cors;
 
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
-  }
-
-  if (!validateRequestAuthorization(req)) {
-    return jsonResponse({ error: 'Forbidden' }, req, 403);
+    return jsonResponse({ error: 'Method Not Allowed' }, req, 405);
   }
 
   try {

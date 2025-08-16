@@ -88,12 +88,6 @@ serve(async (req) => {
     return jsonResponse({ error: 'Method Not Allowed' }, req, 405);
   }
 
-  console.log('req', req);
-
-  if (!validateRequestAuthorization(req)) {
-    return jsonResponse({ error: 'Forbidden' }, req, 403);
-  }
-
   try {
     const { connection_id, content } = await req.json();
     if (!connection_id || !content) {
@@ -156,6 +150,7 @@ serve(async (req) => {
     });
 
     const result = await response.json();
+    console.log('result', result);
     if (!response.ok) {
       return jsonResponse({ error: result }, req, response.status);
     }

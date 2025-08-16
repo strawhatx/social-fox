@@ -24,6 +24,6 @@ export function validateRequestAuthorization(req: Request): boolean {
   const keys = ['EDGE_FUNCTIONS_KEY', 'SUPABASE_ANON_KEY'];
 
   const header = req.headers.get("Authorization");
-  console.log('header', header);
+
   return keys.some(key => header && header === `Bearer ${Deno.env.get(key)}`);
 }

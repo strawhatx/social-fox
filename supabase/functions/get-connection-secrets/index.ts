@@ -62,6 +62,8 @@ serve(async (req) => {
       return jsonResponse({ error: `Integration not found for provider: ${provider}` }, req, 404);
     }
 
+    console.log('integration', integration);
+
     // Fetch connection by project and integration
     const { data: connection, error } = await supabase
       .from('connections')
@@ -69,6 +71,8 @@ serve(async (req) => {
       .eq('project_id', project_id)
       .eq('integration_id', integration.id)
       .single();
+
+    console.log('connection', connection);
 
     if (error) throw error;
 

@@ -71,6 +71,9 @@ function generateOAuth1Header({
   return authHeader;
 }
 
+const jsonResponse = (data: unknown, req: Request, status = 200) =>
+  new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });
+
 // Edge function
 serve(async (req) => {
   const rateLimitResponse = await applyRateLimit(req, 'post-twitter-content');
@@ -80,7 +83,7 @@ serve(async (req) => {
   if (cors) return cors;
 
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+    return jsonResponse({ error: 'Method Not Allowed' }, req, 405);
   }
 
   console.log('req', req);
@@ -106,10 +109,7 @@ serve(async (req) => {
       .single();
 
     if (error || !connection) {
-      return new Response(
-        JSON.stringify({ error: "Connection not found" }),
-        { status: 404 }
-      );
+      return jsonResponse({ error: "Connection not found" }, req, 404);
     }
 
     // decrypt secrets

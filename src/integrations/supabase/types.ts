@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -57,13 +57,6 @@ export type Database = {
             columns: ["integration_id"]
             isOneToOne: false
             referencedRelation: "integrations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_integration_id_fkey"
-            columns: ["integration_id"]
-            isOneToOne: false
-            referencedRelation: "integrations_flat"
             referencedColumns: ["id"]
           },
           {
@@ -145,6 +138,36 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          stripe_session_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          stripe_session_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          stripe_session_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           config_public: Json
@@ -187,30 +210,21 @@ export type Database = {
         }
         Relationships: []
       }
-      oauth_states: {
+      kv_store: {
         Row: {
-          created_at: string
-          expires_at: string
-          id: string
-          pkce_verifier: string | null
-          state_data: Json
-          state_hash: string
+          key: string
+          updated_at: string
+          value: Json
         }
         Insert: {
-          created_at?: string
-          expires_at: string
-          id?: string
-          pkce_verifier?: string | null
-          state_data?: Json
-          state_hash: string
+          key: string
+          updated_at?: string
+          value: Json
         }
         Update: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          pkce_verifier?: string | null
-          state_data?: Json
-          state_hash?: string
+          key?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
@@ -292,6 +306,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_credits: {
+        Row: {
+          created_at: string
+          credits: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       connections_public: {
@@ -346,13 +384,6 @@ export type Database = {
             foreignKeyName: "connections_integration_id_fkey"
             columns: ["integration_id"]
             isOneToOne: false
-            referencedRelation: "integrations_flat"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_integration_id_fkey"
-            columns: ["integration_id"]
-            isOneToOne: false
             referencedRelation: "integrations_public"
             referencedColumns: ["id"]
           },
@@ -385,63 +416,6 @@ export type Database = {
             referencedColumns: ["project_id"]
           },
         ]
-      }
-      integrations_flat: {
-        Row: {
-          auth_url: string | null
-          client_id: string | null
-          code_challenge_required: boolean | null
-          created_at: string | null
-          description: string | null
-          icon: string | null
-          id: string | null
-          is_active: boolean | null
-          name: string | null
-          provider: string | null
-          redirect_url: string | null
-          required_parameters: string[] | null
-          scopes: string[] | null
-          token_url: string | null
-          type: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          auth_url?: never
-          client_id?: never
-          code_challenge_required?: never
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          provider?: string | null
-          redirect_url?: never
-          required_parameters?: never
-          scopes?: never
-          token_url?: never
-          type?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          auth_url?: never
-          client_id?: never
-          code_challenge_required?: never
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          provider?: string | null
-          redirect_url?: never
-          required_parameters?: never
-          scopes?: never
-          token_url?: never
-          type?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       integrations_public: {
         Row: {
@@ -548,7 +522,16 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      update_user_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_stripe_session_id?: string
+          p_transaction_type: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       connection_status: "connected" | "revoked" | "expired"

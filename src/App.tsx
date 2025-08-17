@@ -9,7 +9,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
-import GoogleCallback from "./pages/TwitterCallback";
+
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 

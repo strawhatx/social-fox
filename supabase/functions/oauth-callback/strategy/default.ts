@@ -47,6 +47,12 @@ const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
         includeClientId: true,
         includeClientSecret: true
     },
+    twitter: {
+        contentType: 'application/x-www-form-urlencoded',
+        authMethod: 'basic',
+        includeClientId: true,
+        includeClientSecret: false
+    },
     linkedin: {
         contentType: 'application/x-www-form-urlencoded',
         authMethod: 'body',
@@ -62,10 +68,7 @@ interface StateData {
 
 export class DefaultStrategy implements OAuthCallbackStrategy {
     private prepareTokenRequest(
-        connector: Connector,
-        code: string,
-        code_verifier: string,
-        stateData: StateData
+        connector: Connector, code: string, code_verifier: string, stateData: StateData
     ): RequestInit {
         // Get provider configuration
         const providerConfig = PROVIDER_CONFIGS[connector.provider] || {
@@ -97,11 +100,18 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
             console.error('PKCE required but no code_verifier found!');
         }
 
-        if (providerConfig.includeClientId) {
+        // Add client credentials based on provider config
+        if (connector.provider === 'twitter') {
             bodyConfig['client_id'] = connector.client_id;
+            bodyConfig['client_secret'] = '';
         }
-        if (providerConfig.includeClientSecret) {
-            bodyConfig['client_secret'] = connector.client_secret;
+        else {
+            if (providerConfig.includeClientId) {
+                bodyConfig['client_id'] = connector.client_id;
+            }
+            if (providerConfig.includeClientSecret) {
+                bodyConfig['client_secret'] = connector.client_secret;
+            }
         }
 
         // Build headers
@@ -150,16 +160,18 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 code = url.searchParams.get('code');
                 state = url.searchParams.get('state');
 
-                if (!code || !state)
+                if (!code || !state) {
                     throw new Error('Missing required OAuth parameters');
+                }
 
                 // Extract provider and project_id from state
                 const decodedState = JSON.parse(atob(state));
+                console.log('Decoded state from GET request:', decodedState);
                 provider = decodedState.provider;
                 project_id = decodedState.project_id;
             }
             else {
-                ({ project_id, provider, code, state } = body);
+                ({ project_id, provider, code, state, params } = body);
             }
 
             // Validate required parameters
@@ -344,7 +356,7 @@ export class DefaultStrategy implements OAuthCallbackStrategy {
                 throw error;
             }
 
-            return "Twitter connected! You can close this window.";
+            return `${integrationData.name} connected! You can close this window.`;
         } catch (error) {
             console.error('OAuth callback error:', error);
             throw error;

@@ -8,7 +8,6 @@ export interface OAuthCallbackStrategy {
 export class OAuthCallbackStrategyFactory {
     static getStrategy(provider: string): OAuthCallbackStrategy {
         switch (provider) {
-            case "twitter":
             case "twitter_oauth1":
                 return new TwitterStrategy();
             default:

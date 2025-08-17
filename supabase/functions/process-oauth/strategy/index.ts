@@ -8,7 +8,7 @@ export interface ProcessOauthStrategy {
 export class ProcessOauthStrategyFactory {
     static getStrategy(provider: string): ProcessOauthStrategy {
         switch (provider) {
-            case "twitter":
+            case "twitter_oauth1":
                 return new TwitterStrategy();
             default:
                 return new DefaultStrategy();

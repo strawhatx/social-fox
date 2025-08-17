@@ -55,19 +55,19 @@ const Pricing = () => {
   const handlePlanAction = (action: string) => {
     switch (action) {
       case 'signup':
+        // Keep existing auth signup flow. If you prefer using a Stripe "Free" link, let us know.
         window.location.href = '/auth';
         break;
       case 'subscribe':
-        // Will implement Stripe subscription
-        console.log('Subscribe to Pro plan');
+        // Open Stripe Checkout for Pro (50 credits/month)
+        window.open('https://buy.stripe.com/test_9B68wIgrRdwhd6T9AD3VC01', '_blank');
         break;
       case 'buy-credits':
-        // Will implement credit purchase
-        console.log('Buy additional credits');
+        // Open Stripe Checkout for additional 50 credits (one-time)
+        window.open('https://buy.stripe.com/test_28E00cfnNbo9ff10033VC02', '_blank');
         break;
     }
   };
-
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4">

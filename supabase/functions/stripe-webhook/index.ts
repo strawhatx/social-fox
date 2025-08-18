@@ -284,12 +284,6 @@ serve(async (req) => {
                     break;
                 }
 
-                case 'invoice.payment_failed': {
-                    // Payment failed - could suspend access if needed
-                    console.log('Invoice payment failed - no action taken');
-                    break;
-                }
-
                 default:
                     console.log(`Unhandled event type: ${eventType}`);
             }

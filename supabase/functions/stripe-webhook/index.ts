@@ -14,60 +14,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
     httpClient: Stripe.createFetchHttpClient(),
 });
 
-const handleCheckoutSessionCompleted = async (session: Stripe.Checkout.Session) => {
-    // First payment is successful and a subscription is created
-    const session = await stripe.checkout.sessions.retrieve(
-        data.object.id,
-        {
-            expand: ['line_items', 'customer']
-        }
-    );
-
-    const customerId = session?.customer as string;
-    const customer = await stripe.customers.retrieve(customerId);
-    const priceId = session?.line_items?.data[0]?.price?.id;
-
-    if (!customer || customer.deleted) {
-        throw new Error('Customer not found or deleted');
-    }
-
-    if (!customer.email) {
-        throw new Error('Customer email not found');
-    }
-
-    // Find or create user
-    let user = await getUserByEmail(customer.email);
-
-    if (!user) {
-        user = await createUserProfile(customer.email, customer.name || undefined);
-        if (!user) {
-            throw new Error('Failed to create user profile');
-        }
-    }
-
-    // Determine credits to add based on price ID
-    const creditsToAdd = priceId ? PRICE_ID_TO_CREDITS[priceId] : 0;
-
-    if (creditsToAdd > 0) {
-        const success = await addCreditsToUser(
-            user.id,
-            creditsToAdd,
-            `Credits purchased - ${creditsToAdd} credits`,
-            session.id
-        );
-
-        if (!success) {
-            throw new Error('Failed to add credits to user account');
-        }
-
-        console.log(`Successfully added ${creditsToAdd} credits to user ${user.email}`);
-    } else {
-        console.log(`No credits configured for price ID: ${priceId}`);
-    }
-
-    break;
-}
-
 // Main handler
 serve(async (req) => {
     if (req.method !== 'POST') {

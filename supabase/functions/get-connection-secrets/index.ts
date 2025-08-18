@@ -32,6 +32,10 @@ serve(async (req) => {
   const cors = handleCORS(req);
   if (cors) return cors;
 
+  if (!validateEdgeFunctionsKey(req)) {
+    return new Response("Unauthorized - Edge Functions Key", { status: 401 });
+  }
+
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method Not Allowed' }, req, 405);
   }

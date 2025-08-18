@@ -20,10 +20,18 @@ export async function validateSupabaseToken(authHeader: string | null): Promise<
   return user as { id: string };
 }
 
-export function validateRequestAuthorization(req: Request): boolean {
-  const keys = ['EDGE_FUNCTIONS_KEY', 'SUPABASE_ANON_KEY'];
+export function validateInternalApiKey(req: Request): boolean {
+  const key = 'INTERNAL_API_KEY';
+
+  const header = req.headers.get("x-supabase-hook-secret");
+
+  return header && header == Deno.env.get(key);
+}
+
+export function validateEdgeFunctionsKey(req: Request): boolean {
+  const key = 'EDGE_FUNCTIONS_KEY';
 
   const header = req.headers.get("Authorization");
 
-  return keys.some(key => header && header === `Bearer ${Deno.env.get(key)}`);
+  return header && header === `Bearer ${Deno.env.get(key)}`;
 }

@@ -21,29 +21,16 @@ const Auth = () => {
   const location = useLocation();
   
   // Get plan info from router state
-  const planType = location.state?.planType;
   const returnTo = location.state?.returnTo || '/dashboard';
 
-  // Redirect authenticated users appropriately
+  // Handle authenticated users
   useEffect(() => {
-    if (user && planType) {
-      // Handle plan after authentication
-      switch (planType) {
-        case 'signup':
-          window.open(createStripeUrl('FREE_SUBSCRIPTION', user.id, user.email), '_blank');
-          navigate(returnTo);
-          break;
-        case 'subscribe':
-          window.open(createStripeUrl('PRO_SUBSCRIPTION', user.id, user.email), '_blank');
-          navigate(returnTo);
-          break;
-        default:
-          navigate(returnTo);
-      }
-    } else if (user) {
+    if (user) {
+      // Just redirect to dashboard - subscription handled by Edge Function
       navigate(returnTo);
     }
-  }, [user, navigate, planType, returnTo]);
+  }, [user, navigate, returnTo]);
+
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,7 +55,10 @@ const Auth = () => {
       return;
     }
 
-    const { error } = await signUp(email, password, fullName);
+    // Create account - Edge Function will handle free subscription setup
+    const { error } = await signUp(email, password, {
+      full_name: fullName
+    });
     
     if (error) {
       setError(error.message);
@@ -110,9 +100,8 @@ const Auth = () => {
     
     if (error) {
       setError(error.message);
-    } else {
-      navigate('/dashboard');
     }
+    // Successful sign in will trigger useEffect to handle navigation
     
     setIsLoading(false);
   };
@@ -131,13 +120,10 @@ const Auth = () => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold gradient-text">
-              {planType ? 'Almost There!' : 'Welcome Back'}
+              Welcome Back
             </h1>
             <p className="text-gray-600">
-              {planType 
-                ? 'Create your account to continue with your plan' 
-                : 'Sign in to your marketing agent account'
-              }
+              Sign in to your marketing agent account
             </p>
           </div>
         </div>
@@ -149,10 +135,7 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">
-              {planType 
-                ? `Create your account to continue with the ${planType === 'subscribe' ? 'Pro' : ''} plan.`
-                : 'Sign in to your account or create a new one to get started.'
-              }
+              Sign in to your account or create a new one to get started.
             </CardDescription>
           </CardHeader>
           <CardContent>

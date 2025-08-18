@@ -6,9 +6,9 @@ import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import CryptoJS from "https://esm.sh/crypto-js@4.2.0";
 import { supabase } from "../utils/supabase.ts";
-import { validateRequestAuthorization } from "../utils/auth.ts";
 import { getMasterKey } from "../utils/vault.ts";
 import { decrypt } from "../utils/encryption.ts";
+import { validateEdgeFunctionsKey } from "../utils/auth.ts";
 
 // Helper: generate OAuth1 header following Twitter's exact requirements
 function generateOAuth1Header({

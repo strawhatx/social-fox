@@ -1,6 +1,7 @@
 import Stripe from "npm:stripe@14.21.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { supabase } from "../utils/supabase.ts";
+import { validateInternalApiKey } from "../utils/auth.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
     apiVersion: "2023-10-16",

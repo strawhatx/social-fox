@@ -6,6 +6,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@14.21.0";
 import { createErrorResponse, createSuccessResponse, getUserByEmail, addCreditsToUser, addAdditionalCreditsToUser, revokeUserAccess, PRICE_ID_TO_CREDITS, PRICE_ID_TO_ADDITIONAL_CREDITS } from "./helper/util.ts";
 import { supabase } from "../utils/supabase.ts";
+import { validateStripeSignature } from "../utils/auth.ts";
 
 // Initialize Stripe
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -75,9 +76,9 @@ serve(async (req) => {
 
     try {
         const body = await req.text();
-        const signature = req.headers.get('stripe-signature');
 
-        if (!signature) {
+        // Validate Stripe signature
+        if (!validateStripeSignature(req)) {
             return createErrorResponse('Missing stripe-signature header', 400);
         }
 

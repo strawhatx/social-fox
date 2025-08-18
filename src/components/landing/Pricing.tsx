@@ -1,8 +1,13 @@
 import { Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
   const plans = [
     {
       name: "Free",
@@ -15,7 +20,7 @@ const Pricing = () => {
         "1 project",
         "Email support"
       ],
-      buttonText: "Get Started",
+      buttonText: user ? "Go to Dashboard" : "Get Started",
       popular: false,
       action: "signup"
     },
@@ -31,42 +36,26 @@ const Pricing = () => {
         "Priority support",
         "Custom scheduling"
       ],
-      buttonText: "Start Pro",
+      buttonText: user ? "Upgrade to Pro" : "Start Pro",
       popular: true,
       action: "subscribe"
-    },
-    {
-      name: "Credits Top-up",
-      price: "$5",
-      period: "one-time",
-      credits: "50 additional credits",
-      features: [
-        "50 extra credits",
-        "Never expires",
-        "Works with any plan",
-        "Instant activation"
-      ],
-      buttonText: "Buy Credits",
-      popular: false,
-      action: "buy-credits"
     }
   ];
 
   const handlePlanAction = (action: string) => {
-    switch (action) {
-      case 'signup':
-        // Keep existing auth signup flow. If you prefer using a Stripe "Free" link, let us know.
-        window.location.href = '/auth';
-        break;
-      case 'subscribe':
-        // Open Stripe Checkout for Pro (50 credits/month)
-        window.open('https://buy.stripe.com/test_9B68wIgrRdwhd6T9AD3VC01', '_blank');
-        break;
-      case 'buy-credits':
-        // Open Stripe Checkout for additional 50 credits (one-time)
-        window.open('https://buy.stripe.com/test_28E00cfnNbo9ff10033VC02', '_blank');
-        break;
+    if (!user) {
+      // Navigate to auth with plan info in state
+      navigate('/auth', { 
+        state: { 
+          planType: action,
+          returnTo: '/dashboard' 
+        }
+      });
+      return;
     }
+
+    // If user is logged in, redirect to settings for plan management
+    navigate('/settings');
   };
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/20">
@@ -80,7 +69,7 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <Card 
               key={index} 
@@ -132,6 +121,11 @@ const Pricing = () => {
           <p className="text-sm text-muted-foreground">
             All plans include secure payment processing and instant credit activation
           </p>
+          {user && (
+            <p className="text-xs text-muted-foreground mt-2">
+              💡 Need more credits? Purchase additional credits anytime in your <span className="font-medium">Settings</span>
+            </p>
+          )}
         </div>
       </div>
     </section>

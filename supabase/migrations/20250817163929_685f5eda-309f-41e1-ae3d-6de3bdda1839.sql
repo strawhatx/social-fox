@@ -3,6 +3,7 @@ CREATE TABLE public.user_credits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   credits INTEGER NOT NULL DEFAULT 10,
+  additional_credits INTEGER NOT NULL DEFAULT 10,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   UNIQUE(user_id)

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { ArrowLeft, User, CreditCard, ExternalLink, Zap } from 'lucide-react';
+import { createStripeUrl, createCustomerPortalUrl } from '@/lib/utils';
 
 interface Profile {
   id: string;
@@ -46,7 +47,7 @@ const Settings = () => {
         .maybeSingle();
 
       if (error) throw error;
-      
+
       if (data) {
         setProfile(data);
         setFullName(data.full_name || '');
@@ -76,7 +77,7 @@ const Settings = () => {
 
   const updateProfile = async () => {
     if (!user) return;
-    
+
     setUpdating(true);
     try {
       const { error } = await supabase
@@ -85,7 +86,7 @@ const Settings = () => {
         .eq('id', user.id);
 
       if (error) throw error;
-      
+
       toast.success('Profile updated successfully');
       setProfile(prev => prev ? { ...prev, full_name: fullName } : null);
     } catch (error) {
@@ -152,7 +153,7 @@ const Settings = () => {
                   Email cannot be changed. Contact support if needed.
                 </p>
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
@@ -163,8 +164,8 @@ const Settings = () => {
                 />
               </div>
 
-              <Button 
-                onClick={updateProfile} 
+              <Button
+                onClick={updateProfile}
                 disabled={updating}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
               >
@@ -197,44 +198,59 @@ const Settings = () => {
 
               <Separator />
 
-              <div className="space-y-3">
-                <h3 className="font-semibold">Get More Credits</h3>
-                
-                <div className="grid gap-3 md:grid-cols-2">
-                  <Button
-                    variant="outline"
-                    className="justify-between h-auto p-4"
-                    onClick={() => window.open('https://buy.stripe.com/test_9B68wIgrRdwhd6T9AD3VC01', '_blank')}
-                  >
-                    <div className="text-left">
-                      <div className="font-semibold">Pro Subscription</div>
-                      <div className="text-sm text-muted-foreground">50 credits/month</div>
+              <div className="space-y-4">
+                {/* Current Plan Status */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold">Current Plan</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Free Plan - 10 credits/month
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-bold">$9/mo</span>
-                      <ExternalLink className="h-4 w-4" />
+                    <div className="text-right">
+                      <div className="font-bold text-blue-600">$0</div>
+                      <div className="text-sm text-muted-foreground">Active</div>
                     </div>
-                  </Button>
+                  </div>
+                </div>
+
+                {/* Customer Portal Access */}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.open(createCustomerPortalUrl(user?.email!), '_blank')}
+                >
+                  Manage Billing & Subscriptions
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+
+
+                <Separator />
+
+                {/* Credit Top-up */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Additional Credits</h3>
 
                   <Button
                     variant="outline"
-                    className="justify-between h-auto p-4"
-                    onClick={() => window.open('https://buy.stripe.com/test_28E00cfnNbo9ff10033VC02', '_blank')}
+                    className="w-full justify-between h-auto p-4"
+                    onClick={() => window.open(createStripeUrl('BUY_CREDITS', user?.id!, user?.email!), '_blank')}
                   >
                     <div className="text-left">
                       <div className="font-semibold">Credit Top-up</div>
-                      <div className="text-sm text-muted-foreground">50 credits (one-time)</div>
+                      <div className="text-sm text-muted-foreground">50 credits (one-time purchase)</div>
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="font-bold">$5</span>
                       <ExternalLink className="h-4 w-4" />
                     </div>
                   </Button>
-                </div>
 
-                <p className="text-sm text-muted-foreground">
-                  All purchases are processed securely through Stripe
-                </p>
+                  <p className="text-sm text-muted-foreground">
+                    All purchases are processed securely through Stripe
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

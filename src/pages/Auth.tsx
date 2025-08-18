@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createStripeUrl } from '@/lib/utils';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,13 +18,32 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
+  
+  // Get plan info from router state
+  const planType = location.state?.planType;
+  const returnTo = location.state?.returnTo || '/dashboard';
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users appropriately
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    if (user && planType) {
+      // Handle plan after authentication
+      switch (planType) {
+        case 'signup':
+          window.open(createStripeUrl('FREE_SUBSCRIPTION', user.id, user.email), '_blank');
+          navigate(returnTo);
+          break;
+        case 'subscribe':
+          window.open(createStripeUrl('PRO_SUBSCRIPTION', user.id, user.email), '_blank');
+          navigate(returnTo);
+          break;
+        default:
+          navigate(returnTo);
+      }
+    } else if (user) {
+      navigate(returnTo);
     }
-  }, [user, navigate]);
+  }, [user, navigate, planType, returnTo]);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -110,8 +130,15 @@ const Auth = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your marketing agent account</p>
+            <h1 className="text-3xl font-bold gradient-text">
+              {planType ? 'Almost There!' : 'Welcome Back'}
+            </h1>
+            <p className="text-gray-600">
+              {planType 
+                ? 'Create your account to continue with your plan' 
+                : 'Sign in to your marketing agent account'
+              }
+            </p>
           </div>
         </div>
 
@@ -122,7 +149,10 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">
-              Sign in to your account or create a new one to get started.
+              {planType 
+                ? `Create your account to continue with the ${planType === 'subscribe' ? 'Pro' : ''} plan.`
+                : 'Sign in to your account or create a new one to get started.'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>

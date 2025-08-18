@@ -17,6 +17,7 @@ export const handleCheckoutSessionCompleted = async (stripe: Stripe, data: Strip
         }
     );
 
+    console.log('session', session);
     const customerId = session?.customer as string;
     const customer = await stripe.customers.retrieve(customerId);
     const priceId = session?.line_items?.data[0]?.price?.id;
@@ -41,7 +42,7 @@ export const handleCheckoutSessionCompleted = async (stripe: Stripe, data: Strip
 
     // Determine additional credits to add based on price ID
     if (priceId && PRICE_ID_TO_ADDITIONAL_CREDITS[priceId]) {
-        const additionalCredits = PRICE_ID_TO_ADDITIONAL_CREDITS[priceId] : 0;
+        const additionalCredits = PRICE_ID_TO_ADDITIONAL_CREDITS[priceId] || 0;
 
         // TODO: add additional credits to user account
         const success = await addAdditionalCreditsToUser(customer.id, additionalCredits, `Additional credits purchased - ${additionalCredits} credits`, invoice.id);
@@ -55,7 +56,7 @@ export const handleCheckoutSessionCompleted = async (stripe: Stripe, data: Strip
     // Determine credits to add based on price ID
     else if (priceId && PRICE_ID_TO_CREDITS[priceId]) {
         // TODO: add credits to user account
-        const creditsToAdd = priceId ? PRICE_ID_TO_CREDITS[priceId] : 0;
+        const creditsToAdd = PRICE_ID_TO_CREDITS[priceId] || 0;
 
         const success = await addCreditsToUser(customer.id, creditsToAdd, `Credits purchased - ${creditsToAdd} credits`, invoice.id);
 

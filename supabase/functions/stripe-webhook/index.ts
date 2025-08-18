@@ -4,9 +4,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@14.21.0";
-import { createErrorResponse, createSuccessResponse, getUserByEmail, addCreditsToUser, addAdditionalCreditsToUser, revokeUserAccess, PRICE_ID_TO_CREDITS, PRICE_ID_TO_ADDITIONAL_CREDITS } from "./helper/util.ts";
 import { supabase } from "../utils/supabase.ts";
-import { validateStripeSignature } from "../utils/auth.ts";
+import { createErrorResponse, createSuccessResponse, webhookSecret } from "./helper/util.ts";
+import { handleCheckoutSessionCompleted } from "./helper/checkout-session-complete.ts";
+import { handleCustomerSubscriptionDeleted } from "./helper/customer-subscription-deleted.ts";
+import { handleInvoicePaymentSucceeded } from "./helper/invoice-payment-succeded.ts";
 
 // Initialize Stripe
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -24,15 +26,22 @@ serve(async (req) => {
         const body = await req.text();
 
         // Validate Stripe signature
-        if (!validateStripeSignature(req)) {
+        const signature = req.headers.get("stripe-signature");
+        if (!signature) {
             return createErrorResponse('Missing stripe-signature header', 400);
+        }
+
+        // Ensure webhook signing secret is configured
+        if (!webhookSecret || webhookSecret.trim().length === 0) {
+            console.error('Missing STRIPE_WEBHOOK_SECRET; cannot verify webhook signatures.');
+            return createErrorResponse('Server misconfiguration: missing STRIPE_WEBHOOK_SECRET', 500);
         }
 
         let event: Stripe.Event;
 
         // Verify Stripe event is legitimate
         try {
-            event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+            event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         } catch (err) {
             console.error(`Webhook signature verification failed. ${err.message}`);
             return createErrorResponse(`Webhook signature verification failed: ${err.message}`, 400);

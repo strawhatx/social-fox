@@ -35,9 +35,3 @@ export function validateEdgeFunctionsKey(req: Request): boolean {
 
   return header && header === `Bearer ${Deno.env.get(key)}`;
 }
-
-export function validateStripeSignature(req: Request): boolean {
-  const signature = req.headers.get("stripe-signature");
-
-  return signature;
-}

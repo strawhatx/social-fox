@@ -70,7 +70,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const resendConfirmation = async (email: string) => {
     const { result,  error } = await fetchWithNoAuth("/resend-confirmation", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
   

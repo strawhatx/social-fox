@@ -1,7 +1,7 @@
 // supabase/functions/resend-confirmation/index.ts
 import { supabase } from "../utils/supabase.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
-import { handleCORS } from "../utils/cors.ts";
+import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 
 export const config = {
   auth: false, // Disable JWT, we'll handle auth via the hook or other logic

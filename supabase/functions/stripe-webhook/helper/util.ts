@@ -33,6 +33,23 @@ export const createSuccessResponse = (data: unknown = {}) => {
     );
 };
 
+// Helper: idempotency guard based on Stripe object ID recorded in credit_transactions.stripe_session_id
+export async function hasProcessedStripeId(stripeId?: string | null) {
+    if (!stripeId) return false;
+    const { data, error } = await supabase
+        .from('credit_transactions')
+        .select('id')
+        .eq('stripe_session_id', stripeId)
+        .limit(1);
+
+    if (error) {
+        console.error('Error checking existing stripe_session_id:', error);
+        return false;
+    }
+
+    return !!(data && data.length > 0);
+}
+
 // Helper function to get user by email
 export async function getUserByEmail(email: string) {
     const { data: profiles, error } = await supabase

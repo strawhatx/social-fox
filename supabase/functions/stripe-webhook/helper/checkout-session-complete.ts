@@ -1,73 +1,86 @@
 import Stripe from "npm:stripe@14.21.0";
-import { 
-    getUserByEmail, 
-    addCreditsToUser, 
-    createUserProfile, 
-    PRICE_ID_TO_CREDITS, 
-    PRICE_ID_TO_ADDITIONAL_CREDITS, 
-    addAdditionalCreditsToUser 
+import {
+    getUserByEmail,
+    addCreditsToUser,
+    createUserProfile,
+    PRICE_ID_TO_CREDITS,
+    PRICE_ID_TO_ADDITIONAL_CREDITS,
+    addAdditionalCreditsToUser,
+    hasProcessedStripeId
 } from "./util.ts";
 
-export const handleCheckoutSessionCompleted = async (stripe: Stripe, data: Stripe.Event.Data) => {
-    // First payment is successful and a subscription is created
+export const handleCheckoutSessionCompleted = async (
+    stripe: Stripe,
+    data: Stripe.Event.Data
+) => {
+    // Retrieve the full session with expansions
     const session = await stripe.checkout.sessions.retrieve(
         data.object.id,
-        {
-            expand: ['line_items', 'customer']
-        }
+        { expand: ["line_items", "customer", "invoice"] }
     );
 
-    console.log('session', session);
-    const customerId = session?.customer as string;
-    const customer = await stripe.customers.retrieve(customerId);
-    const priceId = session?.line_items?.data[0]?.price?.id;
+    // Only handle one-time payments here; skip subscriptions to avoid duplicate crediting
+    if (session.mode === 'subscription') {
+        console.log('Skipping checkout.session.completed for subscription mode');
+        return;
+    }
 
-    if (!customer || customer.deleted) {
-        throw new Error('Customer not found or deleted');
+    // Idempotency: skip if we've already recorded this session/invoice
+    const invoiceId = typeof session.invoice === "string"
+        ? session.invoice
+        : session.invoice?.id;
+    const alreadyProcessed = await hasProcessedStripeId(invoiceId || session.id);
+    if (alreadyProcessed) {
+        console.log(`Idempotency hit for checkout session/invoice ${invoiceId || session.id}`);
+        return;
+    }
+
+    // --- Handle customer safely (string ID or expanded object) ---
+    let customerId: string;
+    let customer: Stripe.Customer;
+
+    if (typeof session.customer === "string") {
+        customerId = session.customer;
+        customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+    } 
+    else if (session.customer && !("deleted" in session.customer)) {
+        customerId = session.customer.id;
+        customer = session.customer as Stripe.Customer;
+    } else {
+        throw new Error("Customer not found or deleted");
     }
 
     if (!customer.email) {
-        throw new Error('Customer email not found');
+        throw new Error("Customer email not found");
     }
 
-    // Find or create user
-    let user = await getUserByEmail(customer.email);
+    // --- Get price ID from first line item ---
+    const priceId = session.line_items?.data[0]?.price?.id;
 
+    // invoiceId already computed above
+
+    // --- Find or create local user ---
+    let user = await getUserByEmail(customer.email);
     if (!user) {
         user = await createUserProfile(customer.email, customer.name || undefined);
-        if (!user) {
-            throw new Error('Failed to create user profile');
-        }
+        if (!user) throw new Error("Failed to create user profile");
     }
 
-    // Determine additional credits to add based on price ID
+    // --- Handle credit logic ---
     if (priceId && PRICE_ID_TO_ADDITIONAL_CREDITS[priceId]) {
         const additionalCredits = PRICE_ID_TO_ADDITIONAL_CREDITS[priceId] || 0;
 
-        // TODO: add additional credits to user account
-        const success = await addAdditionalCreditsToUser(customer.id, additionalCredits, `Additional credits purchased - ${additionalCredits} credits`, invoice.id);
+        const success = await addAdditionalCreditsToUser(
+            customerId,
+            additionalCredits,
+            `Additional credits purchased - ${additionalCredits} credits`,
+            invoiceId
+        );
 
-        if (!success) {
-            throw new Error('Failed to add additional credits to user account');
-        }
-
-        console.log(`Successfully added ${additionalCredits} additional credits to user ${user.email}`);
+        if (!success) throw new Error("Failed to add additional credits");
+        console.log(`✅ Added ${additionalCredits} additional credits to ${user.email}`);
     }
-    // Determine credits to add based on price ID
-    else if (priceId && PRICE_ID_TO_CREDITS[priceId]) {
-        // TODO: add credits to user account
-        const creditsToAdd = PRICE_ID_TO_CREDITS[priceId] || 0;
-
-        const success = await addCreditsToUser(customer.id, creditsToAdd, `Credits purchased - ${creditsToAdd} credits`, invoice.id);
-
-        if (!success) {
-            throw new Error('Failed to add credits to user account');
-        }
-
-        console.log(`Successfully added ${creditsToAdd} credits to user ${user.email}`);
-    }
-    // No credits to add - price id not found
     else {
-        console.log(`No credits configured for price ID: ${priceId}`);
+        console.log(`⚠️ No credits configured for price ID: ${priceId}`);
     }
-}
+};

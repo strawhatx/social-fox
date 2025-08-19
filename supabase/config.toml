@@ -11,6 +11,11 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/customer-portal/index.ts"
 
+[functions.monthly-free-credits-refresh]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/monthly-free-credits-refresh/index.ts"
+
 [functions.get-connection-secrets]
 enabled = true
 verify_jwt = false

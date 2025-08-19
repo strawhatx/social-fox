@@ -102,10 +102,14 @@ const Auth = () => {
       //if the error is because the email is not confirmed, resend the confirmation link
       if (error.message.includes("Email not confirmed")) {
         // Trigger resend here
-        resendConfirmation(email);
-
-        //then set the error
-        setError("Email not confirmed. Please check your email for the new confirmation link.");
+        const { error } = await resendConfirmation(email);
+        
+        if (error) {
+          setError(error.message);
+        }
+        else {
+          setError("Email not confirmed. Please check your email for the new confirmation link.");
+        }
       }
       else // catchall for other errors
         setError(error.message);

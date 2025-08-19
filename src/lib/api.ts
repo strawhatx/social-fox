@@ -33,7 +33,7 @@ export const fetchWithNoAuth = async (endpoint: string, options: RequestInit = {
   });
 
   const result = await response.json();
-  if (result.error) throw new Error(result.error);
+  if (result.error) return { error: result.error };
 
   return result;
 };

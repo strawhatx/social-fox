@@ -10,7 +10,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, metadata?: { full_name?: string }) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
-  resendConfirmation: (email: string) => Promise<void>;
+  resendConfirmation: (email: string) => Promise<{ result: any, error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,13 +68,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resendConfirmation = async (email: string) => {
-    const result = await fetchWithNoAuth("/resend-confirmation", {
+    const { result,  error } = await fetchWithNoAuth("/resend-confirmation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
   
-    console.log(result);
+    return { result, error };
   }
 
   const value = {

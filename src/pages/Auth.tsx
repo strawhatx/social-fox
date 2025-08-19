@@ -9,17 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createStripeUrl } from '@/lib/utils';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, resendConfirmation } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const location = useLocation();
-  
+
   // Get plan info from router state
   const returnTo = location.state?.returnTo || '/dashboard';
 
@@ -59,7 +58,7 @@ const Auth = () => {
     const { error } = await signUp(email, password, {
       full_name: fullName
     });
-    
+
     if (error) {
       setError(error.message);
     } else {
@@ -70,7 +69,7 @@ const Auth = () => {
       // Redirect to login tab after successful signup
       setActiveTab('signin');
     }
-    
+
     setIsLoading(false);
   };
 
@@ -97,12 +96,23 @@ const Auth = () => {
     }
 
     const { error } = await signIn(email, password);
-    
+
+
     if (error) {
-      setError(error.message);
+      //if the error is because the email is not confirmed, resend the confirmation link
+      if (error.message.includes("Email not confirmed")) {
+        // Trigger resend here
+        resendConfirmation(email);
+
+        //then set the error
+        setError("Email not confirmed. Please check your email for the new confirmation link.");
+      }
+      else // catchall for other errors
+        setError(error.message);
     }
+
     // Successful sign in will trigger useEffect to handle navigation
-    
+
     setIsLoading(false);
   };
 
@@ -144,7 +154,7 @@ const Auth = () => {
                 <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
                 <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="signin" className="mt-6">
                 <form onSubmit={handleSignIn} className="space-y-6">
                   <div className="space-y-2">
@@ -175,7 +185,7 @@ const Auth = () => {
                   </Button>
                 </form>
               </TabsContent>
-              
+
               <TabsContent value="signup" className="mt-6">
                 <form onSubmit={handleSignUp} className="space-y-6">
                   <div className="space-y-2">

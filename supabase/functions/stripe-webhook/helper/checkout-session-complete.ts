@@ -1,8 +1,11 @@
 import Stripe from "npm:stripe@14.21.0";
 import {
-    getUserIdFromCustomer,
-    getCreditsForProductType,
+    getUserByEmail,
     addCreditsToUser,
+    createUserProfile,
+    PRICE_ID_TO_CREDITS,
+    PRICE_ID_TO_ADDITIONAL_CREDITS,
+    addAdditionalCreditsToUser,
     hasProcessedStripeId
 } from "./util.ts";
 
@@ -16,52 +19,68 @@ export const handleCheckoutSessionCompleted = async (
         { expand: ["line_items", "customer", "invoice"] }
     );
 
-    // Idempotency check
-    const alreadyProcessed = await hasProcessedStripeId(session.id);
+    // Only handle one-time payments here; skip subscriptions to avoid duplicate crediting
+    if (session.mode === 'subscription') {
+        console.log('Skipping checkout.session.completed for subscription mode');
+        return;
+    }
+
+    // Idempotency: skip if we've already recorded this session/invoice
+    const invoiceId = typeof session.invoice === "string"
+        ? session.invoice
+        : session.invoice?.id;
+    const alreadyProcessed = await hasProcessedStripeId(invoiceId || session.id);
     if (alreadyProcessed) {
-        console.log(`Idempotency hit for checkout session ${session.id}`);
+        console.log(`Idempotency hit for checkout session/invoice ${invoiceId || session.id}`);
         return;
     }
 
-    // Get customer ID
-    const customerId = typeof session.customer === "string" 
-        ? session.customer 
-        : session.customer?.id;
-    
-    if (!customerId) {
-        throw new Error("No customer ID found in session");
+    // --- Handle customer safely (string ID or expanded object) ---
+    let customerId: string;
+    let customer: Stripe.Customer;
+
+    if (typeof session.customer === "string") {
+        customerId = session.customer;
+        customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+    } 
+    else if (session.customer && !("deleted" in session.customer)) {
+        customerId = session.customer.id;
+        customer = session.customer as Stripe.Customer;
+    } else {
+        throw new Error("Customer not found or deleted");
     }
 
-    // Get user ID from customer metadata
-    const userId = await getUserIdFromCustomer(stripe, customerId);
-    if (!userId) {
-        throw new Error("No user ID found in customer metadata");
+    if (!customer.email) {
+        throw new Error("Customer email not found");
     }
 
-    // Get product type from session metadata
-    const productType = session.metadata?.product_type;
-    if (!productType) {
-        console.log("No product type found in session metadata");
-        return;
+    // --- Get price ID from first line item ---
+    const priceId = session.line_items?.data[0]?.price?.id;
+
+    // invoiceId already computed above
+
+    // --- Find or create local user ---
+    let user = await getUserByEmail(customer.email);
+    if (!user) {
+        user = await createUserProfile(customer.email, customer.name || undefined);
+        if (!user) throw new Error("Failed to create user profile");
     }
 
-    // Handle different product types
-    if (session.mode === 'payment' && productType === 'additional_credits') {
-        // One-time credit purchase
-        const credits = getCreditsForProductType(productType);
-        const success = await addCreditsToUser(
-            userId,
-            credits,
-            `Additional credits purchased - ${credits} credits`,
-            session.id
+    // --- Handle credit logic ---
+    if (priceId && PRICE_ID_TO_ADDITIONAL_CREDITS[priceId]) {
+        const additionalCredits = PRICE_ID_TO_ADDITIONAL_CREDITS[priceId] || 0;
+
+        const success = await addAdditionalCreditsToUser(
+            customerId,
+            additionalCredits,
+            `Additional credits purchased - ${additionalCredits} credits`,
+            invoiceId
         );
 
         if (!success) throw new Error("Failed to add additional credits");
-        console.log(`✅ Added ${credits} additional credits to user ${userId}`);
-    } else if (session.mode === 'subscription' && productType === 'pro_subscription') {
-        // Pro subscription - credits will be handled by invoice.payment_succeeded
-        console.log(`✅ Pro subscription created for user ${userId}`);
-    } else {
-        console.log(`⚠️ Unhandled product type: ${productType} with mode: ${session.mode}`);
+        console.log(`✅ Added ${additionalCredits} additional credits to ${user.email}`);
+    }
+    else {
+        console.log(`⚠️ No credits configured for price ID: ${priceId}`);
     }
 };

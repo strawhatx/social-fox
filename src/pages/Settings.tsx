@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { ArrowLeft, User, CreditCard, ExternalLink, Zap } from 'lucide-react';
+import { createStripeUrl, createCustomerPortalUrl } from '@/lib/utils';
 
 interface Profile {
   id: string;
@@ -93,36 +94,6 @@ const Settings = () => {
       toast.error('Failed to update profile');
     } finally {
       setUpdating(false);
-    }
-  };
-
-  const handleCheckout = async (productType: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { product_type: productType }
-      });
-
-      if (error) throw error;
-
-      // Open Stripe checkout in a new tab
-      window.open(data.url, '_blank');
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error('Failed to start checkout');
-    }
-  };
-
-  const handleCustomerPortal = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-
-      if (error) throw error;
-
-      // Open customer portal in a new tab
-      window.open(data.url, '_blank');
-    } catch (error) {
-      console.error('Customer portal error:', error);
-      toast.error('Failed to open customer portal');
     }
   };
 
@@ -234,53 +205,21 @@ const Settings = () => {
                     <div>
                       <h3 className="font-semibold">Current Plan</h3>
                       <p className="text-sm text-muted-foreground">
-                        No active subscription - Sign up for consistent monthly credits
+                        Free Plan - 10 credits/month
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-gray-600">Manual Top-ups Only</div>
-                      <div className="text-sm text-muted-foreground">Not subscribed</div>
+                      <div className="font-bold text-blue-600">$0</div>
+                      <div className="text-sm text-muted-foreground">Active</div>
                     </div>
                   </div>
                 </div>
-
-                {/* Free Subscription */}
-                <Button
-                  variant="outline"
-                  className="w-full justify-between h-auto p-4 border-green-600 text-green-700 hover:bg-green-50"
-                  onClick={() => handleCheckout('free_subscription')}
-                >
-                  <div className="text-left">
-                    <div className="font-semibold">Free Plan</div>
-                    <div className="text-sm text-muted-foreground">10 credits monthly (automatic billing)</div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-bold">$0/mo</span>
-                    <ExternalLink className="h-4 w-4" />
-                  </div>
-                </Button>
-
-                {/* Pro Subscription */}
-                <Button
-                  variant="outline"
-                  className="w-full justify-between h-auto p-4"
-                  onClick={() => handleCheckout('pro_subscription')}
-                >
-                  <div className="text-left">
-                    <div className="font-semibold">Pro Subscription</div>
-                    <div className="text-sm text-muted-foreground">50 credits monthly for $9/month</div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-bold">$9/mo</span>
-                    <ExternalLink className="h-4 w-4" />
-                  </div>
-                </Button>
 
                 {/* Customer Portal Access */}
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={handleCustomerPortal}
+                  onClick={() => window.open(createCustomerPortalUrl(user?.email!), '_blank')}
                 >
                   Manage Billing & Subscriptions
                   <ExternalLink className="h-4 w-4 ml-2" />
@@ -296,7 +235,7 @@ const Settings = () => {
                   <Button
                     variant="outline"
                     className="w-full justify-between h-auto p-4"
-                    onClick={() => handleCheckout('additional_credits')}
+                    onClick={() => window.open(createStripeUrl('BUY_CREDITS', user?.id!, user?.email!), '_blank')}
                   >
                     <div className="text-left">
                       <div className="font-semibold">Credit Top-up</div>

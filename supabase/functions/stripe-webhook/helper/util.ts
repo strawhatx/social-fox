@@ -2,28 +2,16 @@ import { supabase } from "../../utils/supabase.ts";
 
 export const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
-// Credit amounts based on product types from checkout metadata
-export const getCreditsForProductType = (productType: string): number => {
-    switch (productType) {
-        case 'pro_subscription':
-            return 50; // Monthly credits for pro plan
-        case 'additional_credits':
-            return 50; // One-time additional credits
-        default:
-            return 0;
-    }
+// Credit amounts based on price IDs - you'll need to configure these based on your Stripe products
+export const PRICE_ID_TO_CREDITS: Record<string, number> = {
+    // Example price IDs - replace with your actual Stripe price IDs
+    'price_1RxAuj4cECBWesjx3nqOMQru': 10,     // $0 for 10 credits - free plan
+    'price_1RxAwM4cECBWesjxNKynZfd6': 50,         // $9 for 50 credits - pro plan
 };
 
-// Helper function to get user ID from Stripe customer
-export async function getUserIdFromCustomer(stripe: any, customerId: string): Promise<string | null> {
-    try {
-        const customer = await stripe.customers.retrieve(customerId);
-        return customer.metadata?.supabase_uid || null;
-    } catch (error) {
-        console.error('Error retrieving customer:', error);
-        return null;
-    }
-}
+export const PRICE_ID_TO_ADDITIONAL_CREDITS: Record<string, number> = {
+    'price_1RxAzr4cECBWesjxO80H6LMu': 50,         // $5 more for 50 credits - additional credits
+};
 
 export const createErrorResponse = (message: string, status = 400) => {
     return new Response(

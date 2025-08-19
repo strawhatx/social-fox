@@ -1,5 +1,5 @@
 import Stripe from "npm:stripe@14.21.0";
-import { addAdditionalCreditsToUser, addCreditsToUser, hasProcessedStripeId, PRICE_ID_TO_ADDITIONAL_CREDITS, PRICE_ID_TO_CREDITS } from "./util.ts";
+import { getUserIdFromCustomer, getCreditsForProductType, addCreditsToUser, hasProcessedStripeId } from "./util.ts";
 
 export const handleInvoicePaymentSucceeded = async (stripe: Stripe, data: Stripe.Event.Data) => {
     // Payment succeeded - add credits to user account
@@ -17,10 +17,23 @@ export const handleInvoicePaymentSucceeded = async (stripe: Stripe, data: Stripe
         console.log(`Idempotency hit for invoice ${invoice.id}`);
         return;
     }
-    const customer = await stripe.customers.retrieve(invoice.customer as string);
-    const priceId = invoice.lines.data[0]?.price?.id;
+    const customerId = invoice.customer as string;
+    
+    // Get user ID from customer metadata
+    const userId = await getUserIdFromCustomer(stripe, customerId);
+    if (!userId) {
+        throw new Error("No user ID found in customer metadata");
+    }
 
-    // Subscription credits only
-    const creditsToAdd = priceId ? PRICE_ID_TO_CREDITS[priceId] : 0;
-    await addCreditsToUser(customer.id, creditsToAdd, `Subscription renewal - ${creditsToAdd} credits`, invoice.id);
+    // For subscriptions, give 50 credits monthly (pro plan)
+    const creditsToAdd = 50; // Pro plan gets 50 credits per month
+    const success = await addCreditsToUser(
+        userId, 
+        creditsToAdd, 
+        `Pro subscription renewal - ${creditsToAdd} credits`, 
+        invoice.id
+    );
+    
+    if (!success) throw new Error("Failed to add subscription credits");
+    console.log(`✅ Added ${creditsToAdd} subscription credits to user ${userId}`);
 }

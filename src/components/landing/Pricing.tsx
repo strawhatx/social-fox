@@ -55,7 +55,11 @@ const Pricing = () => {
     }
 
     // If user is logged in, redirect to settings for plan management
-    navigate('/settings');
+    if (action === 'subscribe') {
+      navigate('/settings');
+    } else {
+      navigate('/dashboard');
+    }
   };
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/20">

@@ -1,29 +1,33 @@
 import Stripe from "npm:stripe@14.21.0";
-import { getUserByEmail, revokeUserAccess } from "./util.ts";
+import { getUserIdFromCustomer } from "./util.ts";
+import { supabase } from "../../utils/supabase.ts";
 
 export const handleCustomerSubscriptionDeleted = async (stripe: Stripe, data: Stripe.Event.Data) => {
-    // Subscription cancelled - revoke access
-    const subscription = await stripe.subscriptions.retrieve(data.object.id);
-    const customer = await stripe.customers.retrieve(subscription.customer as string);
-
-    if (!customer || customer.deleted || !customer.email) {
-        throw new Error('Customer not found or has no email');
+    // Subscription cancelled - user reverts to free plan (10 credits)
+    const subscription = data.object as Stripe.Subscription;
+    const customerId = subscription.customer as string;
+    
+    // Get user ID from customer metadata
+    const userId = await getUserIdFromCustomer(stripe, customerId);
+    if (!userId) {
+        console.error("No user ID found in customer metadata");
+        return;
     }
 
-    const user = await getUserByEmail(customer.email);
+    // Reset user to free plan (10 credits, no additional credits)
+    const { error } = await supabase
+        .from('user_credits')
+        .update({ 
+            credits: 10,
+            additional_credits: null,
+            updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
 
-    if (user) {
-        const success = await revokeUserAccess(
-            user.id,
-            'Subscription cancelled - access revoked'
-        );
-
-        if (!success) {
-            throw new Error('Failed to revoke user access');
-        }
-
-        console.log(`Successfully revoked access for user ${user.email}`);
-    } else {
-        console.log(`User not found for email: ${customer.email}`);
+    if (error) {
+        console.error('Error updating user credits on subscription cancellation:', error);
+        return;
     }
+
+    console.log(`✅ Reset user ${userId} to free plan (10 credits) due to subscription cancellation`);
 }

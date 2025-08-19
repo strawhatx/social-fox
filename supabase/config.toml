@@ -1,4 +1,16 @@
 
+project_id = "nmdmgdbbiivqazqjejdc"
+
+[functions.create-checkout]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/create-checkout/index.ts"
+
+[functions.customer-portal]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/customer-portal/index.ts"
+
 [functions.get-connection-secrets]
 enabled = true
 verify_jwt = false

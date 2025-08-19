@@ -2,10 +2,13 @@
 import { supabase } from "../utils/supabase.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
+import { Resend } from "resend"; // Make sure Resend is installed
 
 export const config = {
-  auth: false, // Disable JWT, we'll handle auth via the hook or other logic
+  auth: false,
 };
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY")); // Add your API key to env
 
 const createErrorResponse = (message: string, req: Request, status = 400) => {
   return new Response(
@@ -51,14 +54,27 @@ Deno.serve(async (req: Request) => {
       return createErrorResponse("Failed to generate confirmation link", req, 500);
     }
 
-    // TODO: send the link via your transactional email provider
-    // Example: using Postmark / SendGrid / Resend
-    // const link = data.properties?.action_link;
+    const link = data.properties?.action_link;
+    if (!link) {
+      return createErrorResponse("No confirmation link returned", req, 500);
+    }
+
+    // Send confirmation email via Resend
+    await resend.emails.send({
+      from: "no-reply@socialfox.dev",
+      to: email,
+      subject: "Confirm your Social Fox account",
+      html: `
+        <p>Hi,</p>
+        <p>Please confirm your email by clicking the link below:</p>
+        <a href="${link}">Confirm Email</a>
+        <p>Thanks! 🦊</p>
+      `,
+    });
 
     return createSuccessResponse({
       success: true,
-      message: "Confirmation link generated. Send it via your email provider.",
-      link: data.properties?.action_link // optional: remove for production
+      message: "Confirmation email sent successfully.",
     }, req);
 
   } catch (err) {

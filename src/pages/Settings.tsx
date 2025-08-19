@@ -234,15 +234,31 @@ const Settings = () => {
                     <div>
                       <h3 className="font-semibold">Current Plan</h3>
                       <p className="text-sm text-muted-foreground">
-                        Free Plan - 10 credits/month
+                        No active subscription - Sign up for consistent monthly credits
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-blue-600">$0</div>
-                      <div className="text-sm text-muted-foreground">Active</div>
+                      <div className="font-bold text-gray-600">Manual Top-ups Only</div>
+                      <div className="text-sm text-muted-foreground">Not subscribed</div>
                     </div>
                   </div>
                 </div>
+
+                {/* Free Subscription */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-between h-auto p-4 border-green-600 text-green-700 hover:bg-green-50"
+                  onClick={() => handleCheckout('free_subscription')}
+                >
+                  <div className="text-left">
+                    <div className="font-semibold">Free Plan</div>
+                    <div className="text-sm text-muted-foreground">10 credits monthly (automatic billing)</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold">$0/mo</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </Button>
 
                 {/* Pro Subscription */}
                 <Button

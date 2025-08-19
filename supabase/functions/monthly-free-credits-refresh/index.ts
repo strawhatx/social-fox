@@ -31,8 +31,8 @@ serve(async (req) => {
     for (const profile of profiles || []) {
       processed++;
 
-      // Determine if the user has an active subscription
-      let hasActiveSubscription = false;
+      // Determine if the user has ANY active subscription (free or pro)
+      let hasAnySubscription = false;
       if (profile.stripe_customer_id) {
         try {
           const subs = await stripe.subscriptions.list({
@@ -40,15 +40,15 @@ serve(async (req) => {
             status: 'active',
             limit: 1,
           });
-          hasActiveSubscription = subs.data.length > 0;
+          hasAnySubscription = subs.data.length > 0;
         } catch (e) {
           console.error(`Stripe error for customer ${profile.stripe_customer_id}:`, e.message);
         }
       }
 
-      if (hasActiveSubscription) {
+      if (hasAnySubscription) {
         skippedSubscribed++;
-        continue; // Pro users handled by Stripe webhooks
+        continue; // Users with Stripe subscriptions handled by webhooks
       }
 
       // Free users: ensure minimum 10 credits each month (top-up to 10; don't remove extras)

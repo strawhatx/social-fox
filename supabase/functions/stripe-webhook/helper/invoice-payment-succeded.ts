@@ -25,12 +25,25 @@ export const handleInvoicePaymentSucceeded = async (stripe: Stripe, data: Stripe
         throw new Error("No user ID found in customer metadata");
     }
 
-    // For subscriptions, give 50 credits monthly (pro plan)
-    const creditsToAdd = 50; // Pro plan gets 50 credits per month
+    // Determine subscription type from invoice amount
+    const subscriptionAmount = invoice.amount_paid || 0;
+    let creditsToAdd: number;
+    let description: string;
+    
+    if (subscriptionAmount === 0) {
+        // Free subscription - 10 credits monthly
+        creditsToAdd = 10;
+        description = `Free subscription renewal - ${creditsToAdd} credits`;
+    } else {
+        // Pro subscription - 50 credits monthly  
+        creditsToAdd = 50;
+        description = `Pro subscription renewal - ${creditsToAdd} credits`;
+    }
+    
     const success = await addCreditsToUser(
         userId, 
         creditsToAdd, 
-        `Pro subscription renewal - ${creditsToAdd} credits`, 
+        description, 
         invoice.id
     );
     

@@ -79,6 +79,27 @@ serve(async (req) => {
           product_type: 'pro_subscription'
         }
       });
+    } else if (product_type === 'free_subscription') {
+      // Free subscription - $0/month for 10 credits
+      session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Free Plan - 10 Credits Monthly' },
+            unit_amount: 0, // $0
+            recurring: { interval: 'month' }
+          },
+          quantity: 1
+        }],
+        mode: 'subscription',
+        success_url: `${origin}/settings?success=subscription`,
+        cancel_url: `${origin}/settings`,
+        metadata: {
+          user_id: user.id,
+          product_type: 'free_subscription'
+        }
+      });
     } else if (product_type === 'additional_credits') {
       // Additional credits - $5 for 50 credits (one-time)
       session = await stripe.checkout.sessions.create({

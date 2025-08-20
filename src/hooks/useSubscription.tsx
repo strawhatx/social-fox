@@ -2,8 +2,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
+const planConfig = {
+  price_1RxAuj4cECBWesjx3nqOMQru: {
+    type: 'free',
+    credits: 10,
+  },
+  price_1RxAwM4cECBWesjxNKynZfd6: {
+    type: 'pro',
+    credits: 50,
+  },
+}
+
 interface UserSubscription {
-  subscription_plan: 'none' | 'free' | 'pro';
+  subscription_plan: string | null;
+  subscription_price_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   subscription_is_active: boolean;
@@ -46,7 +58,7 @@ export const useSubscription = (): SubscriptionData => {
       // Fetch subscription plan/active status and optional Stripe IDs
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('subscription_plan, subscription_is_active, stripe_customer_id, stripe_subscription_id')
+        .select('subscription_price_id, subscription_is_active, stripe_customer_id, stripe_subscription_id')
         .eq('id', user.id)
         .single();
 
@@ -55,7 +67,14 @@ export const useSubscription = (): SubscriptionData => {
         return;
       }
 
-      setSubscription(profileData as UserSubscription);
+      // set the plan type from the config
+      const priceId = (profileData as any)?.subscription_price_id as string | null;
+      const computedPlan = planConfig[priceId as keyof typeof planConfig]?.type || 'none';
+
+      setSubscription({
+        ...(profileData as any),
+        subscription_plan: computedPlan,
+      } as UserSubscription);
 
       // Fetch credits
       const { data: creditsData, error: creditsError } = await supabase

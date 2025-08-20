@@ -32,7 +32,7 @@ export const handleCustomerSubscriptionUpdate = async (stripe: Stripe, data: Str
     .update({
       stripe_subscription_id: subscription.id,
       subscription_is_active: subscriptionIsActive,
-      subscription_plan: priceId,
+      subscription_price_id: priceId,
       current_period_end: currentPeriodEnd,
     })
     .eq("id", user.id);

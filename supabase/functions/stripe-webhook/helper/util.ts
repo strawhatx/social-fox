@@ -142,7 +142,7 @@ export async function revokeUserAccess(userId: string, description: string) {
     // Revoke subscription access
     const subscriptionResult = await supabase.from('profiles').update({
         subscription_is_active: false,
-        subscription_plan: 'none',
+        subscription_price_id: null,
     }).eq('id', userId);
 
     if (subscriptionResult.error) {

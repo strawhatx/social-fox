@@ -209,10 +209,9 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
             <Button 
               size="sm"
               onClick={() => handleConnectIntegration(integration)}
-              disabled={isConnecting || subscriptionLoading || !canConnectApps}
-              title={!canConnectApps ? "Subscription required to connect apps" : undefined}
+              disabled={isConnecting || subscriptionLoading}
             >
-              {!canConnectApps ? "Upgrade to Connect" : "Connect →"}
+              {"Connect →"}
             </Button>
           )}
         </div>

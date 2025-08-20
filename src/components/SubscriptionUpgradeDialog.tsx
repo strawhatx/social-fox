@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Zap, CreditCard, ExternalLink } from 'lucide-react';
 import { STRIPE_URLS } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { fetchWithAuth } from '@/lib/api';
 
 interface SubscriptionUpgradeDialogProps {
   isOpen: boolean;
@@ -22,6 +24,7 @@ export const SubscriptionUpgradeDialog = ({
   feature = 'connections'
 }: SubscriptionUpgradeDialogProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const getFeatureTitle = () => {
     switch (feature) {
       case 'connections':
@@ -48,6 +51,22 @@ export const SubscriptionUpgradeDialog = ({
     }
   };
 
+  const handlePlanSelect = (url: string) => {
+    window.open(`${url}?prefilled_email=${encodeURIComponent(user?.email || '')}`, '_blank');
+    onClose();
+  };
+
+  const handleFreePlanSelect = async () => {
+    const { data, error } = await fetchWithAuth('create-free-subscription', { method: 'POST' });
+    if (error) {
+      toast({
+        title: 'Something went wrong',
+        description: error.message || 'Unable to start subscription',
+        variant: 'destructive',
+      });
+    }
+  }; 
+  
   const plans = [
     {
       name: "Free Plan",
@@ -62,7 +81,7 @@ export const SubscriptionUpgradeDialog = ({
         "Email support"
       ],
       buttonText: "Get Free Plan",
-      url: STRIPE_URLS.FREE_SUBSCRIPTION,
+      handlePlanSelect: handleFreePlanSelect,
       recommended: feature === 'connections'
     },
     {
@@ -79,15 +98,10 @@ export const SubscriptionUpgradeDialog = ({
         "Custom scheduling"
       ],
       buttonText: "Upgrade to Pro",
-      url: STRIPE_URLS.PRO_SUBSCRIPTION,
+      handlePlanSelect: () => handlePlanSelect(STRIPE_URLS.PRO_SUBSCRIPTION),
       recommended: feature === 'scheduling'
     }
   ];
-
-  const handlePlanSelect = (url: string) => {
-    window.open(`${url}?prefilled_email=${encodeURIComponent(user?.email || '')}`, '_blank');
-    onClose();
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -138,7 +152,7 @@ export const SubscriptionUpgradeDialog = ({
                 </ul>
                 
                 <Button 
-                  onClick={() => handlePlanSelect(plan.url)}
+                  onClick={plan.handlePlanSelect}
                   className={`w-full py-2 ${plan.recommended ? 'bg-primary hover:bg-primary/90' : ''}`}
                   variant={plan.recommended ? 'default' : 'outline'}
                 >

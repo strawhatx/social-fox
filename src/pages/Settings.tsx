@@ -9,7 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { ArrowLeft, User, CreditCard, ExternalLink, Zap } from 'lucide-react';
-import { createStripeUrl, createCustomerPortalUrl } from '@/lib/utils';
+import { createStripeUrl, createCustomerPortalUrl, STRIPE_URLS } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { fetchWithAuth } from '@/lib/api';
 
 interface Profile {
   id: string;
@@ -26,6 +28,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const { toast: shadToast } = useToast();
   const [credits, setCredits] = useState<UserCredits | null>(null);
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -250,6 +253,32 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">
                     All purchases are processed securely through Stripe
                   </p>
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const { data, error } = await fetchWithAuth('create-free-subscription', { method: 'POST' });
+                        
+                        if (error) throw new Error(error.message || 'Failed to activate free plan');
+                        
+                        shadToast({
+                          title: 'Free plan activated',
+                          description: 'Your free subscription has been created. It may take a moment to reflect.',
+                        });
+                        await fetchProfile();
+                      } catch (e) {
+                        console.error(e);
+                        shadToast({
+                          title: 'Error',
+                          description: e instanceof Error ? e.message : 'Unable to activate free plan',
+                          variant: 'destructive',
+                        });
+                      }
+                    }}
+                  >
+                    Activate Free Plan
+                  </Button>
                 </div>
               </div>
             </CardContent>

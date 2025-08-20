@@ -1,5 +1,6 @@
 import Stripe from "npm:stripe@14.21.0";
 import { 
+    getUserByEmail,
     addCreditsToUser, 
     hasProcessedStripeId, 
     PRICE_ID_TO_CREDITS 

@@ -20,6 +20,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const planCatalog: Record<string, { name: string; priceDisplay: string; creditsPerMonth: number }> = {
+    'price_1RxAuj4cECBWesjx3nqOMQru': { name: 'free', priceDisplay: '$0', creditsPerMonth: 10 },
+    'price_1RxAwM4cECBWesjxNKynZfd6': { name: 'pro', priceDisplay: '$9', creditsPerMonth: 50 },
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -42,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, metadata?: { full_name?: string }) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -68,11 +73,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resendConfirmation = async (email: string) => {
-    const { result,  error } = await fetchWithNoAuth("/resend-confirmation", {
+    const { result, error } = await fetchWithNoAuth("/resend-confirmation", {
       method: "POST",
       body: JSON.stringify({ email }),
     });
-  
+
     return { result, error };
   }
 

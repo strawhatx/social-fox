@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +14,7 @@ import { createStripeUrl, createCustomerPortalUrl, STRIPE_URLS } from '@/lib/uti
 import { useToast } from '@/hooks/use-toast';
 import { fetchWithAuth } from '@/lib/api';
 
-interface Profile {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  avatar_url: string | null;
-}
+
 
 interface UserCredits {
   credits: number;
@@ -27,41 +23,20 @@ interface UserCredits {
 const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const { profile: user_profile, loading: profileLoading, refetch: refetchProfile } = useProfile();
   const { toast: shadToast } = useToast();
   const [credits, setCredits] = useState<UserCredits | null>(null);
   const [fullName, setFullName] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const isPro = user_profile?.subscription_plan === 'pro';
+  const hasStripeCustomer = user_profile?.stripe_customer_id;
 
   useEffect(() => {
     if (user) {
-      fetchProfile();
       fetchCredits();
     }
   }, [user]);
-
-  const fetchProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        setProfile(data);
-        setFullName(data.full_name || '');
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      toast.error('Failed to load profile');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchCredits = async () => {
     try {
@@ -91,7 +66,6 @@ const Settings = () => {
       if (error) throw error;
 
       toast.success('Profile updated successfully');
-      setProfile(prev => prev ? { ...prev, full_name: fullName } : null);
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
@@ -100,7 +74,7 @@ const Settings = () => {
     }
   };
 
-  if (loading) {
+  if (loading || profileLoading) {
     return <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 flex items-center justify-center">Loading...</div>;
   }
 
@@ -148,7 +122,7 @@ const Settings = () => {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  value={profile?.email || ''}
+                  value={user_profile?.email || ''}
                   disabled
                   className="bg-muted"
                 />
@@ -208,37 +182,78 @@ const Settings = () => {
                     <div>
                       <h3 className="font-semibold">Current Plan</h3>
                       <p className="text-sm text-muted-foreground">
-                        Free Plan - 10 credits/month
+                        {user_profile?.subscription_plan} {user_profile?.subscription_credits_per_month ? `- ${user_profile?.subscription_credits_per_month} credits/month` : ''}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-blue-600">$0</div>
-                      <div className="text-sm text-muted-foreground">Active</div>
+                      <div className="font-bold text-blue-600">{user_profile?.subscription_price_display}</div>
+                      <div className="text-sm text-muted-foreground">{user_profile?.subscription_is_active ? 'Active' : 'Inactive'}</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Customer Portal Access */}
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => window.open(createCustomerPortalUrl(user?.email!), '_blank')}
-                >
-                  Manage Billing & Subscriptions
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </Button>
-
-
+                {/* Customer Portal Access / Plan Selection */}
+                {hasStripeCustomer ? (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.open(createCustomerPortalUrl(user?.email!), '_blank')}
+                  >
+                    Manage Billing & Subscriptions
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Button>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      onClick={async () => {
+                        try {
+                          const { data, error } = await fetchWithAuth('create-free-subscription', { method: 'POST' });
+                          if (error) throw new Error(error.message || 'Failed to activate free plan');
+                          shadToast({
+                            title: 'Free plan activated',
+                            description: 'Your free subscription has been created. It may take a moment to reflect.',
+                          });
+                          await refetchProfile();
+                        } catch (e) {
+                          console.error(e);
+                          shadToast({
+                            title: 'Error',
+                            description: e instanceof Error ? e.message : 'Unable to activate free plan',
+                            variant: 'destructive',
+                          });
+                        }
+                      }}
+                    >
+                      <span>Get Free Plan</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      className="w-full justify-between"
+                      onClick={() => window.open(createStripeUrl('PRO_SUBSCRIPTION', user?.id!, user?.email!), '_blank')}
+                    >
+                      <span>Upgrade to Pro</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
                 <Separator />
 
                 {/* Credit Top-up */}
                 <div className="space-y-3">
                   <h3 className="font-semibold">Additional Credits</h3>
+                  {!isPro && (
+                    <p className="text-sm text-muted-foreground">Top-ups are available on the Pro plan.</p>
+                  )}
 
                   <Button
                     variant="outline"
                     className="w-full justify-between h-auto p-4"
                     onClick={() => window.open(createStripeUrl('BUY_CREDITS', user?.id!, user?.email!), '_blank')}
+                    disabled={!isPro}
+                    title={!isPro ? 'Top-ups are available on the Pro plan' : undefined}
                   >
                     <div className="text-left">
                       <div className="font-semibold">Credit Top-up</div>
@@ -253,32 +268,6 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">
                     All purchases are processed securely through Stripe
                   </p>
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={async () => {
-                      try {
-                        const { data, error } = await fetchWithAuth('create-free-subscription', { method: 'POST' });
-                        
-                        if (error) throw new Error(error.message || 'Failed to activate free plan');
-                        
-                        shadToast({
-                          title: 'Free plan activated',
-                          description: 'Your free subscription has been created. It may take a moment to reflect.',
-                        });
-                        await fetchProfile();
-                      } catch (e) {
-                        console.error(e);
-                        shadToast({
-                          title: 'Error',
-                          description: e instanceof Error ? e.message : 'Unable to activate free plan',
-                          variant: 'destructive',
-                        });
-                      }
-                    }}
-                  >
-                    Activate Free Plan
-                  </Button>
                 </div>
               </div>
             </CardContent>

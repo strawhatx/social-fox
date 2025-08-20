@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { GitHubConnectionDialog } from './GitHubConnectionDialog';
-import { SubscriptionUpgradeDialog } from './SubscriptionUpgradeDialog';
+import { useNavigate } from 'react-router-dom';
 
 
 interface Project {
@@ -40,7 +40,7 @@ const availablePlatforms = [
 
 const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProps) => {
   const [showGitHubDialog, setShowGitHubDialog] = useState(false);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description,
@@ -69,7 +69,12 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
   const handleConnectIntegration = async (integration: any) => {
     // Check if user has a paid subscription to connect apps
     if (!canConnectApps) {
-      setShowUpgradeDialog(true);
+      toast({
+        title: 'Plan required',
+        description: 'You need an active plan to connect apps. Manage your subscription in Settings.',
+        variant: 'destructive',
+      });
+      navigate('/settings');
       return;
     }
 
@@ -460,13 +465,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
         }}
       />
 
-      <SubscriptionUpgradeDialog
-        isOpen={showUpgradeDialog}
-        onClose={() => setShowUpgradeDialog(false)}
-        feature="connections"
-        title="Connect Apps & Automate"
-        description="Connect your social media accounts and data sources to automate content creation. Choose a subscription plan to get started."
-      />
+      {/* No upgrade modal; redirect to Settings if plan is missing */}
     </>
   );
 };

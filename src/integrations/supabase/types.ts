@@ -239,7 +239,9 @@ export type Database = {
           stripe_subscription_id: string | null
           subscription_status: 'none' | 'free' | 'pro' | 'cancelled'
           subscription_plan: 'none' | 'free' | 'pro'
+          subscription_price_id: string | null
           subscription_is_active: boolean
+          current_period_end: string | null
           updated_at: string
         }
         Insert: {
@@ -252,7 +254,9 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
           subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_price_id?: string | null
           subscription_is_active?: boolean
+          current_period_end?: string | null
           updated_at?: string
         }
         Update: {
@@ -265,7 +269,9 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
           subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_price_id?: string | null
           subscription_is_active?: boolean
+          current_period_end?: string | null
           updated_at?: string
         }
         Relationships: []

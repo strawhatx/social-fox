@@ -12,7 +12,7 @@ import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
 import { useConnections } from '@/hooks/useConnections';
 import { useSubscription } from '@/hooks/useSubscription';
-import { SubscriptionUpgradeDialog } from './SubscriptionUpgradeDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -41,9 +41,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [scheduledDate, setScheduledDate] = useState('');
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [postToSchedule, setPostToSchedule] = useState<ContentPost | null>(null);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState<'scheduling' | 'credits'>('scheduling');
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
   const { canSchedulePosts, hasCredits, credits, loading: subscriptionLoading, refetch: refetchSubscription, subscription } = useSubscription();
   const hasPaidSubscription = !!subscription?.subscription_is_active;
@@ -122,8 +121,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       }
       
       if (!hasPaidSubscription) {
-        setUpgradeFeature('scheduling');
-        setShowUpgradeDialog(true);
+        toast({
+          title: 'Plan required',
+          description: 'You need an active plan to schedule posts. Manage your subscription in Settings.',
+          variant: 'destructive',
+        });
+        navigate('/settings');
         return;
       }
       
@@ -165,8 +168,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     }
     
     if (!hasPaidSubscription) {
-      setUpgradeFeature('scheduling');
-      setShowUpgradeDialog(true);
+      toast({
+        title: 'Plan required',
+        description: 'You need an active plan to schedule posts. Manage your subscription in Settings.',
+        variant: 'destructive',
+      });
+      navigate('/settings');
       return;
     }
     
@@ -186,8 +193,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     }
 
     if (!hasPaidSubscription) {
-      setUpgradeFeature('scheduling');
-      setShowUpgradeDialog(true);
+      toast({
+        title: 'Plan required',
+        description: 'You need an active plan to schedule posts. Manage your subscription in Settings.',
+        variant: 'destructive',
+      });
+      navigate('/settings');
       return;
     }
 
@@ -467,12 +478,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Subscription Upgrade Dialog */}
-      <SubscriptionUpgradeDialog
-        isOpen={showUpgradeDialog}
-        onClose={() => setShowUpgradeDialog(false)}
-        feature={upgradeFeature}
-      />
+      {/* No upgrade modal; we redirect to Settings with a toast */}
     </div>
   );
 }

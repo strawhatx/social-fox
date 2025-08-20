@@ -1,5 +1,9 @@
 import Stripe from "npm:stripe@14.21.0";
-import { addAdditionalCreditsToUser, addCreditsToUser, hasProcessedStripeId, PRICE_ID_TO_ADDITIONAL_CREDITS, PRICE_ID_TO_CREDITS } from "./util.ts";
+import { 
+    addCreditsToUser, 
+    hasProcessedStripeId, 
+    PRICE_ID_TO_CREDITS 
+} from "./util.ts";
 
 export const handleInvoicePaymentSucceeded = async (stripe: Stripe, data: Stripe.Event.Data) => {
     // Payment succeeded - add credits to user account
@@ -18,9 +22,10 @@ export const handleInvoicePaymentSucceeded = async (stripe: Stripe, data: Stripe
         return;
     }
     const customer = await stripe.customers.retrieve(invoice.customer as string);
+    const user = await getUserByEmail(customer.email);
     const priceId = invoice.lines.data[0]?.price?.id;
 
     // Subscription credits only
     const creditsToAdd = priceId ? PRICE_ID_TO_CREDITS[priceId] : 0;
-    await addCreditsToUser(customer.id, creditsToAdd, `Subscription renewal - ${creditsToAdd} credits`, invoice.id);
+    await addCreditsToUser(user.id, creditsToAdd, `Subscription renewal - ${creditsToAdd} credits`, invoice.id);
 }

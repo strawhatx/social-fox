@@ -10,7 +10,9 @@ import { Settings, Trash2, ExternalLink, Check, AlertCircle, Database, Share2, G
 import { useConnections } from '@/hooks/useConnections';
 import { useToast } from '@/hooks/use-toast';
 import { useOAuth } from '@/hooks/useOAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { GitHubConnectionDialog } from './GitHubConnectionDialog';
+import { SubscriptionUpgradeDialog } from './SubscriptionUpgradeDialog';
 
 
 interface Project {
@@ -38,6 +40,7 @@ const availablePlatforms = [
 
 const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProps) => {
   const [showGitHubDialog, setShowGitHubDialog] = useState(false);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description,
@@ -61,8 +64,15 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
   
   const { toast } = useToast();
   const { connectProvider, isConnecting } = useOAuth();
+  const { canConnectApps, hasPaidSubscription, loading: subscriptionLoading } = useSubscription();
 
   const handleConnectIntegration = async (integration: any) => {
+    // Check if user has a paid subscription to connect apps
+    if (!canConnectApps) {
+      setShowUpgradeDialog(true);
+      return;
+    }
+
     // Show GitHub dialog for GitHub connections
     if (integration.provider === 'github') {
       setShowGitHubDialog(true);
@@ -191,7 +201,7 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
               variant="outline" 
               size="sm"
               onClick={() => handleConnectIntegration(integration)}
-              disabled={isConnecting}
+              disabled={isConnecting || subscriptionLoading}
             >
               Re-authorize
             </Button>
@@ -199,9 +209,10 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
             <Button 
               size="sm"
               onClick={() => handleConnectIntegration(integration)}
-              disabled={isConnecting}
+              disabled={isConnecting || subscriptionLoading || !canConnectApps}
+              title={!canConnectApps ? "Subscription required to connect apps" : undefined}
             >
-              Connect →
+              {!canConnectApps ? "Upgrade to Connect" : "Connect →"}
             </Button>
           )}
         </div>
@@ -448,6 +459,14 @@ const ConnectionsManager = ({ project, onProjectUpdate }: ConnectionsManagerProp
           refetch();
           setShowGitHubDialog(false);
         }}
+      />
+
+      <SubscriptionUpgradeDialog
+        isOpen={showUpgradeDialog}
+        onClose={() => setShowUpgradeDialog(false)}
+        feature="connections"
+        title="Connect Apps & Automate"
+        description="Connect your social media accounts and data sources to automate content creation. Choose a subscription plan to get started."
       />
     </>
   );

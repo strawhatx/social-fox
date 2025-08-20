@@ -42,7 +42,7 @@ export const handleCheckoutSessionCompleted = async (
     if (typeof session.customer === "string") {
         customerId = session.customer;
         customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
-    } 
+    }
     else if (session.customer && !("deleted" in session.customer)) {
         customerId = session.customer.id;
         customer = session.customer as Stripe.Customer;
@@ -59,12 +59,9 @@ export const handleCheckoutSessionCompleted = async (
 
     // invoiceId already computed above
 
-    // --- Find or create local user ---
+    // Get or create user profile a user should exist we shouldnt have to create
     let user = await getUserByEmail(customer.email);
-    if (!user) {
-        user = await createUserProfile(customer.email, customer.name || undefined);
-        if (!user) throw new Error("Failed to create user profile");
-    }
+    if (!user) throw new Error('User not found');
 
     // --- Handle credit logic ---
     if (priceId && PRICE_ID_TO_ADDITIONAL_CREDITS[priceId]) {

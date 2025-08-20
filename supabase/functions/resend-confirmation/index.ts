@@ -2,7 +2,7 @@
 import { supabase } from "../utils/supabase.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
-import { Resend } from "resend"; // Make sure Resend is installed
+import { Resend } from "npm:resend"; // Make sure Resend is installed
 
 export const config = {
   auth: false,
@@ -60,17 +60,22 @@ Deno.serve(async (req: Request) => {
     }
 
     // Send confirmation email via Resend
-    await resend.emails.send({
-      from: "no-reply@socialfox.dev",
-      to: email,
+    const { data: sendData, error: sendError } = await resend.emails.send({
+      from: "Support <support@socialfox.dev>",
+      to: [email],
       subject: "Confirm your Social Fox account",
       html: `
-        <p>Hi,</p>
+        <p>Hi there,</p>
         <p>Please confirm your email by clicking the link below:</p>
         <a href="${link}">Confirm Email</a>
-        <p>Thanks! 🦊</p>
+        <p>Thanks!</p>
       `,
     });
+
+    if (sendError) {
+      console.error("Error sending confirmation email:", sendError);
+      return createErrorResponse("Failed to send confirmation email", req, 500);
+    }
 
     return createSuccessResponse({
       success: true,

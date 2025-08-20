@@ -12,6 +12,8 @@ import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, C
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
 import { useConnections } from '@/hooks/useConnections';
+import { useSubscription } from '@/hooks/useSubscription';
+import { SubscriptionUpgradeDialog } from './SubscriptionUpgradeDialog';
 
 interface Project {
   id: string;
@@ -43,8 +45,11 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [scheduledDate, setScheduledDate] = useState('');
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [postToSchedule, setPostToSchedule] = useState<ContentPost | null>(null);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<'scheduling' | 'credits'>('scheduling');
   const { toast } = useToast();
   const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
+  const { canSchedulePosts, hasCredits, credits, loading: subscriptionLoading, refetch: refetchSubscription } = useSubscription();
 
   const getProviderForPlatform = (platform: string) => {
     switch (platform) {
@@ -150,6 +155,13 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         });
         return;
       }
+      
+      if (!canSchedulePosts) {
+        setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+        setShowUpgradeDialog(true);
+        return;
+      }
+      
       updates.status = 'scheduled';
       updates.scheduled_at = scheduledDate;
     }
@@ -167,6 +179,10 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         title: "Success",
         description: andSchedule ? "Post saved and scheduled" : "Post saved successfully",
       });
+      if (andSchedule) {
+        // Refresh subscription data to update credit count
+        refetchSubscription();
+      }
       setEditingPost(null);
       setEditContent('');
       setScheduledDate('');
@@ -182,6 +198,13 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       });
       return;
     }
+    
+    if (!canSchedulePosts) {
+      setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+      setShowUpgradeDialog(true);
+      return;
+    }
+    
     setPostToSchedule(post);
     setShowScheduleDialog(true);
   };
@@ -194,6 +217,12 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         description: `Connect ${postToSchedule.platform} before scheduling a post. Go to Connections to link your account.`,
         variant: 'destructive',
       });
+      return;
+    }
+
+    if (!canSchedulePosts) {
+      setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+      setShowUpgradeDialog(true);
       return;
     }
 
@@ -213,6 +242,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         title: "Success",
         description: "Post scheduled successfully",
       });
+      // Refresh subscription data to update credit count
+      refetchSubscription();
       setShowScheduleDialog(false);
       setPostToSchedule(null);
       setScheduledDate('');
@@ -342,11 +373,17 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                         <Button
                           size="sm"
                           onClick={() => handleSchedulePost(post)}
-                          disabled={connectionsLoading || !isPlatformConnected(post.platform)}
-                          title={!isPlatformConnected(post.platform) ? `Connect ${post.platform} to schedule` : undefined}
+                          disabled={connectionsLoading || subscriptionLoading || !isPlatformConnected(post.platform) || !canSchedulePosts}
+                          title={
+                            !isPlatformConnected(post.platform) 
+                              ? `Connect ${post.platform} to schedule` 
+                              : !canSchedulePosts 
+                                ? `Need credits to schedule (Current: ${credits?.total_credits || 0})` 
+                                : undefined
+                          }
                         >
                           <Calendar className="w-4 h-4 mr-2" />
-                          Schedule
+                          {!canSchedulePosts ? `Schedule (${credits?.total_credits || 0} credits)` : "Schedule"}
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
                           <Archive className="w-4 h-4 mr-2" />
@@ -438,8 +475,21 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               </Button>
               <Button
                 onClick={() => handleSaveEdit(true)}
-                disabled={!scheduledDate || !editingPost || connectionsLoading || !isPlatformConnected(editingPost.platform)}
-                title={editingPost && !isPlatformConnected(editingPost.platform) ? `Connect ${editingPost.platform} to schedule` : undefined}
+                disabled={
+                  !scheduledDate || 
+                  !editingPost || 
+                  connectionsLoading || 
+                  subscriptionLoading ||
+                  !isPlatformConnected(editingPost.platform) || 
+                  !canSchedulePosts
+                }
+                title={
+                  editingPost && !isPlatformConnected(editingPost.platform) 
+                    ? `Connect ${editingPost.platform} to schedule` 
+                    : !canSchedulePosts 
+                      ? `Need credits to schedule (Current: ${credits?.total_credits || 0})` 
+                      : undefined
+                }
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Save & Schedule
@@ -476,9 +526,17 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                   !scheduledDate ||
                   !postToSchedule ||
                   connectionsLoading ||
-                  !isPlatformConnected(postToSchedule.platform)
+                  subscriptionLoading ||
+                  !isPlatformConnected(postToSchedule.platform) ||
+                  !canSchedulePosts
                 }
-                title={postToSchedule && !isPlatformConnected(postToSchedule.platform) ? `Connect ${postToSchedule.platform} to schedule` : undefined}
+                title={
+                  postToSchedule && !isPlatformConnected(postToSchedule.platform) 
+                    ? `Connect ${postToSchedule.platform} to schedule` 
+                    : !canSchedulePosts 
+                      ? `Need credits to schedule (Current: ${credits?.total_credits || 0})` 
+                      : undefined
+                }
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule
@@ -487,6 +545,13 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Subscription Upgrade Dialog */}
+      <SubscriptionUpgradeDialog
+        isOpen={showUpgradeDialog}
+        onClose={() => setShowUpgradeDialog(false)}
+        feature={upgradeFeature}
+      />
     </div>
   );
 }

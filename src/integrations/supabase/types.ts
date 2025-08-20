@@ -235,6 +235,11 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: 'none' | 'free' | 'pro' | 'cancelled'
+          subscription_plan: 'none' | 'free' | 'pro'
+          subscription_is_active: boolean
           updated_at: string
         }
         Insert: {
@@ -243,6 +248,11 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
+          subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_is_active?: boolean
           updated_at?: string
         }
         Update: {
@@ -251,6 +261,11 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
+          subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_is_active?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -308,6 +323,7 @@ export type Database = {
       }
       user_credits: {
         Row: {
+          additional_credits: number
           created_at: string
           credits: number
           id: string
@@ -315,6 +331,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          additional_credits?: number
           created_at?: string
           credits?: number
           id?: string
@@ -322,6 +339,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          additional_credits?: number
           created_at?: string
           credits?: number
           id?: string

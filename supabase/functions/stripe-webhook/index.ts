@@ -9,6 +9,7 @@ import { createErrorResponse, createSuccessResponse, webhookSecret } from "./hel
 import { handleCheckoutSessionCompleted } from "./helper/checkout-session-complete.ts";
 import { handleCustomerSubscriptionDeleted } from "./helper/customer-subscription-deleted.ts";
 import { handleInvoicePaymentSucceeded } from "./helper/invoice-payment-succeded.ts";
+import { handleCustomerSubscriptionUpdate } from "./helper/customer-subscription-update.ts";
 
 // Initialize Stripe
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -54,18 +55,23 @@ serve(async (req) => {
 
         try {
             switch (eventType) {
-                case 'checkout.session.completed': {
+                case 'checkout.session.completed':
                     await handleCheckoutSessionCompleted(stripe, data);
                     break;
-                }
-                case 'customer.subscription.deleted': {
+
+                case 'customer.subscription.deleted':
                     await handleCustomerSubscriptionDeleted(stripe, data);
                     break;
-                }
-                case 'invoice.payment_succeeded': {
+
+                case 'invoice.payment_succeeded':
                     await handleInvoicePaymentSucceeded(stripe, data);
                     break;
-                }
+
+                case "customer.subscription.created":
+                case "customer.subscription.updated":
+                    await handleCustomerSubscriptionUpdate(stripe, data);
+                    break;
+                    
                 default:
                     console.log(`Unhandled event type: ${eventType}`);
             }

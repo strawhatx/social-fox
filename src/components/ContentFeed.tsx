@@ -3,9 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save, Archive } from 'lucide-react';
@@ -35,11 +34,8 @@ interface ContentFeedProps {
 }
 
 export default function ContentFeed({ project }: ContentFeedProps) {
-  const { posts, loading, createPost, updatePost } = useContentPosts(project.id);
+  const { posts, loading, updatePost } = useContentPosts(project.id);
   const [activeTab, setActiveTab] = useState('all');
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newPostContent, setNewPostContent] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('Twitter');
   const [editingPost, setEditingPost] = useState<ContentPost | null>(null);
   const [editContent, setEditContent] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
@@ -49,7 +45,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<'scheduling' | 'credits'>('scheduling');
   const { toast } = useToast();
   const { loading: connectionsLoading, getIntegrationByProvider, getConnectionByIntegration } = useConnections(project.id);
-  const { canSchedulePosts, hasCredits, credits, loading: subscriptionLoading, refetch: refetchSubscription } = useSubscription();
+  const { canSchedulePosts, hasCredits, credits, loading: subscriptionLoading, refetch: refetchSubscription, subscription } = useSubscription();
+  const hasPaidSubscription = !!subscription?.subscription_is_active;
 
   const getProviderForPlatform = (platform: string) => {
     switch (platform) {
@@ -102,38 +99,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     }
   };
 
-  const handleCreatePost = async () => {
-    if (!newPostContent.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter content for your post",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const { error } = await createPost({
-      content: newPostContent,
-      platform: selectedPlatform,
-      status: 'draft'
-    });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create post",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Post created successfully",
-      });
-      setNewPostContent('');
-      setShowCreateDialog(false);
-    }
-  };
-
   const handleEditPost = (post: ContentPost) => {
     setEditingPost(post);
     setEditContent(post.content);
@@ -156,8 +121,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
         return;
       }
       
-      if (!canSchedulePosts) {
-        setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+      if (!hasPaidSubscription) {
+        setUpgradeFeature('scheduling');
         setShowUpgradeDialog(true);
         return;
       }
@@ -199,8 +164,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       return;
     }
     
-    if (!canSchedulePosts) {
-      setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+    if (!hasPaidSubscription) {
+      setUpgradeFeature('scheduling');
       setShowUpgradeDialog(true);
       return;
     }
@@ -220,8 +185,8 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       return;
     }
 
-    if (!canSchedulePosts) {
-      setUpgradeFeature(hasCredits(1) ? 'scheduling' : 'credits');
+    if (!hasPaidSubscription) {
+      setUpgradeFeature('scheduling');
       setShowUpgradeDialog(true);
       return;
     }
@@ -260,51 +225,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
           <h2 className="text-2xl font-bold">Content Feed</h2>
           <p className="text-muted-foreground">Manage and review AI-generated content</p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Create New Post
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px]">
-            <DialogHeader>
-              <DialogTitle>Create Manual Post</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Platform</label>
-                <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Twitter">Twitter</SelectItem>
-                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                    <SelectItem value="Instagram">Instagram</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Content</label>
-                <Textarea
-                  placeholder="Write your post content here..."
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                  rows={6}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreatePost}>
-                  Create Post
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Status Tabs */}
@@ -373,17 +293,22 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                         <Button
                           size="sm"
                           onClick={() => handleSchedulePost(post)}
-                          disabled={connectionsLoading || subscriptionLoading || !isPlatformConnected(post.platform) || !canSchedulePosts}
+                          disabled={
+                            connectionsLoading ||
+                            subscriptionLoading ||
+                            !isPlatformConnected(post.platform) ||
+                            (hasPaidSubscription && !hasCredits(1))
+                          }
                           title={
-                            !isPlatformConnected(post.platform) 
-                              ? `Connect ${post.platform} to schedule` 
-                              : !canSchedulePosts 
-                                ? `Need credits to schedule (Current: ${credits?.total_credits || 0})` 
+                            !isPlatformConnected(post.platform)
+                              ? `Connect ${post.platform} to schedule`
+                              : hasPaidSubscription && !hasCredits(1)
+                                ? `Need credits to schedule (Current: ${credits?.total_credits || 0})`
                                 : undefined
                           }
                         >
                           <Calendar className="w-4 h-4 mr-2" />
-                          {!canSchedulePosts ? `Schedule (${credits?.total_credits || 0} credits)` : "Schedule"}
+                          {hasPaidSubscription && !hasCredits(1) ? `Schedule (${credits?.total_credits || 0} credits)` : "Schedule"}
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
                           <Archive className="w-4 h-4 mr-2" />
@@ -406,10 +331,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                         <Button variant="outline" size="sm" onClick={() => handleEditPost(post)}>
                           <Edit3 className="w-4 h-4 mr-2" />
                           Edit
-                        </Button>
-                        <Button variant="secondary" size="sm" onClick={() => updatePost(post.id, { status: 'posted', posted_at: new Date().toISOString() })}>
-                          <Send className="w-4 h-4 mr-2" />
-                          Post Now
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => updatePost(post.id, { status: 'archived' })}>
                           <Archive className="w-4 h-4 mr-2" />
@@ -476,18 +397,18 @@ export default function ContentFeed({ project }: ContentFeedProps) {
               <Button
                 onClick={() => handleSaveEdit(true)}
                 disabled={
-                  !scheduledDate || 
-                  !editingPost || 
-                  connectionsLoading || 
+                  !scheduledDate ||
+                  !editingPost ||
+                  connectionsLoading ||
                   subscriptionLoading ||
-                  !isPlatformConnected(editingPost.platform) || 
-                  !canSchedulePosts
+                  !isPlatformConnected(editingPost.platform) ||
+                  (hasPaidSubscription && !hasCredits(1))
                 }
                 title={
-                  editingPost && !isPlatformConnected(editingPost.platform) 
-                    ? `Connect ${editingPost.platform} to schedule` 
-                    : !canSchedulePosts 
-                      ? `Need credits to schedule (Current: ${credits?.total_credits || 0})` 
+                  editingPost && !isPlatformConnected(editingPost.platform)
+                    ? `Connect ${editingPost.platform} to schedule`
+                    : hasPaidSubscription && !hasCredits(1)
+                      ? `Need credits to schedule (Current: ${credits?.total_credits || 0})`
                       : undefined
                 }
               >

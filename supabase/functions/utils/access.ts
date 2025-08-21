@@ -4,7 +4,7 @@ import { encrypt } from "./encryption.ts";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
 
-interface Connector {
+interface Integration {
     token_url: string;
     client_id: string;
     client_secret: string;
@@ -12,7 +12,6 @@ interface Connector {
 
 interface Connection {
     id: string;
-    connector_id: string;
     project_id: string;
     integration_id: string;
     config_public: Record<string, unknown>;
@@ -56,32 +55,32 @@ export async function getValidAccessToken(connection: Connection): Promise<strin
         throw new Error("Refresh token expired");
     }
 
-    // 5) Load connector details
-    const { data: connectorData, error: connectorError } = await supabase
-        .from("connectors")
-        .select("config")
-        .eq("id", connection.connector_id)
+    // 5) Load integration details
+    const { data: integrationData, error: integrationError } = await supabase
+        .from("integrations")
+        .select("config_public, secrets")
+        .eq("id", connection.integration_id)
         .single();
 
-    if (connectorError || !connectorData) {
-        throw new Error("Connector config not found");
+    if (integrationError || !integrationData) {
+        throw new Error("Integration config not found");
     }
 
-    const connector: Connector = {
-        token_url: connectorData.config.token_url,
-        client_id: connectorData.config.client_id,
-        client_secret: connectorData.config.client_secret
+    const integration: Integration = {
+        token_url: integrationData.config_public.token_url,
+        client_id: integrationData.config_public.client_id,
+        client_secret: integrationData.secrets.client_secret
     };
 
     // 6) Refresh the token
     const body = new URLSearchParams({
         grant_type: "refresh_token",
         refresh_token: refresh_token as string,
-        client_id: connector.client_id,
-        client_secret: connector.client_secret,
+        client_id: integration.client_id,
+        client_secret: integration.client_secret,
     });
 
-    const response = await fetch(connector.token_url, {
+    const response = await fetch(integration.token_url, {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"

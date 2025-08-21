@@ -33,7 +33,7 @@ serve(async (req) => {
   if (cors) return cors;
 
   if (!validateEdgeFunctionsKey(req)) {
-    return new Response("Unauthorized - Edge Functions Key", { status: 401 });
+    return jsonResponse({ error: "Unauthorized - Edge Functions Key" }, req, 401);
   }
 
   if (req.method !== 'POST') {

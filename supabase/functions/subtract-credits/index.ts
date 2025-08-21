@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { supabase } from "../utils/supabase.ts";
 import { handleCORS, handleReturnCORS } from "../utils/cors.ts";
 import { applyRateLimit } from "../utils/rate-limiter.ts";
-import { validateSupabaseToken } from "../utils/auth.ts";
+import { validateEdgeFunctionsKey } from "../utils/auth.ts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -27,25 +27,17 @@ serve(async (req) => {
   }
 
   try {
-    let amount = 1;
-    let description = "Usage";
-    try {
-      const body = (await req.json()) as JsonRecord;
-      if (typeof body.amount === "number" && Number.isFinite(body.amount)) {
-        amount = Math.max(1, Math.floor(body.amount));
+      const {amount, user_id, description} = await req.json();
+      if (!amount || !user_id || !description) {
+        return jsonResponse({ error: "Missing amount, user_id, or description" }, req, 400);
       }
-      if (typeof body.description === "string" && body.description.trim().length > 0) {
-        description = body.description.trim();
-      }
-    } catch {
-      // ignore body parse errors, use defaults
-    }
+  
 
     // 1) Fetch current credits
     const { data: creditsRow, error: fetchErr } = await supabase
       .from("user_credits")
       .select("credits, additional_credits")
-      .eq("user_id", authedUser.id)
+      .eq("user_id", user_id)
       .single();
 
     if (fetchErr) {
@@ -74,7 +66,7 @@ serve(async (req) => {
     const { data: updated, error: updateErr } = await supabase
       .from("user_credits")
       .update({ credits: newCredits, additional_credits: newAdditional })
-      .eq("user_id", authedUser.id)
+      .eq("user_id", user_id)
       .eq("credits", currentCredits)
       .eq("additional_credits", currentAdditional)
       .select("credits, additional_credits");
@@ -91,7 +83,7 @@ serve(async (req) => {
 
     // 4) Log transaction as negative amount
     const { error: logErr } = await supabase.from("credit_transactions").insert({
-      user_id: authedUser.id,
+      user_id: user_id,
       amount: -amount,
       transaction_type: "usage",
       description,

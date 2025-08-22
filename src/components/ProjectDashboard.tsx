@@ -5,6 +5,7 @@ import { BarChart3, Users, Settings, Loader2, Edit, Zap, Twitter } from 'lucide-
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import EditProjectDialog from '@/components/EditProjectDialog';
 import { Project, useProjects } from '@/hooks/useProjects';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProjectDashboardProps {
   onSelectProject: (project: Project) => void;
@@ -12,6 +13,7 @@ interface ProjectDashboardProps {
 
 export default function ProjectDashboard({ onSelectProject }: ProjectDashboardProps) {
   const { projects, loading, refetch } = useProjects();
+  const { subscription } = useSubscription();
 
   console.log('ProjectDashboard: projects loaded:', projects);
   console.log('ProjectDashboard: loading state:', loading);
@@ -71,12 +73,18 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
         <>
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              Your project
+              Your project{projects.length > 1 ? 's' : ''}
             </p>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-gradient-to-r from-orange-50 to-blue-50 text-gray-700 border-orange-200">
-                1 Project Limit
-              </Badge>
+              {subscription?.subscription_plan === 'pro' ? (
+                <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 text-gray-700 border-blue-200">
+                  {projects.length}/3 Projects (Pro)
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-gradient-to-r from-orange-50 to-blue-50 text-gray-700 border-orange-200">
+                  {projects.length}/1 Project (Free)
+                </Badge>
+              )}
             </div>
           </div>
 

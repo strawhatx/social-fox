@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { useSubscription } from './useSubscription';
 
 export interface Project {
   id: string;
@@ -24,6 +25,7 @@ export const useProjects = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { subscription } = useSubscription();
 
   const fetchProjects = async () => {
     if (!user) {
@@ -75,11 +77,13 @@ export const useProjects = () => {
   const createProject = async (projectData: Partial<Project>) => {
     if (!user) return null;
 
-    // Check if user already has a project
-    if (projects.length >= 1) {
+    // Check project limits based on subscription
+    const maxProjects = subscription?.subscription_plan === 'pro' ? 3 : 1;
+    if (projects.length >= maxProjects) {
+      const planName = subscription?.subscription_plan === 'pro' ? 'Pro' : 'Free';
       toast({
         title: "Project Limit Reached",
-        description: "You can only have one project. Please delete your existing project to create a new one.",
+        description: `${planName} plan allows up to ${maxProjects} project${maxProjects > 1 ? 's' : ''}. ${maxProjects === 1 ? 'Please delete your existing project to create a new one.' : 'Please upgrade or delete existing projects.'}`,
         variant: "destructive",
       });
       return null;

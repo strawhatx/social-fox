@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
-import { LogOut, Twitter } from 'lucide-react';
+import { LogOut, Twitter, Settings } from 'lucide-react';
 import ProjectWorkspace from '@/components/ProjectWorkspace';
 import { convertDbProjectToLegacy } from '@/types/project';
 import { Loader2 } from 'lucide-react';
@@ -81,6 +81,14 @@ const ProjectWorkspacePage = () => {
             >
               <Twitter className="h-4 w-4 text-brand-orange fill-orange-500" />
             </a>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/settings')}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
           </Button>
           <Button 
             variant="outline" 

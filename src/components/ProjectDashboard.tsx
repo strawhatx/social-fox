@@ -13,7 +13,7 @@ interface ProjectDashboardProps {
 
 export default function ProjectDashboard({ onSelectProject }: ProjectDashboardProps) {
   const { projects, loading, refetch } = useProjects();
-  const { subscription } = useSubscription();
+  const { hasPaidSubscription } = useSubscription();
 
   console.log('ProjectDashboard: projects loaded:', projects);
   console.log('ProjectDashboard: loading state:', loading);
@@ -76,7 +76,7 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               Your project{projects.length > 1 ? 's' : ''}
             </p>
             <div className="flex items-center gap-2">
-              {subscription?.subscription_plan === 'pro' ? (
+              {hasPaidSubscription ? (
                 <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 text-gray-700 border-blue-200">
                   {projects.length}/3 Projects (Pro)
                 </Badge>

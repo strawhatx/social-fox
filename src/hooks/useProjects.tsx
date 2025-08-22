@@ -78,9 +78,9 @@ export const useProjects = () => {
     if (!user) return null;
 
     // Check project limits based on subscription
-    const maxProjects = subscription?.subscription_plan === 'pro' ? 3 : 1;
+    const maxProjects = subscription?.subscription_is_active ? 3 : 1;
     if (projects.length >= maxProjects) {
-      const planName = subscription?.subscription_plan === 'pro' ? 'Pro' : 'Free';
+      const planName = subscription?.subscription_is_active ? 'Pro' : 'Free';
       toast({
         title: "Project Limit Reached",
         description: `${planName} plan allows up to ${maxProjects} project${maxProjects > 1 ? 's' : ''}. ${maxProjects === 1 ? 'Please delete your existing project to create a new one.' : 'Please upgrade or delete existing projects.'}`,

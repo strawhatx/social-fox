@@ -15,7 +15,7 @@ interface ProjectDashboardProps {
 
 export default function ProjectDashboard({ onSelectProject, onProjectCreated }: ProjectDashboardProps) {
   const navigate = useNavigate();
-  const { projects, loading, refetch } = useProjects();
+  const { projects, loading, refetch, createProject } = useProjects();
   const { hasPaidSubscription } = useSubscription();
 
   console.log('ProjectDashboard: projects loaded:', projects);
@@ -56,7 +56,15 @@ export default function ProjectDashboard({ onSelectProject, onProjectCreated }: 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {projects.length === 0 && (
-            <Button onClick={() => navigate('/create-project')}>
+            <Button onClick={async () => {
+              const result = await createProject({
+                name: '',
+                description: '',
+                platforms: ['twitter', 'linkedin'],
+                status: 'draft' as any,
+              });
+              if (result?.id) navigate(`/create-project/${result.id}`);
+            }}>
               <Plus className="h-4 w-4 mr-2" />
               Create Project
             </Button>
@@ -74,7 +82,15 @@ export default function ProjectDashboard({ onSelectProject, onProjectCreated }: 
               <h3 className="text-2xl font-bold mb-2">No projects yet</h3>
               <p className="text-gray-600 text-lg">Create your first marketing project to get started with AI-powered content generation</p>
             </div>
-            <Button onClick={() => navigate('/create-project')}>
+            <Button onClick={async () => {
+              const result = await createProject({
+                name: '',
+                description: '',
+                platforms: ['twitter', 'linkedin'],
+                status: 'draft' as any,
+              });
+              if (result?.id) navigate(`/create-project/${result.id}`);
+            }}>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Project
             </Button>

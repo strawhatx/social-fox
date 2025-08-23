@@ -10,7 +10,12 @@ import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Settings from "./pages/Settings";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
-import CreateProject from "./pages/CreateProject";
+import WizardLayout from "@/pages/create-project/WizardLayout";
+import Step1Basics from "@/pages/create-project/Step1Basics";
+import Step2Voice from "@/pages/create-project/Step2Voice";
+import Step3GitHub from "@/pages/create-project/Step3GitHub";
+import Step4Confirm from "@/pages/create-project/Step4Confirm";
+import Step5Finalize from "./pages/create-project/Step5Finalize";
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 
@@ -43,13 +48,19 @@ const App = () => (
               } 
             />
             <Route 
-              path="/create-project" 
+              path="/create-project/*" 
               element={
                 <ProtectedRoute>
-                  <CreateProject />
+                  <WizardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route path=":projectId" element={<Step1Basics />} />
+              <Route path=":projectId/brand" element={<Step2Voice />} />
+              <Route path=":projectId/github" element={<Step3GitHub />} />
+              <Route path=":projectId/style" element={<Step4Confirm />} />
+              <Route path=":projectId/finalize" element={<Step5Finalize />} />
+            </Route>
             <Route 
               path="/project/:projectId" 
               element={

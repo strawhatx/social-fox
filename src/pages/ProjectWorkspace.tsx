@@ -27,7 +27,7 @@ const ProjectWorkspacePage = () => {
       if (dbProject) {
         // If the project is still in draft, redirect back to the create-project wizard
         if ((dbProject as any).status === 'draft') {
-          navigate(`/create-project?projectId=${projectId}`);
+          navigate(`/create-project/${projectId}`);
           return;
         }
         const legacyProject = convertDbProjectToLegacy(dbProject);

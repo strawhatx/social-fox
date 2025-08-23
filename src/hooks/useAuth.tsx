@@ -20,11 +20,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const planCatalog: Record<string, { name: string; priceDisplay: string; creditsPerMonth: number }> = {
-    'price_1RxAuj4cECBWesjx3nqOMQru': { name: 'free', priceDisplay: '$0', creditsPerMonth: 10 },
-    'price_1RxAwM4cECBWesjxNKynZfd6': { name: 'pro', priceDisplay: '$9', creditsPerMonth: 50 },
-  };
-
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

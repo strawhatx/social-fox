@@ -15,7 +15,7 @@ import { Plus, Loader2 } from 'lucide-react';
 import { Project, useProjects } from '@/hooks/useProjects';
 
 interface CreateProjectDialogProps {
-  onCreated?: () => void;
+  onCreated?: (projectId: string) => void;
 }
 
 const CreateProjectDialog = ({ onCreated }: CreateProjectDialogProps) => {
@@ -47,7 +47,12 @@ const CreateProjectDialog = ({ onCreated }: CreateProjectDialogProps) => {
     if (result) {
       setOpen(false);
       e.currentTarget.reset();
-      onCreated?.();
+      const createdId = (result as { id: string }).id;
+      if (createdId) {
+        onCreated?.(createdId);
+      } else {
+        onCreated?.('');
+      }
     }
     
     setLoading(false);

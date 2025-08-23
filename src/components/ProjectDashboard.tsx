@@ -9,9 +9,10 @@ import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProjectDashboardProps {
   onSelectProject: (project: Project) => void;
+  onProjectCreated?: (projectId: string) => void;
 }
 
-export default function ProjectDashboard({ onSelectProject }: ProjectDashboardProps) {
+export default function ProjectDashboard({ onSelectProject, onProjectCreated }: ProjectDashboardProps) {
   const { projects, loading, refetch } = useProjects();
   const { hasPaidSubscription } = useSubscription();
 
@@ -52,7 +53,17 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {projects.length === 0 && <CreateProjectDialog onCreated={() => refetch()} />}
+          {projects.length === 0 && (
+            <CreateProjectDialog 
+              onCreated={(id) => {
+                if (onProjectCreated) {
+                  onProjectCreated(id);
+                } else {
+                  refetch();
+                }
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -66,7 +77,15 @@ export default function ProjectDashboard({ onSelectProject }: ProjectDashboardPr
               <h3 className="text-2xl font-bold mb-2">No projects yet</h3>
               <p className="text-gray-600 text-lg">Create your first marketing project to get started with AI-powered content generation</p>
             </div>
-            <CreateProjectDialog onCreated={() => refetch()} />
+            <CreateProjectDialog 
+              onCreated={(id) => {
+                if (onProjectCreated) {
+                  onProjectCreated(id);
+                } else {
+                  refetch();
+                }
+              }} 
+            />
           </div>
         </Card>
       ) : (

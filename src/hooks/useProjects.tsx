@@ -74,7 +74,7 @@ export const useProjects = () => {
     }
   };
 
-  const createProject = async (projectData: Partial<Project>) => {
+  const createProject = async (projectData: Partial<Project>): Promise<{ id: string } | null> => {
     if (!user) return null;
 
     // Check project limits based on subscription
@@ -114,7 +114,7 @@ export const useProjects = () => {
       });
 
       fetchProjects();
-      return data;
+      return { id: data.id as string };
     } catch (error: any) {
       console.error('Error creating project:', error);
       toast({

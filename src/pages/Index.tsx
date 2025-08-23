@@ -62,7 +62,10 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="p-6">
-        <ProjectDashboard onSelectProject={handleSelectProject} />
+        <ProjectDashboard 
+          onSelectProject={handleSelectProject}
+          onProjectCreated={(id) => navigate(`/project/${id}`)}
+        />
       </div>
     </div>
   );

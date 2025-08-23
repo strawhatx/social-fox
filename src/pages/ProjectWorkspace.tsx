@@ -12,8 +12,14 @@ const ProjectWorkspacePage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { projects, loading, updateProject } = useProjects();
+  const { projects, loading, updateProject, refetch } = useProjects();
   const [selectedProject, setSelectedProject] = useState(null);
+
+  useEffect(() => {
+    if (projectId) {
+      refetch();
+    }
+  }, [projectId, refetch]);
 
   useEffect(() => {
     if (!loading && projectId && projects.length > 0) {

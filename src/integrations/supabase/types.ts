@@ -232,46 +232,40 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          current_period_end: string | null
           email: string | null
           full_name: string | null
           id: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
-          subscription_status: 'none' | 'free' | 'pro' | 'cancelled'
-          subscription_plan: 'none' | 'free' | 'pro'
+          subscription_is_active: boolean | null
           subscription_price_id: string | null
-          subscription_is_active: boolean
-          current_period_end: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          current_period_end?: string | null
           email?: string | null
           full_name?: string | null
           id: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
-          subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_is_active?: boolean | null
           subscription_price_id?: string | null
-          subscription_is_active?: boolean
-          current_period_end?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          current_period_end?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          subscription_status?: 'none' | 'free' | 'pro' | 'cancelled'
-          subscription_plan?: 'none' | 'free' | 'pro'
+          subscription_is_active?: boolean | null
           subscription_price_id?: string | null
-          subscription_is_active?: boolean
-          current_period_end?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -289,6 +283,7 @@ export type Database = {
           last_generated: string | null
           name: string
           platforms: string[] | null
+          status: string
           target_audience: string | null
           updated_at: string
           user_id: string
@@ -305,6 +300,7 @@ export type Database = {
           last_generated?: string | null
           name: string
           platforms?: string[] | null
+          status?: string
           target_audience?: string | null
           updated_at?: string
           user_id: string
@@ -321,6 +317,7 @@ export type Database = {
           last_generated?: string | null
           name?: string
           platforms?: string[] | null
+          status?: string
           target_audience?: string | null
           updated_at?: string
           user_id?: string
@@ -329,7 +326,7 @@ export type Database = {
       }
       user_credits: {
         Row: {
-          additional_credits: number
+          additional_credits: number | null
           created_at: string
           credits: number
           id: string
@@ -337,7 +334,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          additional_credits?: number
+          additional_credits?: number | null
           created_at?: string
           credits?: number
           id?: string
@@ -345,7 +342,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          additional_credits?: number
+          additional_credits?: number | null
           created_at?: string
           credits?: number
           id?: string
@@ -395,6 +392,71 @@ export type Database = {
           refresh_token_expires_at?: never
           status?: Database["public"]["Enums"]["connection_status"] | null
           updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_connections"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_with_profiles"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      github_connections_with_credits: {
+        Row: {
+          account_identifier: string | null
+          config_public: Json | null
+          connection_id: string | null
+          created_at: string | null
+          credits: number | null
+          estimated_token_usage: number | null
+          integration_id: string | null
+          integration_name: string | null
+          is_active: boolean | null
+          last_fetched_at: string | null
+          project_id: string | null
+          project_name: string | null
+          provider: string | null
+          status: Database["public"]["Enums"]["connection_status"] | null
+          updated_at: string | null
+          user_credits_id: string | null
+          user_id: string | null
         }
         Relationships: [
           {
@@ -544,8 +606,40 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_content_posts_with_credits: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          credits: number | null
+          credits_needed: number | null
+          engagement: Json | null
+          id: string | null
+          metadata: Json | null
+          platform: string | null
+          posted_at: string | null
+          project_id: string | null
+          project_name: string | null
+          scheduled_at: string | null
+          status: string | null
+          total_scheduled_posts: number | null
+          updated_at: string | null
+          user_credits_id: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      update_user_additional_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_stripe_session_id?: string
+          p_transaction_type: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       update_user_credits: {
         Args: {
           p_amount: number

@@ -25,6 +25,11 @@ const ProjectWorkspacePage = () => {
     if (!loading && projectId && projects.length > 0) {
       const dbProject = projects.find(p => p.id === projectId);
       if (dbProject) {
+        // If the project is still in draft, redirect back to the create-project wizard
+        if ((dbProject as any).status === 'draft') {
+          navigate(`/create-project?projectId=${projectId}`);
+          return;
+        }
         const legacyProject = convertDbProjectToLegacy(dbProject);
         setSelectedProject(legacyProject);
       } else {

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,15 +31,29 @@ const CreateProject = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showGitHubDialog, setShowGitHubDialog] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   
   const navigate = useNavigate();
-  const { createProject, projects } = useProjects();
+  const { createProject, projects, updateProject } = useProjects();
   const { subscription } = useSubscription();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
+
+  // If redirected here with a projectId, sync state and route appropriately
+  useEffect(() => {
+    const pid = searchParams.get('projectId');
+    if (pid) {
+      setCreatedProjectId(pid);
+      const existing = projects.find(p => p.id === pid);
+      if (existing && (existing as any).status && (existing as any).status !== 'draft') {
+        navigate(`/project/${pid}`);
+      }
+    }
+  }, [searchParams, projects, navigate]);
 
   // Check if user can create more projects
   const canCreateProject = () => {
@@ -47,7 +61,36 @@ const CreateProject = () => {
     return projects.length < maxProjects;
   };
 
-  const handleNext = () => {
+  // Create or update a draft project so GitHub connect has an id
+  const createOrUpdateProjectDraft = async () => {
+    if (!canCreateProject() && !createdProjectId) return null;
+    if (!createdProjectId) {
+      const result = await createProject({
+        name: projectData.name,
+        description: projectData.description,
+        brand_voice: projectData.brandVoice,
+        target_audience: projectData.targetAudience,
+        platforms: ['twitter', 'linkedin'],
+        status: 'draft' as any,
+      });
+      if (result?.id) setCreatedProjectId(result.id);
+      return result?.id || null;
+    } else {
+      await updateProject(createdProjectId, {
+        name: projectData.name,
+        description: projectData.description,
+        platforms: ['twitter', 'linkedin'],
+        brand_voice: projectData.brandVoice,
+        target_audience: projectData.targetAudience,
+        status: 'draft' as any,
+      } as any);
+      return createdProjectId;
+    }
+  };
+
+  const handleNext = async () => {
+    // Persist progress early so we have a project id before GitHub connect
+    await createOrUpdateProjectDraft();
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
@@ -83,8 +126,14 @@ const CreateProject = () => {
     }
   };
 
+  const handleOpenGitHubDialog = async () => {
+    const pid = await createOrUpdateProjectDraft();
+    if (!pid && !createdProjectId) return; // guard
+    setShowGitHubDialog(true);
+  };
+
   const handleFinish = async () => {
-    if (!canCreateProject()) {
+    if (!canCreateProject() && !createdProjectId) {
       toast({
         title: "Project Limit Reached",
         description: "Please upgrade to create more projects.",
@@ -94,20 +143,27 @@ const CreateProject = () => {
     }
 
     setIsLoading(true);
-    
-    const result = await createProject({
-      name: projectData.name,
-      description: projectData.description,
-      brand_voice: projectData.brandVoice,
-      target_audience: projectData.targetAudience,
-      platforms: ['twitter', 'linkedin']
-    });
 
-    if (result?.id) {
-      navigate(`/project/${result.id}`);
+    // Ensure we have a project id and latest data saved
+    const pid = await createOrUpdateProjectDraft();
+    const finalId = pid || createdProjectId;
+
+    try {
+      // Kick off initial generation (best-effort)
+      if (finalId) {
+        try {
+          await supabase.functions.invoke('init-github-content', { body: { project_id: finalId } });
+        } catch (e) {
+          console.warn('init-github-content failed or not configured:', e);
+        }
+
+        // Mark project as initialized
+        await updateProject(finalId, { status: 'initialized' } as any);
+        navigate(`/project/${finalId}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   if (!canCreateProject() && !subscription?.subscription_is_active) {
@@ -218,7 +274,7 @@ const CreateProject = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button onClick={() => setShowGitHubDialog(true)} className="w-full">
+              <Button onClick={handleOpenGitHubDialog} className="w-full">
                 <Github className="h-4 w-4 mr-2" />
                 Connect GitHub Repository
               </Button>
@@ -348,7 +404,7 @@ const CreateProject = () => {
       <GitHubConnectionDialog
         isOpen={showGitHubDialog}
         onClose={() => setShowGitHubDialog(false)}
-        projectId=""
+        projectId={createdProjectId || ''}
       />
     </div>
   );

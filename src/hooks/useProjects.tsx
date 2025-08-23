@@ -18,6 +18,7 @@ export interface Project {
   automation_frequency: string;
   created_at: string;
   updated_at: string;
+  status?: string;
 }
 
 export const useProjects = () => {
@@ -59,6 +60,7 @@ export const useProjects = () => {
         automation_frequency: project.automation_frequency || 'daily',
         created_at: project.created_at,
         updated_at: project.updated_at,
+        status: project.status || 'draft',
       }));
 
       setProjects(transformedProjects);
@@ -100,6 +102,7 @@ export const useProjects = () => {
             platforms: projectData.platforms || [],
             brand_voice: projectData.brand_voice,
             target_audience: projectData.target_audience,
+            status: (projectData as any).status || 'draft',
             // role columns removed from schema
           }
         ])
@@ -139,6 +142,7 @@ export const useProjects = () => {
           target_audience: updates.target_audience,
           automation_enabled: updates.automation_enabled,
           automation_frequency: updates.automation_frequency,
+          status: (updates as any).status,
           // role columns removed from schema
         })
         .eq('id', id);

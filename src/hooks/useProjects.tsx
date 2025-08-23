@@ -107,6 +107,7 @@ export const useProjects = () => {
         .single();
 
       if (error) throw error;
+      if (!data) throw new Error('No data returned from project creation');
 
       toast({
         title: "Success",
@@ -114,7 +115,7 @@ export const useProjects = () => {
       });
 
       fetchProjects();
-      return { id: data.id as string };
+      return { id: (data as any).id };
     } catch (error: any) {
       console.error('Error creating project:', error);
       toast({

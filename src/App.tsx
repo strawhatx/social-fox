@@ -10,7 +10,7 @@ import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Settings from "./pages/Settings";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
-
+import CreateProject from "./pages/CreateProject";
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +39,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-project" 
+              element={
+                <ProtectedRoute>
+                  <CreateProject />
                 </ProtectedRoute>
               } 
             />

@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Settings, Loader2, Edit, Zap, Twitter } from 'lucide-react';
+import { BarChart3, Users, Settings, Loader2, Edit, Zap, Twitter, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import EditProjectDialog from '@/components/EditProjectDialog';
 import { Project, useProjects } from '@/hooks/useProjects';
@@ -13,6 +14,7 @@ interface ProjectDashboardProps {
 }
 
 export default function ProjectDashboard({ onSelectProject, onProjectCreated }: ProjectDashboardProps) {
+  const navigate = useNavigate();
   const { projects, loading, refetch } = useProjects();
   const { hasPaidSubscription } = useSubscription();
 
@@ -54,15 +56,10 @@ export default function ProjectDashboard({ onSelectProject, onProjectCreated }: 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {projects.length === 0 && (
-            <CreateProjectDialog 
-              onCreated={(id) => {
-                if (onProjectCreated) {
-                  onProjectCreated(id);
-                } else {
-                  refetch();
-                }
-              }}
-            />
+            <Button onClick={() => navigate('/create-project')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Project
+            </Button>
           )}
         </div>
       </div>
@@ -77,15 +74,10 @@ export default function ProjectDashboard({ onSelectProject, onProjectCreated }: 
               <h3 className="text-2xl font-bold mb-2">No projects yet</h3>
               <p className="text-gray-600 text-lg">Create your first marketing project to get started with AI-powered content generation</p>
             </div>
-            <CreateProjectDialog 
-              onCreated={(id) => {
-                if (onProjectCreated) {
-                  onProjectCreated(id);
-                } else {
-                  refetch();
-                }
-              }} 
-            />
+            <Button onClick={() => navigate('/create-project')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Your First Project
+            </Button>
           </div>
         </Card>
       ) : (

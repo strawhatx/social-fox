@@ -15,8 +15,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const FREE_PRICE_ID = Deno.env.get("STRIPE_FREE_PRICE_ID") || 'price_1RxAuj4cECBWesjx3nqOMQru';
 
-type JsonRecord = Record<string, unknown>;
-
 const jsonResponse = (data: unknown, req: Request, status = 200) =>
   new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });
 
@@ -36,6 +34,29 @@ async function persistStripeCustomerId(profileId: string, customerId: string): P
     .eq("id", profileId);
   if (error) {
     console.error("Failed to save stripe_customer_id:", error);
+  }
+}
+
+async function persistStripeSubscriptionState(
+  profileId: string,
+  stripeCustomerId: string,
+  subscription: Stripe.Subscription,
+  fallbackPriceId: string,
+): Promise<void> {
+  const updatePayload = {
+    stripe_customer_id: stripeCustomerId,
+    stripe_subscription_id: subscription.id,
+    subscription_is_active: ACTIVE_LIKE_STATUSES.includes(subscription.status as typeof ACTIVE_LIKE_STATUSES[number]),
+    current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+    subscription_price_id: subscription.items.data[0]?.price?.id || fallbackPriceId,
+  } as const;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(updatePayload as Record<string, unknown>)
+    .eq("id", profileId);
+  if (error) {
+    console.error("Failed to update Stripe subscription state on profile:", error);
   }
 }
 
@@ -135,6 +156,7 @@ serve(async (req) => {
     // Check for an existing active-like subscription for this customer
     const existingActive = await findExistingActiveLikeSubscription(stripeCustomerId);
     if (existingActive) {
+      await persistStripeSubscriptionState(profile.id, stripeCustomerId, existingActive, priceId);
       return jsonResponse(
         {
           success: true,

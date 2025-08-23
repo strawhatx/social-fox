@@ -87,11 +87,11 @@ serve(async (req) => {
       return jsonResponse({ error: "Failed to mark initialized" }, req, 500);
     }
 
-    // Initialize last_fetched_at to 7 days ago so first sync pulls a week of history
-    const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    // Initialize last_fetched_at to 14 days ago so first sync pulls a week of history
+    const fourteenDaysAgoIso = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
     const { error: projectUpdateError } = await supabase
       .from("projects")
-      .update({ last_fetched_at: sevenDaysAgoIso })
+      .update({ last_fetched_at: fourteenDaysAgoIso })
       .eq("id", project_id);
 
     if (projectUpdateError) {

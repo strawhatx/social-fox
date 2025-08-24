@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save, Archive } from 'lucide-react';
+import { MoreHorizontal, Edit3, Send, Eye, Twitter, Linkedin, Instagram, Plus, Calendar, Save, Archive, AlertTriangle } from 'lucide-react';
 import { useContentPosts } from '@/hooks/useContentPosts';
 import { useToast } from '@/hooks/use-toast';
 import { useConnections } from '@/hooks/useConnections';
@@ -445,6 +445,10 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                 onChange={(e) => setScheduledDate(e.target.value)}
                 min={new Date().toISOString().slice(0, 10)}
               />
+            </div>
+            <div className="flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-900">
+              <AlertTriangle className="w-4 h-4 mt-0.5 text-yellow-600" />
+              <span>Reminder: Posts are only published if you still have credits at the scheduled time.</span>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>

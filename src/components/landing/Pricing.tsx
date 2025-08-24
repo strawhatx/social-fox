@@ -16,7 +16,6 @@ const Pricing = () => {
       credits: "10 credits",
       features: [
         "10 monthly credits",
-        "Basic automation",
         "1 project",
         "Email support"
       ],
@@ -31,8 +30,7 @@ const Pricing = () => {
       credits: "50 credits",
       features: [
         "50 monthly credits",
-        "Advanced automation",
-        "Unlimited projects",
+        "3 projects",
         "Priority support",
         "Custom scheduling"
       ],

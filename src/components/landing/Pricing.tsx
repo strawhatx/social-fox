@@ -32,7 +32,7 @@ const Pricing = () => {
         "50 monthly credits",
         "3 projects",
         "Priority support",
-        "Custom scheduling"
+        "Advanced scheduling (coming soon)"
       ],
       buttonText: user ? "Upgrade to Pro" : "Start Pro",
       popular: true,

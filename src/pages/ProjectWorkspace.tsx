@@ -15,11 +15,6 @@ const ProjectWorkspacePage = () => {
   const { projects, loading, updateProject, refetch } = useProjects();
   const [selectedProject, setSelectedProject] = useState(null);
 
-  useEffect(() => {
-    if (projectId) {
-      refetch();
-    }
-  }, [projectId, refetch]);
 
   useEffect(() => {
     if (!loading && projectId && projects.length > 0) {

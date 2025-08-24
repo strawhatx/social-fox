@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
@@ -28,7 +28,7 @@ export const useProjects = () => {
   const { toast } = useToast();
   const { subscription } = useSubscription();
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     if (!user) {
       setProjects([]);
       setLoading(false);
@@ -74,7 +74,7 @@ export const useProjects = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   const createProject = async (projectData: Partial<Project>): Promise<{ id: string } | null> => {
     if (!user) return null;

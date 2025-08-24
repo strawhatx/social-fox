@@ -13,7 +13,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
     httpClient: Stripe.createFetchHttpClient(),
 });
 
-const FREE_PRICE_ID = Deno.env.get("STRIPE_FREE_PRICE_ID") || 'price_1RxAuj4cECBWesjx3nqOMQru';
+const FREE_PRICE_ID = Deno.env.get("STRIPE_FREE_PRICE_ID") || 'price_1RzSaW8SXkriWv0Z16p61EsZ';
 
 const jsonResponse = (data: unknown, req: Request, status = 200) =>
   new Response(JSON.stringify(data), { headers: handleReturnCORS(req), status });

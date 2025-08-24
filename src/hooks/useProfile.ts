@@ -18,8 +18,8 @@ export interface UserProfile {
 }
 
 const planCatalog: Record<string, { name: string; priceDisplay: string; creditsPerMonth: number }> = {
-  'price_1RxAuj4cECBWesjx3nqOMQru': { name: 'free', priceDisplay: '$0', creditsPerMonth: 10 },
-  'price_1RxAwM4cECBWesjxNKynZfd6': { name: 'pro', priceDisplay: '$9', creditsPerMonth: 50 },
+  'price_1RzSaW8SXkriWv0Z16p61EsZ': { name: 'free', priceDisplay: '$0', creditsPerMonth: 10 },
+  'price_1RzSaY8SXkriWv0Z2B9s1cZ3': { name: 'pro', priceDisplay: '$9', creditsPerMonth: 50 },
 };
 
 export function useProfile() {

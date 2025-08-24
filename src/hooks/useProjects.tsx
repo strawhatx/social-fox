@@ -37,11 +37,23 @@ export const useProjects = () => {
     
     try {
       setLoading(true);
-      
-      const { data, error } = await supabase
+      // Add a timeout safeguard so UI doesn't spin forever on network hangs
+      const timeoutMs = 15000;
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('fetchProjects timeout exceeded')), timeoutMs)
+      );
+
+      const selectPromise = supabase
         .from('projects' as any)
         .select('*')
         .order('created_at', { ascending: false });
+
+      const result = (await Promise.race([selectPromise as any, timeoutPromise])) as {
+        data: any[] | null;
+        error: any | null;
+      };
+
+      const { data, error } = result || { data: null, error: null };
 
       if (error) throw error;
 

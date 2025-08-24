@@ -3,11 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 const planConfig = {
-  price_1RxAuj4cECBWesjx3nqOMQru: {
+  price_1RzSaW8SXkriWv0Z16p61EsZ: {
     type: 'free',
     credits: 10,
   },
-  price_1RxAwM4cECBWesjxNKynZfd6: {
+  price_1RzSaY8SXkriWv0Z2B9s1cZ3: {
     type: 'pro',
     credits: 50,
   },

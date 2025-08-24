@@ -6,6 +6,8 @@ import { Check, Sparkles } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
+import { useSubscription } from '@/hooks/useSubscription';
+import { toast } from '@/components/ui/use-toast';
 
 const Step5Finalize = () => {
   const navigate = useNavigate();
@@ -13,9 +15,21 @@ const Step5Finalize = () => {
   const { updateProject } = useProjects();
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { hasCredits, loading: subscriptionLoading } = useSubscription();
+
+  const REQUIRED_CREDITS_FOR_INIT = 3;
 
   const handleGenerate = async () => {
     if (!projectId) return;
+    // Validate credits before starting workflow
+    if (subscriptionLoading) return; // wait until subscription data is ready
+    if (!hasCredits(REQUIRED_CREDITS_FOR_INIT)) {
+      toast({
+        title: 'Insufficient credits',
+        description: `You need at least ${REQUIRED_CREDITS_FOR_INIT} credits to generate initial content. Upgrade your plan or add credits in Settings.`,
+      });
+      return;
+    }
     setIsLoading(true);
     setProgress(0);
     try {
@@ -132,7 +146,7 @@ const Step5Finalize = () => {
         )}
         
         <div className="flex justify-center">
-          <Button onClick={handleGenerate} disabled={isLoading}>
+          <Button onClick={handleGenerate} disabled={isLoading || !hasCredits(REQUIRED_CREDITS_FOR_INIT)}>
             {isLoading ? 'Generating…' : 'Generate'}
             <Sparkles className="h-4 w-4 ml-2" />
           </Button>

@@ -66,6 +66,31 @@ serve(async (req) => {
       return jsonResponse({ error: "Repository not configured on connection" }, req, 400);
     }
 
+    // Server-side credit check: require minimum credits before allowing init
+    const REQUIRED_CREDITS_FOR_INIT = 3;
+
+    // Use authenticated user from Authorization header
+    const userId = user.id;
+
+    // Fetch user credits using authenticated user id
+    const { data: creditsRow, error: creditsError } = await supabase
+      .from("user_credits")
+      .select("credits, additional_credits")
+      .eq("user_id", userId)
+      .single();
+
+    if (creditsError) {
+      return jsonResponse({ error: "Failed to fetch credits" }, req, 500);
+    }
+
+    const baseCredits = (creditsRow?.credits as number) ?? 0;
+    const bonusCredits = (creditsRow?.additional_credits as number) ?? 0;
+    const totalCredits = baseCredits + bonusCredits;
+
+    if (totalCredits < REQUIRED_CREDITS_FOR_INIT) {
+      return jsonResponse({ error: "Insufficient credits", required: REQUIRED_CREDITS_FOR_INIT, total: totalCredits }, req, 402);
+    }
+
     // Ensure we only initialize once
     const { initialized_at } = connection.config_public as { initialized_at?: string };
     if (initialized_at) {
@@ -101,10 +126,10 @@ serve(async (req) => {
     // Optional webhook: call after all work is done with Basic Auth (n8n)
     let webhookStatus: "sent" | "skipped" | "failed" = "skipped";
     const webhookUrl = `${Deno.env.get("8N8_WEBHOOK_BASE_URL")}/intitalize`;
-    
+
     const N8NUSER = Deno.env.get("8N8_USERNAME");
     const N8NPASSWORD = Deno.env.get("N8N_PASSWORD");
-    
+
     try {
       const basicAuth = N8NUSER && N8NPASSWORD ? `Basic ${btoa(`${N8NUSER}:${N8NPASSWORD}`)}` : undefined;
       const res = await fetch(webhookUrl, {

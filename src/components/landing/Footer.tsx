@@ -1,5 +1,5 @@
 import React from 'react';
-import { Twitter, Github, Mail } from 'lucide-react';
+import { Twitter, Mail, Linkedin } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
 
           <div className="flex space-x-8 mb-8">
             <a
-              href="https://twitter.com/socialfoxapp"
+              href="https://twitter.com/heynathanielj"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-orange-500 transition-colors duration-200"
@@ -24,16 +24,16 @@ const Footer: React.FC = () => {
               <span className="sr-only">Twitter</span>
             </a>
             <a
-              href="https://github.com/socialfox"
+              href="https://www.linkedin.com/in/nathaniel-james-2658b1112"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-orange-500 transition-colors duration-200"
             >
-              <Github className="w-6 h-6" />
+              <Linkedin className="w-6 h-6" />
               <span className="sr-only">GitHub</span>
             </a>
             <a
-              href="mailto:hello@socialfox.dev"
+              href="mailto:support@socialfox.dev"
               className="text-gray-600 hover:text-orange-500 transition-colors duration-200"
             >
               <Mail className="w-6 h-6" />

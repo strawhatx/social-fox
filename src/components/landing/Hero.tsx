@@ -82,12 +82,17 @@ const Hero: React.FC = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-              Join the Beta
-            </button>
-            <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">
+            <Link
+              to="/auth"
+              state={{ openTab: 'signup', returnTo: '/dashboard' }}
+            >
+              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                Join the Beta
+              </button>
+            </Link>
+            <a href="#demo" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">
               See How It Works
-            </button>
+            </a>
           </div>
         </div>
       </div>

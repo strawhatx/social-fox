@@ -22,6 +22,14 @@ const Auth = () => {
   // Get plan info from router state
   const returnTo = location.state?.returnTo || '/dashboard';
 
+  // Open on specific tab when requested (e.g., from "Join the Beta")
+  useEffect(() => {
+    const openTab = location.state?.openTab as 'signin' | 'signup' | undefined;
+    if (openTab) {
+      setActiveTab(openTab);
+    }
+  }, [location.state]);
+
   // Handle authenticated users
   useEffect(() => {
     if (user) {

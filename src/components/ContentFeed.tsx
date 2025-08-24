@@ -114,7 +114,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
       if (!isPlatformConnected(editingPost.platform)) {
         toast({
           title: 'Connection required',
-          description: `Connect ${editingPost.platform} before scheduling a post. Go to Connections to link your account.`,
+          description: `Connect ${editingPost.platform} in Platform Settings to schedule this post.`,
           variant: 'destructive',
         });
         return;
@@ -161,7 +161,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     if (!isPlatformConnected(post.platform)) {
       toast({
         title: 'Connection required',
-        description: `Connect ${post.platform} before scheduling a post. Go to Connections to link your account.`,
+        description: `Connect ${post.platform} in Platform Settings to schedule this post.`,
         variant: 'destructive',
       });
       return;
@@ -186,7 +186,7 @@ export default function ContentFeed({ project }: ContentFeedProps) {
     if (!isPlatformConnected(postToSchedule.platform)) {
       toast({
         title: 'Connection required',
-        description: `Connect ${postToSchedule.platform} before scheduling a post. Go to Connections to link your account.`,
+        description: `Connect ${postToSchedule.platform} in Platform Settings to schedule this post.`,
         variant: 'destructive',
       });
       return;
@@ -307,7 +307,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                           disabled={
                             connectionsLoading ||
                             subscriptionLoading ||
-                            !isPlatformConnected(post.platform) ||
                             (hasPaidSubscription && !hasCredits(1))
                           }
                           title={
@@ -412,7 +411,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                   !editingPost ||
                   connectionsLoading ||
                   subscriptionLoading ||
-                  !isPlatformConnected(editingPost.platform) ||
                   (hasPaidSubscription && !hasCredits(1))
                 }
                 title={
@@ -459,7 +457,6 @@ export default function ContentFeed({ project }: ContentFeedProps) {
                   !postToSchedule ||
                   connectionsLoading ||
                   subscriptionLoading ||
-                  !isPlatformConnected(postToSchedule.platform) ||
                   !canSchedulePosts
                 }
                 title={

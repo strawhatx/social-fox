@@ -5,7 +5,7 @@ import { useAuth } from './useAuth';
 const planConfig = {
   price_1RzSaW8SXkriWv0Z16p61EsZ: {
     type: 'free',
-    credits: 10,
+    credits: 15,
   },
   price_1RzSaY8SXkriWv0Z2B9s1cZ3: {
     type: 'pro',

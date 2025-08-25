@@ -5,7 +5,7 @@ export const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 // Credit amounts based on price IDs - you'll need to configure these based on your Stripe products
 export const PRICE_ID_TO_CREDITS: Record<string, number> = {
     // Example price IDs - replace with your actual Stripe price IDs
-    'price_1RzSaW8SXkriWv0Z16p61EsZ': 10,     // $0 for 10 credits - free plan
+    'price_1RzSaW8SXkriWv0Z16p61EsZ': 15,     // $0 for 10 credits - free plan
     'price_1RzSaY8SXkriWv0Z2B9s1cZ3': 50,         // $9 for 50 credits - pro plan
 };
 

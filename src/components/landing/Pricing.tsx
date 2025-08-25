@@ -13,9 +13,9 @@ const Pricing = () => {
       name: "Free",
       price: "$0",
       period: "forever",
-      credits: "10 credits",
+      credits: "15 credits",
       features: [
-        "10 monthly credits",
+        "15 monthly credits",
         "1 project",
         "Email support"
       ],

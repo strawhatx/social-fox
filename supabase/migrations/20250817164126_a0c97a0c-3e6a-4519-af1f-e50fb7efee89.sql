@@ -7,11 +7,11 @@ SET search_path = public
 AS $$
 BEGIN
   INSERT INTO public.user_credits (user_id, credits)
-  VALUES (NEW.id, 10)
+  VALUES (NEW.id, 15)
   ON CONFLICT (user_id) DO NOTHING;
   
   INSERT INTO public.credit_transactions (user_id, amount, transaction_type, description)
-  VALUES (NEW.id, 10, 'bonus', 'Welcome bonus - 10 free credits');
+  VALUES (NEW.id, 15, 'bonus', 'Welcome bonus - 10 free credits');
   
   RETURN NEW;
 END;

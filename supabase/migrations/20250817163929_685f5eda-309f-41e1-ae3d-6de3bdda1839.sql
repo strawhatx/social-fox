@@ -2,8 +2,8 @@
 CREATE TABLE public.user_credits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  credits INTEGER NOT NULL DEFAULT 10,
-  additional_credits INTEGER NOT NULL DEFAULT 10,
+  credits INTEGER NOT NULL DEFAULT 15,
+  additional_credits INTEGER NOT NULL DEFAULT 50,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   UNIQUE(user_id)
@@ -58,11 +58,11 @@ CREATE OR REPLACE FUNCTION public.initialize_user_credits()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.user_credits (user_id, credits)
-  VALUES (NEW.id, 10)
+  VALUES (NEW.id, 15)
   ON CONFLICT (user_id) DO NOTHING;
   
   INSERT INTO public.credit_transactions (user_id, amount, transaction_type, description)
-  VALUES (NEW.id, 10, 'bonus', 'Welcome bonus - 10 free credits');
+  VALUES (NEW.id, 15, 'bonus', 'Welcome bonus - 15 free credits');
   
   RETURN NEW;
 END;

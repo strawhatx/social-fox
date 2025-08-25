@@ -26,9 +26,9 @@ Update the `PRICE_ID_TO_CREDITS` mapping in `index.ts` with your actual Stripe p
 
 ```typescript
 const PRICE_ID_TO_CREDITS: Record<string, number> = {
-  'price_1ABC123': 10,     // $0 for 100 credits
-  'price_2DEF456': 50,     // $10 for 50 credits  
-  'price_3GHI789': 58,    // $100 for 50 additional credits
+  'price_1ABC123': 15,     // $0 for 15 credits
+  'price_2DEF456': 50,     // $9.99 for 50 credits  
+  'price_3GHI789': 58,    // $5 for 50 additional credits
 };
 ```
 

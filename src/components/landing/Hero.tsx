@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
               <img 
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009418&theme=light&t=1756165331728" 
                 alt="Socialfox — Build in public effortlessly - Turn your GitHub commits into content for X and LinkedIn. | Product Hunt" 
-                className="w-[200px] h-[30px]"
+                className="w-[200px] h-[40px]"
                 width="200" 
                 height="30" 
               />

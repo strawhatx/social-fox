@@ -6,14 +6,16 @@ import Testimonials from '@/components/landing/Testimonials';
 import Footer from '@/components/landing/Footer';
 import Demo from '@/components/landing/Demo';
 import Results from '@/components/landing/Results';
+import PainPoint from '@/components/landing/PainPoint';
 
 const Landing = () => {
   return (
     <div className="min-h-screen bg-white">
       <Hero />
+      <Results />
+      <PainPoint />
       <Features />
       <Demo />
-      <Results />
       <Pricing />
       <Testimonials />
       <CTA />

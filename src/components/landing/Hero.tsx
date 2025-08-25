@@ -87,12 +87,18 @@ const Hero: React.FC = () => {
               state={{ openTab: 'signup', returnTo: '/dashboard' }}
             >
               <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                Join the Beta
+                Start Posting for Free
               </button>
             </Link>
             <a href="#demo" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">
-              See How It Works
+              🎥 Watch Social Fox in Action (2 min)
             </a>
+          </div>
+          
+          <div className="mt-6">
+            <p className="text-sm text-gray-500 font-medium">
+              ✨ Free Beta • No Credit Card Required • 15 Free Credits to Start
+            </p>
           </div>
         </div>
       </div>

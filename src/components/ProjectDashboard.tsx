@@ -55,7 +55,8 @@ export default function ProjectDashboard({ onSelectProject, onProjectCreated }: 
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {projects.length === 0 && (
+          {/* Show create button if user hasn't hit their project limit */}
+          {((hasPaidSubscription && projects.length < 3) || (!hasPaidSubscription && projects.length === 0)) && (
             <Button onClick={async () => {
               const result = await createProject({
                 name: '',

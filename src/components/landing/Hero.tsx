@@ -12,7 +12,22 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 bg-white/20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation Header */}
-        <div className="flex justify-end mb-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center">
+            <a 
+              href="https://www.producthunt.com/products/socialfox-build-in-public-effortlessly?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-socialfox&#0045;build&#0045;in&#0045;public&#0045;effortlessly" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009418&theme=light&t=1756165331728" 
+                alt="Socialfox — Build in public effortlessly - Turn your GitHub commits into content for X and LinkedIn. | Product Hunt" 
+                className="w-[250px] h-[54px]"
+                width="250" 
+                height="54" 
+              />
+            </a>
+          </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="icon" asChild>
               <a

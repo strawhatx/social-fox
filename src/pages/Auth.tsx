@@ -145,7 +145,7 @@ const Auth = () => {
               Social Fox
             </h1>
             <p className="text-gray-600">
-              Sign in to your marketing agent account
+              Sign in to your Socialfox account
             </p>
           </div>
         </div>

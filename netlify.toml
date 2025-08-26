@@ -21,4 +21,18 @@
 [[headers]]
   for = "/index.html"
   [headers.values]
-    Cache-Control = "no-cache" 
+    Cache-Control = "no-cache"
+
+# Sitemap headers for SEO
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# Robots.txt headers
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400" 

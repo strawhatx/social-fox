@@ -111,7 +111,7 @@ const Auth = () => {
       if (error.message.includes("Email not confirmed")) {
         // Trigger resend here
         const { error } = await resendConfirmation(email);
-        
+
         if (error) {
           setError(error.message);
         }
@@ -152,9 +152,13 @@ const Auth = () => {
 
         <Card className="card-modern">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl flex items-center justify-center">
-              <img src="/lovable-uploads/bf4d8e0c-81d5-4740-94d7-64f23ff9fccb.png" alt="Social Fox" className="h-16 w-16 rounded-2xl" />
+          <div className="flex justify-center items-center mb-8">
+            <div className="relative">
+              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-3">
+                <img src="/fox-logo.png" alt="Fox Logo" className="w-8 h-8" />
+              </div>
             </div>
+          </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">
               Sign in to your account or create a new one to get started.

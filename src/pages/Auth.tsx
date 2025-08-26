@@ -161,7 +161,7 @@ const Auth = () => {
           </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">
-              Sign in to your account or create a new one to get started.
+            Welcome! Let’s turn your GitHub commits into posts for Twitter & LinkedIn.
             </CardDescription>
           </CardHeader>
           <CardContent>

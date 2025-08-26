@@ -153,7 +153,7 @@ const Auth = () => {
         <Card className="card-modern">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-2xl flex items-center justify-center">
-              <img src="/fox-logo.png" alt="Social Fox" className="h-16 w-16" />
+              <img src="/lovable-uploads/bf4d8e0c-81d5-4740-94d7-64f23ff9fccb.png" alt="Social Fox" className="h-16 w-16 rounded-2xl" />
             </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">

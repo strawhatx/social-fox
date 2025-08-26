@@ -142,7 +142,7 @@ const Auth = () => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold gradient-text">
-              Welcome Back
+              Social Fox
             </h1>
             <p className="text-gray-600">
               Sign in to your marketing agent account
@@ -152,8 +152,8 @@ const Auth = () => {
 
         <Card className="card-modern">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Zap className="h-8 w-8 text-white" />
+            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl flex items-center justify-center">
+              <img src="/fox-logo.png" alt="Social Fox" className="h-16 w-16" />
             </div>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription className="text-base">

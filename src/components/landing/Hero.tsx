@@ -115,6 +115,18 @@ const Hero: React.FC = () => {
               ✨ Free Beta • No Credit Card Required • 15 Free Credits to Start
             </p>
           </div>
+          
+          <div className="mt-8 flex justify-center space-x-6 text-sm">
+            <a href="#features" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
+              Features
+            </a>
+            <a href="#pricing" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
+              Pricing
+            </a>
+            <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
+              FAQ
+            </a>
+          </div>
         </div>
       </div>
     </section>

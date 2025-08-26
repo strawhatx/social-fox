@@ -1,14 +1,28 @@
-User-agent: Googlebot
+User-agent: *
 Allow: /
 
-User-agent: Bingbot
-Allow: /
+# Block private/sensitive areas
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /project/
+Disallow: /create-project/
+Disallow: /auth/
+Disallow: /*/callback/
 
+# Allow social media crawlers for public pages
 User-agent: Twitterbot
 Allow: /
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /project/
+Disallow: /create-project/
 
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /project/
+Disallow: /create-project/
 
-User-agent: *
-Allow: /
+# Sitemap
+Sitemap: https://socialfox.dev/sitemap.xml

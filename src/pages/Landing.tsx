@@ -7,10 +7,13 @@ import Footer from '@/components/landing/Footer';
 import Demo from '@/components/landing/Demo';
 import Results from '@/components/landing/Results';
 import PainPoint from '@/components/landing/PainPoint';
+import FAQ from '@/components/landing/FAQ';
+import SEOHead from '@/components/SEOHead';
 
 const Landing = () => {
   return (
     <div className="min-h-screen bg-white">
+      <SEOHead pageKey="home" />
       <Hero />
       <Results />
       <PainPoint />
@@ -18,6 +21,7 @@ const Landing = () => {
       <Demo />
       <Pricing />
       <Testimonials />
+      <FAQ />
       <CTA />
       <Footer />
     </div>

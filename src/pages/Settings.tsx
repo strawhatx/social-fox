@@ -13,6 +13,7 @@ import { ArrowLeft, User, CreditCard, ExternalLink, Zap } from 'lucide-react';
 import { createStripeUrl, createCustomerPortalUrl, STRIPE_URLS } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { fetchWithAuth } from '@/lib/api';
+import SEOHead from '@/components/SEOHead';
 
 
 
@@ -80,6 +81,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30">
+      <SEOHead pageKey="settings" />
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-6 py-6 shadow-sm">
         <div className="flex items-center justify-between">

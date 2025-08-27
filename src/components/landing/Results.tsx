@@ -56,19 +56,33 @@ const Results: React.FC = () => {
           <p className="text-lg text-gray-600">Actual examples produced by Social Fox for Twitter/X and LinkedIn.</p>
         </div>
 
-        <Carousel className="w-full max-w-5xl mx-auto" opts={{ align: "start", loop: true }}>
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {posts.map((post, index) => (
-              <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                <div className="h-full">
-                  <ImageCard platform={post.platform} src={post.src} alt={post.alt} />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
-        </Carousel>
+        <div className="relative">
+          <Carousel className="w-full max-w-5xl mx-auto cursor-grab active:cursor-grabbing" opts={{ align: "start", loop: true }}>
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {posts.map((post, index) => (
+                <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 select-none">
+                  <div className="h-full">
+                    <ImageCard platform={post.platform} src={post.src} alt={post.alt} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
+          </Carousel>
+          
+          {/* Drag indicator for mobile */}
+          <div className="flex justify-center mt-4 sm:hidden">
+            <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              <div className="flex gap-1">
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+              </div>
+              <span>Swipe to see more</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

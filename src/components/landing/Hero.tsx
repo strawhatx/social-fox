@@ -9,7 +9,7 @@ const Hero: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-5 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-4 overflow-hidden">
       <div className="absolute inset-0 bg-white/20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation Header */}
@@ -67,15 +67,26 @@ const Hero: React.FC = () => {
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-gray-700 mb-6 max-w-3xl mx-auto font-medium">
+          <p className="text-xl sm:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
             Turn your GitHub activity into ready-to-post content for X and LinkedIn.
           </p>
           
-          <p className="text-lg text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
             Social Fox turns your GitHub activity into engaging, ready-to-post content for Twitter/X and LinkedIn — so indie hackers and busy founders can stay active on their own schedule.
           </p>
           
-          <div className="flex justify-center items-center space-x-8 mb-12">
+          {/* Inline Video */}
+          <div className="relative aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200 mb-8">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/QyJgtkmr9yg"
+              title="Social Fox Demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+          
+          <div className="flex justify-center items-center space-x-8 mb-8">
             <div className="flex items-center space-x-2 text-gray-600">
               <Github className="w-6 h-6" />
               <span className="text-sm font-medium">GitHub Activity</span>

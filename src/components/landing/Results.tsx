@@ -33,7 +33,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ platform, src, alt }) => {
 
 const Results: React.FC = () => {
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+    <section id="examples" className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Real Social Content, Auto-Generated</h2>

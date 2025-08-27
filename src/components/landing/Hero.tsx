@@ -3,16 +3,17 @@ import { Github, Linkedin, Zap, User, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import MicroSurvey from '@/components/landing/MicroSurvey';
 
 const Hero: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-20 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-5 overflow-hidden">
       <div className="absolute inset-0 bg-white/20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
             <a 
               href="https://www.producthunt.com/products/socialfox-build-in-public-effortlessly?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-socialfox&#0045;build&#0045;in&#0045;public&#0045;effortlessly" 
@@ -42,7 +43,7 @@ const Hero: React.FC = () => {
             <Link to={user ? "/dashboard" : "/auth"}>
               <Button variant="outline" className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
-                <span>{user ? "Dashboard" : "Sign In"}</span>
+                <span>{user ? "Dashboard" : "Get Started"}</span>
               </Button>
             </Link>
           </div>
@@ -66,8 +67,8 @@ const Hero: React.FC = () => {
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto font-medium">
-            Let your code do the talking.
+          <p className="text-xl sm:text-2xl text-gray-700 mb-6 max-w-3xl mx-auto font-medium">
+            Turn your GitHub activity into ready-to-post content for X and LinkedIn.
           </p>
           
           <p className="text-lg text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
@@ -96,18 +97,16 @@ const Hero: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <Link
               to="/auth"
               state={{ openTab: 'signup', returnTo: '/dashboard' }}
             >
               <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                Start Posting for Free
+                Generate my first post
               </button>
             </Link>
-            <a href="#demo" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">
-              🎥 Watch Social Fox in Action (2 min)
-            </a>
+            <a href="#examples" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">See examples</a>
           </div>
           
           <div className="mt-6">
@@ -126,6 +125,7 @@ const Hero: React.FC = () => {
             <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               FAQ
             </a>
+            <MicroSurvey formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined} buttonText="Why didn't you sign up?" />
           </div>
         </div>
       </div>

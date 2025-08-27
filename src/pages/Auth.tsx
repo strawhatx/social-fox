@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import SEOHead from '@/components/SEOHead';
+import MicroSurvey from '@/components/landing/MicroSurvey';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -147,7 +148,7 @@ const Auth = () => {
               Social Fox
             </h1>
             <p className="text-gray-600">
-              Sign in to your Socialfox account
+              Sign in to your Social Fox account
             </p>
           </div>
         </div>
@@ -167,6 +168,9 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 flex justify-center">
+              <MicroSurvey formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined} variant="button" buttonText="Tell us what stopped you" />
+            </div>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'signin' | 'signup')} className="w-full">
               <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-gray-100">
                 <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>

@@ -15,17 +15,17 @@ const Hero: React.FC = () => {
         {/* Navigation Header */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <a 
-              href="https://www.producthunt.com/products/socialfox-build-in-public-effortlessly?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-socialfox&#0045;build&#0045;in&#0045;public&#0045;effortlessly" 
+            <a
+              href="https://www.producthunt.com/products/socialfox-build-in-public-effortlessly?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-socialfox&#0045;build&#0045;in&#0045;public&#0045;effortlessly"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img 
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009418&theme=light&t=1756165331728" 
-                alt="Socialfox — Build in public effortlessly - Turn your GitHub commits into content for X and LinkedIn. | Product Hunt" 
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009418&theme=light&t=1756165331728"
+                alt="Socialfox — Build in public effortlessly - Turn your GitHub commits into content for X and LinkedIn. | Product Hunt"
                 className="w-[200px] h-[40px]"
-                width="200" 
-                height="30" 
+                width="200"
+                height="30"
               />
             </a>
           </div>
@@ -59,22 +59,46 @@ const Hero: React.FC = () => {
               </div>
             </div>
           </div>
-          
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6">
-            <span className="block">Social</span>
+
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-4">
+            <span className="block">Build your audience</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
-              Fox
+              while you code — automatically
             </span>
           </h1>
-          
+
           <p className="text-xl sm:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
-            Turn your GitHub activity into ready-to-post content for X and LinkedIn.
+            Turn every GitHub commit into engaging posts for X and LinkedIn.
           </p>
-          
-          <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
-            Social Fox turns your GitHub activity into engaging, ready-to-post content for Twitter/X and LinkedIn — so indie hackers and busy founders can stay active on their own schedule.
-          </p>
-          
+
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">No writer's block</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Automated from your work</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Post on your schedule</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <Link
+              to="/auth"
+              state={{ openTab: 'signup', returnTo: '/dashboard' }}
+            >
+              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                Join the Beta
+              </button>
+            </Link>
+            <a href="#examples" className="border-2 border-gray-300 text-gray-700 px-5 py-3 rounded-lg font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">See examples</a>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-sm text-gray-600 font-medium">
+              ✅ Free beta • No card • 15 credits to start
+            </p>
+          </div>
+
+          <div className="mt-4 text-xs text-gray-500">
+            <span>Trusted by early indie builders • Featured on Product Hunt</span>
+          </div>
+
           {/* Inline Video */}
           <div className="relative aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200 mb-8">
             <iframe
@@ -85,8 +109,8 @@ const Hero: React.FC = () => {
               allowFullScreen
             />
           </div>
-          
-          <div className="flex justify-center items-center space-x-8 mb-8">
+
+          <div className="flex justify-center items-center space-x-8 mb-6">
             <div className="flex items-center space-x-2 text-gray-600">
               <Github className="w-6 h-6" />
               <span className="text-sm font-medium">GitHub Activity</span>
@@ -107,25 +131,9 @@ const Hero: React.FC = () => {
               </div>
             </div>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-            <Link
-              to="/auth"
-              state={{ openTab: 'signup', returnTo: '/dashboard' }}
-            >
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                Generate my first post
-              </button>
-            </Link>
-            <a href="#examples" className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">See examples</a>
-          </div>
-          
-          <div className="mt-6">
-            <p className="text-sm text-gray-500 font-medium">
-              ✨ Free Beta • No Credit Card Required • 15 Free Credits to Start
-            </p>
-          </div>
-          
+
+
+
           <div className="mt-8 flex justify-center space-x-6 text-sm">
             <a href="#features" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               Features
@@ -136,7 +144,12 @@ const Hero: React.FC = () => {
             <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               FAQ
             </a>
-            <MicroSurvey formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined} buttonText="Why didn't you sign up?" />
+            <MicroSurvey 
+              formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined} 
+              buttonText="Why didn't you sign up?" 
+              autoOpenOnExit
+              showOnceKey="tally_exit_shown_home"
+            />
           </div>
         </div>
       </div>

@@ -12,11 +12,10 @@ const CTA: React.FC = () => {
             <img src="/fox-logo.png" alt="Fox Logo" className="w-5 h-5" />
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to let your code do the talking?
+            Start sharing without stopping your flow
           </h2>
           <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-            Join the beta and start turning your GitHub activity into ready-to-share social media content. 
-            No more writer's block, no more missed opportunities to build in public.
+            Turn GitHub commits into posts for X and LinkedIn in seconds.
           </p>
         </div>
 
@@ -32,7 +31,7 @@ const CTA: React.FC = () => {
             </Link>
           </div>
           <p className="text-sm text-gray-400 mt-6 text-center">
-            Be one of the first to try Social Fox. No spam, unsubscribe anytime.
+            Free beta • No card required • Unsubscribe anytime
           </p>
         </div>
       </div>

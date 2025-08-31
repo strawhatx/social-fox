@@ -61,20 +61,23 @@ const Hero: React.FC = () => {
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-4">
-            <span className="block">Build your audience</span>
+            <span className="block">Stay consistent</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
-              while you code — automatically
+              &amp; grow — while you code
             </span>
           </h1>
 
           <p className="text-xl sm:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
-            Turn every GitHub commit into engaging posts for X and LinkedIn.
+            Turn every GitHub commit into posts for X &amp; LinkedIn.<br />
+            <span className="inline-block mt-2 text-orange-600">👉 Next up: Get inspiration, timing guidance, and insights to make your content more effective.</span>
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-6">
             <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">No writer's block</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Automated from your work</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Post on your schedule</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Generate posts</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Top-performing inspiration (BETA)</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Amplification guidance (BETA)</span>
+
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
@@ -132,8 +135,6 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-
-
           <div className="mt-8 flex justify-center space-x-6 text-sm">
             <a href="#features" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               Features
@@ -144,9 +145,9 @@ const Hero: React.FC = () => {
             <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               FAQ
             </a>
-            <MicroSurvey 
-              formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined} 
-              buttonText="Why didn't you sign up?" 
+            <MicroSurvey
+              formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined}
+              buttonText="Why didn't you sign up?"
               autoOpenOnExit
               showOnceKey="tally_exit_shown_home"
             />

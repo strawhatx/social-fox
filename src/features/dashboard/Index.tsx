@@ -3,25 +3,23 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Target, Heart, Repeat2, Eye, BarChart3 } from "lucide-react";
 import StatsCard from "@/components/StatCards";
+import { useActiveWorkspace } from '@/hooks/useActiveWorkspace';
+import { useSuggestedTimes } from '@/features/dashboard/hooks/useSuggestedTimes';
+import { useDashboardStats } from '@/features/dashboard/hooks/useDashboardStats';
 
 export default function Dashboard() {
-  const dailyStreak = 7;
+  const { workspaceId } = useActiveWorkspace();
   const weeklyGoal = 21;
-  const currentWeekPosts = 15;
-  
+  const { loading: loadingStats, dailyStreak, currentWeekPosts, cards } = useDashboardStats(workspaceId);
+
   const stats = [
-    { title: "Total Likes", value: "2,847", change: "+12%", icon: <Heart className="h-5 w-5 text-red-500" /> },
-    { title: "Retweets", value: "456", change: "+8%", icon: <Repeat2 className="h-5 w-5 text-green-500" /> },
-    { title: "Potential Reach", value: "45.2K", change: "+15%", icon: <Eye className="h-5 w-5 text-blue-500" /> },
-    { title: "Engagement Rate", value: "4.2%", change: "+2.1%", icon: <BarChart3 className="h-5 w-5 text-purple-500" /> }
+    { title: "Total Likes", value: cards?.totalLikes.value || '—', change: cards?.totalLikes.change || '+0%', icon: <Heart className="h-5 w-5 text-red-500" /> },
+    { title: "Retweets", value: cards?.totalRetweets.value || '—', change: cards?.totalRetweets.change || '+0%', icon: <Repeat2 className="h-5 w-5 text-green-500" /> },
+    { title: "Potential Reach", value: cards?.potentialReach.value || '—', change: cards?.potentialReach.change || '+0%', icon: <Eye className="h-5 w-5 text-blue-500" /> },
+    { title: "Engagement Rate", value: cards?.engagementRate.value || '—', change: cards?.engagementRate.change || '+0%', icon: <BarChart3 className="h-5 w-5 text-purple-500" /> }
   ];
 
-  const suggestedTimes = [
-    { time: "9:00 AM", day: "Today", optimal: true },
-    { time: "1:00 PM", day: "Today", optimal: false },
-    { time: "5:00 PM", day: "Today", optimal: true },
-    { time: "9:00 AM", day: "Tomorrow", optimal: false },
-  ];
+  const { times: suggestedTimes, loading: loadingSuggested } = useSuggestedTimes(workspaceId);
 
   return (
     <div className="p-6 space-y-6">
@@ -44,19 +42,31 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Daily Streak</p>
-              <p className="text-2xl font-semibold">{dailyStreak} days</p>
+              <p className="text-2xl font-semibold">{loadingStats ? '—' : `${dailyStreak} days`}</p>
             </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
-              On Fire! 🔥
-            </Badge>
+            {(() => {
+              const pct = loadingStats ? 0 : Math.min(100, Math.round((currentWeekPosts / weeklyGoal) * 100));
+              const status = pct >= 100
+                ? { text: 'Goal met! 🎉', cls: 'bg-green-100 text-green-700' }
+                : pct >= 75
+                ? { text: 'On Fire! 🔥', cls: 'bg-green-100 text-green-700' }
+                : pct >= 40
+                ? { text: 'On Track', cls: 'bg-blue-100 text-blue-700' }
+                : { text: 'Keep Going', cls: 'bg-amber-100 text-amber-700' };
+              return (
+                <Badge variant="secondary" className={status.cls}>
+                  {loadingStats ? '—' : status.text}
+                </Badge>
+              );
+            })()}
           </div>
           
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Weekly Progress</span>
-              <span>{currentWeekPosts}/{weeklyGoal} posts</span>
+              <span>{loadingStats ? '—' : currentWeekPosts}/{weeklyGoal} posts</span>
             </div>
-            <Progress value={(currentWeekPosts / weeklyGoal) * 100} className="h-2" />
+            <Progress value={loadingStats ? 0 : (currentWeekPosts / weeklyGoal) * 100} className="h-2" />
           </div>
         </CardContent>
       </Card>
@@ -84,7 +94,7 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {suggestedTimes.map((suggestion, index) => (
+            {!loadingSuggested && suggestedTimes.map((suggestion, index) => (
               <div
                 key={index}
                 className={`p-3 rounded-lg border ${
@@ -106,6 +116,9 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            {loadingSuggested && (
+              <div className="text-sm text-muted-foreground">Loading suggestions…</div>
+            )}
           </div>
         </CardContent>
       </Card>

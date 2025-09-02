@@ -92,11 +92,6 @@ export type Database = {
           platform: string
           posted_at: string | null
           workspace_id: string | null
-          twitter_likes: number | null
-          twitter_retweets: number | null
-          twitter_replies: number | null
-          twitter_url: string | null
-          twitter_post_id: string | null
           scheduled_at: string | null
           status: string
           updated_at: string
@@ -110,11 +105,6 @@ export type Database = {
           platform: string
           posted_at?: string | null
           workspace_id?: string | null
-          twitter_likes?: number | null
-          twitter_retweets?: number | null
-          twitter_replies?: number | null
-          twitter_url?: string | null
-          twitter_post_id?: string | null
           scheduled_at?: string | null
           status?: string
           updated_at?: string
@@ -128,11 +118,6 @@ export type Database = {
           platform?: string
           posted_at?: string | null
           workspace_id?: string | null
-          twitter_likes?: number | null
-          twitter_retweets?: number | null
-          twitter_replies?: number | null
-          twitter_url?: string | null
-          twitter_post_id?: string | null
           scheduled_at?: string | null
           status?: string
           updated_at?: string

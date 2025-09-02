@@ -8,16 +8,13 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 import SidebarLayout from "./components/Layout";
-import TweetBuilder from "./features/tweet-builder/Index";
 import DashboardPage from "./pages/Dashboard";
 import TweetBuilderPage from "./pages/TweetBuilder";
 import SchedulerPage from "./pages/Scheduler";
-import ConversationsPage from "./pages/Conversations";
 import CommunityPage from "./pages/Community";
 import OutreachPage from "./pages/Outreach";
 
@@ -52,17 +49,6 @@ const App = () => (
                   <ProtectedRoute>
                     <SidebarLayout>
                       <TweetBuilderPage />
-                    </SidebarLayout>
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/conversations"
-                element={
-                  <ProtectedRoute>
-                    <SidebarLayout>
-                      <ConversationsPage />
                     </SidebarLayout>
                   </ProtectedRoute>
                 }

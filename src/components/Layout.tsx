@@ -26,20 +26,11 @@ const menuItems = [
       description: "Create tweets from commits and AI suggestions"
     },
     {
-      id: "conversations",
-      title: "Conversations",
-      path: "/conversations",
-      icon: "💬",
-      color: "text-green-500 hover:bg-green-50",
-      stats: "12 trending",
-      description: "Engage with trending conversations"
-    },
-    {
       id: "community",
       title: "Community",
       path: "/community",
-      icon: "@",
-      color: "text-red-500 hover:bg-red-50",
+      icon: "👥",
+      color: "text-pink-500 hover:bg-pink-50",
       stats: "6 posts",
       description: "Engage with your community"
     },

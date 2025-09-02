@@ -37,4 +37,23 @@ export function createCustomerPortalUrl(userEmail: string) {
   return `${STRIPE_CUSTOMER_PORTAL}?prefilled_email=${encodeURIComponent(userEmail)}`
 }
 
+// Async error wrapper so consumers avoid repetitive try/catch
+export async function withAsync<T>(promise: PromiseLike<T>): Promise<[T | null, unknown | null]> {
+  try {
+    const result = await promise
+    return [result, null]
+  } catch (err) {
+    return [null, err]
+  }
+}
 
+export function withAsyncFn<TArgs extends any[], TResult>(fn: (...args: TArgs) => Promise<TResult>) {
+  return async (...args: TArgs): Promise<[TResult | null, unknown | null]> => {
+    try {
+      const res = await fn(...args)
+      return [res, null]
+    } catch (err) {
+      return [null, err]
+    }
+  }
+}

@@ -7,15 +7,15 @@ export interface GoogleAuthUser {
   name: string;
 }
 
-export const useGoogleAuth = (projectId?: string) => {
+export const useGoogleAuth = (workspaceId?: string) => {
   const [authorizingStates, setAuthorizingStates] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
   const initiateGoogleAuth = useCallback(async (agentType: string, integrationName: string = 'Google Sheets') => {
-    if (!projectId) {
+    if (!workspaceId) {
       toast({
         title: "Error",
-        description: "Project ID is required for authorization",
+        description: "Workspace ID is required for authorization",
         variant: "destructive",
       });
       return;
@@ -30,7 +30,7 @@ export const useGoogleAuth = (projectId?: string) => {
       
       await oauthService.startOAuthFlow({
         provider,
-        projectId,
+        workspaceId,
         additionalParams: {
           agent_type: agentType
         }
@@ -58,10 +58,10 @@ export const useGoogleAuth = (projectId?: string) => {
       const authKey = `${agentType}_${integrationName}`;
       setAuthorizingStates(prev => ({ ...prev, [authKey]: false }));
     }
-  }, [projectId, toast]);
+  }, [workspaceId, toast]);
 
   const refreshGoogleToken = useCallback(async (agentType: string) => {
-    if (!projectId) return;
+    if (!workspaceId) return;
 
     try {
       // This would typically refresh the token through the OAuth callback system
@@ -78,7 +78,7 @@ export const useGoogleAuth = (projectId?: string) => {
         variant: "destructive",
       });
     }
-  }, [projectId, toast]);
+  }, [workspaceId, toast]);
 
   const getAuthorizingState = useCallback((agentType: string, integrationName: string) => {
     const authKey = `${agentType}_${integrationName}`;

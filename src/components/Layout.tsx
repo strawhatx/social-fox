@@ -1,16 +1,73 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
 import { ToastProvider } from "./ui/toast";
 
+const menuItems = [
+    {
+      id: "home",
+      title: "Home",
+      path: "/dashboard",
+      icon: "🏠",
+      color: "text-blue-500 hover:bg-blue-50",
+      stats: "7-day streak",
+      description: "View your posting streak and engagement stats"
+    },
+    {
+      id: "tweet-builder",
+      title: "Tweet Builder",
+      path: "/tweet-builder",
+      icon: "🐦",
+      color: "text-purple-500 hover:bg-purple-50",
+      stats: "3 AI suggestions",
+      description: "Create tweets from commits and AI suggestions"
+    },
+    {
+      id: "conversations",
+      title: "Conversations",
+      path: "/conversations",
+      icon: "💬",
+      color: "text-green-500 hover:bg-green-50",
+      stats: "12 trending",
+      description: "Engage with trending conversations"
+    },
+    {
+      id: "community",
+      title: "Community",
+      path: "/community",
+      icon: "@",
+      color: "text-red-500 hover:bg-red-50",
+      stats: "6 posts",
+      description: "Engage with your community"
+    },
+    {
+      id: "outreach",
+      title: "Outreach Assistant",
+      path: "/outreach",
+      icon: "🎯",
+      color: "text-indigo-500 hover:bg-indigo-50",
+      stats: "4 new leads",
+      description: "AI-powered recommendations to grow your network"
+    },
+    {
+      id: "scheduler",
+      title: "Scheduler",
+      path: "/scheduler",
+      icon: "📅",
+      color: "text-orange-500 hover:bg-orange-50",
+      stats: "5 queued",
+      description: "Manage your scheduled tweets"
+    }
+  ];
+
 
 // Sidebar component
-export function Sidebar({ menuItems, activeTab, onTabChange, isMobileSidebarOpen, setIsMobileSidebarOpen }: {
+export function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {
   menuItems: any[];
   activeTab: string;
-  onTabChange: (tabId: string) => void;
   isMobileSidebarOpen: boolean;
   setIsMobileSidebarOpen: (open: boolean) => void;
 }) {
@@ -31,18 +88,19 @@ export function Sidebar({ menuItems, activeTab, onTabChange, isMobileSidebarOpen
         md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-8 shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
-          <span className="text-white font-bold">SF</span>
+        <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-8 shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+          <img src="/fox-logo.png" alt="Fox Logo" className="w-4 h-4" />
         </div>
+
         {/* Navigation Items */}
         <nav className="flex flex-col gap-4 flex-1 w-full px-2">
           {menuItems.map((item) => (
             <Tooltip key={item.id} delayDuration={150}>
               <TooltipTrigger asChild>
-                <button
-                  onClick={() => onTabChange(item.id)}
+                <Link
+                  to={item.path}
                   className={`
-                    w-full h-12 rounded-xl flex items-center justify-center text-2xl
+                    w-full h-12 rounded-xl flex items-center justify-center text-lg
                     transition-all duration-200 relative group cursor-pointer
                     hover:shadow-md active:scale-95
                     ${activeTab === item.id 
@@ -50,11 +108,12 @@ export function Sidebar({ menuItems, activeTab, onTabChange, isMobileSidebarOpen
                       : `text-muted-foreground hover:scale-105 ${item.color} hover:shadow-sm`
                     }
                   `}
+                  onClick={() => setIsMobileSidebarOpen(false)}
                 >
                   <span className="group-hover:scale-110 transition-transform duration-150">
                     {item.icon}
                   </span>
-                </button>
+                </Link>
               </TooltipTrigger>
               <TooltipContent side="right" className="ml-3 hidden md:block max-w-64 p-3">
                 <div className="space-y-2">
@@ -77,18 +136,16 @@ export function Sidebar({ menuItems, activeTab, onTabChange, isMobileSidebarOpen
 }
 
 // SidebarLayout component
-export default function SidebarLayout({ children, menuItems, initialTab = "home" }: {
-  children: React.ReactNode;
-  menuItems: any[];
-  initialTab?: string;
-}) {
-  const [activeTab, setActiveTab] = useState(initialTab);
+export default function SidebarLayout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("home");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    setIsMobileSidebarOpen(false);
-  };
+  useEffect(() => {
+    // Find the menu item whose path matches the current location
+    const found = menuItems.find(item => location.pathname.startsWith(item.path));
+    setActiveTab(found ? found.id : "home");
+  }, [location.pathname]);
 
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
@@ -100,7 +157,6 @@ export default function SidebarLayout({ children, menuItems, initialTab = "home"
         <Sidebar
           menuItems={menuItems}
           activeTab={activeTab}
-          onTabChange={handleTabChange}
           isMobileSidebarOpen={isMobileSidebarOpen}
           setIsMobileSidebarOpen={setIsMobileSidebarOpen}
         />

@@ -22,7 +22,7 @@ export type Database = {
           id: string
           integration_id: string
           is_active: boolean
-          project_id: string
+          workspace_id: string | null
           secrets: Json | null
           status: Database["public"]["Enums"]["connection_status"]
           updated_at: string
@@ -34,7 +34,7 @@ export type Database = {
           id?: string
           integration_id: string
           is_active?: boolean
-          project_id: string
+          workspace_id?: string | null
           secrets?: Json | null
           status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
@@ -46,7 +46,7 @@ export type Database = {
           id?: string
           integration_id?: string
           is_active?: boolean
-          project_id?: string
+          workspace_id?: string | null
           secrets?: Json | null
           status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
@@ -74,25 +74,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "connections_workspace_id_fkey"
+            columns: ["workspace_id"]
             isOneToOne: false
-            referencedRelation: "projects"
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_connections"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_profiles"
-            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -105,7 +91,12 @@ export type Database = {
           metadata: Json | null
           platform: string
           posted_at: string | null
-          project_id: string
+          workspace_id: string | null
+          twitter_likes: number | null
+          twitter_retweets: number | null
+          twitter_replies: number | null
+          twitter_url: string | null
+          twitter_post_id: string | null
           scheduled_at: string | null
           status: string
           updated_at: string
@@ -118,7 +109,12 @@ export type Database = {
           metadata?: Json | null
           platform: string
           posted_at?: string | null
-          project_id: string
+          workspace_id?: string | null
+          twitter_likes?: number | null
+          twitter_retweets?: number | null
+          twitter_replies?: number | null
+          twitter_url?: string | null
+          twitter_post_id?: string | null
           scheduled_at?: string | null
           status?: string
           updated_at?: string
@@ -131,7 +127,12 @@ export type Database = {
           metadata?: Json | null
           platform?: string
           posted_at?: string | null
-          project_id?: string
+          workspace_id?: string | null
+          twitter_likes?: number | null
+          twitter_retweets?: number | null
+          twitter_replies?: number | null
+          twitter_url?: string | null
+          twitter_post_id?: string | null
           scheduled_at?: string | null
           status?: string
           updated_at?: string
@@ -270,60 +271,6 @@ export type Database = {
         }
         Relationships: []
       }
-      projects: {
-        Row: {
-          automation_enabled: boolean
-          automation_frequency: string | null
-          brand_voice: string | null
-          content_sources: number | null
-          created_at: string
-          description: string | null
-          id: string
-          last_fetched_at: string | null
-          last_generated: string | null
-          name: string
-          platforms: string[] | null
-          status: string
-          target_audience: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          automation_enabled?: boolean
-          automation_frequency?: string | null
-          brand_voice?: string | null
-          content_sources?: number | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          last_fetched_at?: string | null
-          last_generated?: string | null
-          name: string
-          platforms?: string[] | null
-          status?: string
-          target_audience?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          automation_enabled?: boolean
-          automation_frequency?: string | null
-          brand_voice?: string | null
-          content_sources?: number | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          last_fetched_at?: string | null
-          last_generated?: string | null
-          name?: string
-          platforms?: string[] | null
-          status?: string
-          target_audience?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_credits: {
         Row: {
           additional_credits: number | null
@@ -351,6 +298,41 @@ export type Database = {
         }
         Relationships: []
       }
+      workspaces: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       connections_public: {
@@ -362,7 +344,6 @@ export type Database = {
           id: string | null
           integration_id: string | null
           is_active: boolean | null
-          project_id: string | null
           refresh_token_expires_at: number | null
           status: Database["public"]["Enums"]["connection_status"] | null
           updated_at: string | null
@@ -375,7 +356,6 @@ export type Database = {
           id?: string | null
           integration_id?: string | null
           is_active?: boolean | null
-          project_id?: string | null
           refresh_token_expires_at?: never
           status?: Database["public"]["Enums"]["connection_status"] | null
           updated_at?: string | null
@@ -388,7 +368,6 @@ export type Database = {
           id?: string | null
           integration_id?: string | null
           is_active?: boolean | null
-          project_id?: string | null
           refresh_token_expires_at?: never
           status?: Database["public"]["Enums"]["connection_status"] | null
           updated_at?: string | null
@@ -415,27 +394,6 @@ export type Database = {
             referencedRelation: "integrations_public_safe"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_connections"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_profiles"
-            referencedColumns: ["project_id"]
-          },
         ]
       }
       github_connections_with_credits: {
@@ -450,7 +408,6 @@ export type Database = {
           integration_name: string | null
           is_active: boolean | null
           last_fetched_at: string | null
-          project_id: string | null
           project_name: string | null
           provider: string | null
           status: Database["public"]["Enums"]["connection_status"] | null
@@ -479,27 +436,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations_public_safe"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_connections"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "connections_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects_with_profiles"
-            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -581,31 +517,6 @@ export type Database = {
         }
         Relationships: []
       }
-      projects_with_connections: {
-        Row: {
-          connections: Json | null
-          project_id: string | null
-          project_name: string | null
-        }
-        Relationships: []
-      }
-      projects_with_profiles: {
-        Row: {
-          content_sources: number | null
-          created_at: string | null
-          description: string | null
-          last_generated: string | null
-          name: string | null
-          platforms: string[] | null
-          project_id: string | null
-          updated_at: string | null
-          user_avatar_url: string | null
-          user_email: string | null
-          user_full_name: string | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       scheduled_content_posts_with_credits: {
         Row: {
           content: string | null
@@ -617,8 +528,6 @@ export type Database = {
           metadata: Json | null
           platform: string | null
           posted_at: string | null
-          project_id: string | null
-          project_name: string | null
           scheduled_at: string | null
           status: string | null
           total_scheduled_posts: number | null

@@ -3,7 +3,7 @@ import { Github, Linkedin, Zap, User, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import MicroSurvey from '@/components/landing/MicroSurvey';
+import MicroSurvey from '@/features/landing/MicroSurvey';
 
 const Hero: React.FC = () => {
   const { user } = useAuth();

@@ -1,17 +1,16 @@
-import CTA from '@/components/landing/CTA';
-import Hero from '@/components/landing/Hero';
-import Features from '@/components/landing/Features';
-import Pricing from '@/components/landing/Pricing';
-import Testimonials from '@/components/landing/Testimonials';
-import Footer from '@/components/landing/Footer';
-
-import Results from '@/components/landing/Results';
-import PainPoint from '@/components/landing/PainPoint';
-import FAQ from '@/components/landing/FAQ';
+import CTA from '@/features/landing/CTA';
+import Hero from '@/features/landing/Hero';
+import Features from '@/features/landing/Features';
+import Pricing from '@/features/landing/Pricing';
+import Testimonials from '@/features/landing/Testimonials';
+import Footer from '@/features/landing/Footer';
+import Results from '@/features/landing/Results';
+import PainPoint from '@/features/landing/PainPoint';
+import FAQ from '@/features/landing/FAQ';
 import SEOHead from '@/components/SEOHead';
-import MicroSurvey from '@/components/landing/MicroSurvey';
+import MicroSurvey from '@/features/landing/MicroSurvey';
 
-const Landing = () => {
+const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <SEOHead pageKey="home" />
@@ -34,4 +33,4 @@ const Landing = () => {
   );
 };
 
-export default Landing;
+export default LandingPage;

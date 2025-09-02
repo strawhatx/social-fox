@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import SEOHead from '@/components/SEOHead';
-import MicroSurvey from '@/components/landing/MicroSurvey';
+import MicroSurvey from '@/features/landing/MicroSurvey';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);

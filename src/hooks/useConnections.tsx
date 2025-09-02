@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { withAsync } from '@/lib/utils';
 import { useAuth } from './useAuth';
 
 export interface Connection {
   id: string;
-  project_id: string;
+  workspace_id: string;
   integration_id: string;
   config_public: Record<string, any>;
   secrets?: Record<string, any>;
@@ -28,7 +29,7 @@ export interface Integration {
   updated_at: string;
 }
 
-export const useConnections = (projectId?: string) => {
+export const useConnections = (workspaceId?: string) => {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,12 +46,11 @@ export const useConnections = (projectId?: string) => {
     setLoading(true);
     try {
       // Fetch integrations
-      const { data: integrationsData, error: integrationsError } = await supabase
-        .from('integrations')
-        .select('*')
-        .eq('is_active', true);
-
-      if (integrationsError) throw integrationsError;
+      const [integrationsResp, integrationsErr] = await withAsync(
+        supabase.from('integrations').select('*').eq('is_active', true)
+      );
+      if (integrationsErr) throw integrationsErr;
+      const integrationsData = (integrationsResp as any)?.data;
       
       // Adapt data to match our interface (handle legacy config_data -> config_public)
       const adaptedIntegrations = (integrationsData || []).map((integration: any) => ({
@@ -60,16 +60,13 @@ export const useConnections = (projectId?: string) => {
       
       setIntegrations(adaptedIntegrations as Integration[]);
 
-      // Fetch connections for the project if projectId is provided
-      if (projectId) {
-        const { data: connectionsData, error: connectionsError } = await supabase
-          .from('connections')
-          .select('*')
-          .eq('project_id', projectId)
-          .eq('is_active', true);
-
-        if (connectionsError) throw connectionsError;
-        setConnections((connectionsData || []) as Connection[]);
+      // Fetch connections for the workspace if workspaceId is provided
+      if (workspaceId) {
+        const [connectionsResp, connectionsErr] = await withAsync(
+          supabase.from('connections').select('*').eq('workspace_id', workspaceId).eq('is_active', true)
+        );
+        if (connectionsErr) throw connectionsErr;
+        setConnections((((connectionsResp as any)?.data) || []) as Connection[]);
       } else {
         setConnections([]);
       }
@@ -87,21 +84,23 @@ export const useConnections = (projectId?: string) => {
     configPublic: Record<string, any>,
     secrets?: Record<string, any>
   ) => {
-    if (!user || !projectId) return { error: 'User not authenticated or no project ID' };
+    if (!user || !workspaceId) return { error: 'User not authenticated or no workspace ID' };
 
     try {
-      const { data, error } = await supabase
-        .from('connections')
-        .insert({
-          project_id: projectId,
-          integration_id: integrationId,
-          config_public: configPublic,
-          secrets: secrets
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const [insertResp, insertErr] = await withAsync(
+        supabase
+          .from('connections')
+          .insert({
+            workspace_id: workspaceId,
+            integration_id: integrationId,
+            config_public: configPublic,
+            secrets: secrets
+          })
+          .select()
+          .single()
+      );
+      if (insertErr) throw insertErr;
+      const data = (insertResp as any)?.data;
       
       await fetchData();
       return { data, error: null };
@@ -123,14 +122,11 @@ export const useConnections = (projectId?: string) => {
     if (secrets !== undefined) updateData.secrets = secrets;
 
     try {
-      const { data, error } = await supabase
-        .from('connections')
-        .update(updateData)
-        .eq('id', connectionId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const [updateResp, updateErr] = await withAsync(
+        supabase.from('connections').update(updateData).eq('id', connectionId).select().single()
+      );
+      if (updateErr) throw updateErr;
+      const data = (updateResp as any)?.data;
       
       await fetchData();
       return { data, error: null };
@@ -144,12 +140,10 @@ export const useConnections = (projectId?: string) => {
     if (!user) return { error: 'User not authenticated' };
 
     try {
-      const { error } = await supabase
-        .from('connections')
-        .delete()
-        .eq('id', connectionId);
-
-      if (error) throw error;
+      const [, delErr] = await withAsync(
+        supabase.from('connections').delete().eq('id', connectionId)
+      );
+      if (delErr) throw delErr;
       
       await fetchData();
       return { error: null };
@@ -169,7 +163,7 @@ export const useConnections = (projectId?: string) => {
 
   useEffect(() => {
     fetchData();
-  }, [user, projectId]);
+  }, [user, workspaceId]);
 
   return {
     connections,

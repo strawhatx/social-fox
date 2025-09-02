@@ -1,13 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import Dashboard from "@/features/dashboard/Index";
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const { signOut, user } = useAuth();
-
+const DashboardPage = () => {
   return (
-<></>
+    <Dashboard />
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

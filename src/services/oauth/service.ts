@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface OAuthConfig {
   provider: string;
-  projectId: string;
+  workspaceId: string;
   additionalParams?: Record<string, string>;
 }
 
@@ -17,7 +17,7 @@ export class OAuthService {
 
       const { data, error } = await supabase.functions.invoke('process-oauth', {
         body: {
-          project_id: config.projectId,
+          workspace_id: config.workspaceId,
           provider: config.provider,
           user_id: user.id,
           ...config.additionalParams

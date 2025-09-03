@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { MessageCircle, Users, Heart } from 'lucide-react';
 
-const Testimonials: React.FC = () => {
+const Testimonials = () => {
 
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">

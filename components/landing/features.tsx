@@ -1,7 +1,8 @@
-import React from 'react';
+'use client';
+
 import { Bot, Settings, Clock, CheckCircle, Twitter, Linkedin } from 'lucide-react';
 
-const Features: React.FC = () => {
+const Features = () => {
   const features = [
     {
       icon: <Bot className="w-8 h-8 text-orange-500" />,

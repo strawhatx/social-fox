@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Twitter, Linkedin } from 'lucide-react';
 import {
@@ -14,7 +16,7 @@ type ImageCardProps = {
   alt: string;
 };
 
-const ImageCard: React.FC<ImageCardProps> = ({ platform, src, alt }) => {
+const ImageCard<ImageCardProps> = ({ platform, src, alt }) => {
   const isTwitter = platform === 'twitter';
   return (
     <div className="bg-gradient-to-br from-white to-gray-50/50 border-2 border-gray-100 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
@@ -40,7 +42,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ platform, src, alt }) => {
   );
 };
 
-const Results: React.FC = () => {
+const Results = () => {
   const posts = [
     { platform: "twitter" as const, src: "/results/x-post-1.jpeg", alt: "Example Twitter post 1" },
     { platform: "linkedin" as const, src: "/results/linkedin-post-1.jpeg", alt: "Example LinkedIn post" },

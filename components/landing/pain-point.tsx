@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Clock, FileText, Zap } from 'lucide-react';
 
-const PainPoint: React.FC = () => {
+const PainPoint = () => {
   const painPoints = [
     {
       icon: Clock,

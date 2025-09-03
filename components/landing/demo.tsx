@@ -1,6 +1,6 @@
-import React from 'react';
+'use client';
 
-const Demo: React.FC = () => {
+const Demo = () => {
   return (
     <section id="demo" className="py-20 bg-white scroll-mt-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

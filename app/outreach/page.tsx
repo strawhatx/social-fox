@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SidebarLayout from '@/components/sidebar-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -180,6 +181,7 @@ export default function PersonalizedOutreach() {
   };
 
   return (
+    <SidebarLayout>
     <div className="p-6 space-y-6">
       {/* Header with Niche Analysis */}
       <div className="space-y-4">
@@ -520,5 +522,6 @@ export default function PersonalizedOutreach() {
         </div>
       </div>
     </div>
+    </SidebarLayout>
   );
 }

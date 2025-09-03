@@ -1,9 +1,9 @@
-import React from 'react';
+'use client';
+
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
-const CTA: React.FC = () => {
-
+const CTA = () => {
   return (
     <section className="py-20 bg-gradient-to-r from-gray-900 to-gray-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -22,8 +22,7 @@ const CTA: React.FC = () => {
         <div className="max-w-md mx-auto">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/auth"
-              state={{ openTab: 'signup', returnTo: '/dashboard' }}
+              href="/sign-up"
               className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <span>Join the Beta</span>

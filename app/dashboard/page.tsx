@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import SidebarLayout from '@/components/sidebar-layout';
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Target, Heart, Repeat2, Eye, BarChart3 } from "lucide-react";
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const { times: suggestedTimes, loading: loadingSuggested } = useSuggestedTimes();
 
   return (
+    <SidebarLayout>
     <div className="p-6 space-y-6">
       <div>
         <h1 className="mb-2">Dashboard</h1>
@@ -121,5 +123,6 @@ export default function Dashboard() {
         </CardContent>
       </Card>
     </div>
+    </SidebarLayout>
   );
 }

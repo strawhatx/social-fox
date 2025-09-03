@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useSchedulerPosts, type SchedulerItem } from '@/hooks/use-scheduler-posts';
 import EditPost from '@/components/edit-post';
+import SidebarLayout from '@/components/sidebar-layout';
 
 export default function Scheduler() {
   const [filterType, setFilterType] = useState("all");
@@ -114,6 +115,7 @@ export default function Scheduler() {
   };
 
   return (
+    <SidebarLayout>
     <>
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -292,5 +294,6 @@ export default function Scheduler() {
       />
     )}
   </>
+  </SidebarLayout>
   );
 }

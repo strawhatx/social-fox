@@ -1,8 +1,8 @@
-import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Helmet } from 'react-helmet-async';
+'use client';
 
-const FAQ: React.FC = () => {
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
+const FAQ = () => {
   const faqs = [
     {
       question: "How does Social Fox automate my GitHub activity into social posts?",
@@ -54,12 +54,12 @@ const FAQ: React.FC = () => {
 
   return (
     <section id="faq" className="py-20 bg-gray-50">
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(faqStructuredData)}
-        </script>
-      </Helmet>
-      
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -72,8 +72,8 @@ const FAQ: React.FC = () => {
 
         <Accordion type="single" collapsible className="w-full space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem 
-              key={index} 
+            <AccordionItem
+              key={index}
               value={`item-${index}`}
               className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 px-6"
             >
@@ -94,8 +94,8 @@ const FAQ: React.FC = () => {
           <p className="text-gray-600 mb-6">
             Can't find the answer you're looking for? We'd love to help you out.
           </p>
-          <a 
-            href="mailto:support@socialfox.dev" 
+          <a
+            href="mailto:support@socialfox.dev"
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
             Contact Support

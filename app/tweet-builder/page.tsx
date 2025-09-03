@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SidebarLayout from '@/components/sidebar-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
@@ -13,8 +14,7 @@ import {
   Send,
   Copy,
   Hash,
-  AtSign,
-  Plus
+  AtSign
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -102,6 +102,7 @@ export default function TweetBuilder() {
   };
 
   return (
+    <SidebarLayout>
     <div className="flex h-full">
       {/* Left Panel - Content Sources with Tabs */}
       <div className="w-2/3 border-r border-border p-4">
@@ -298,5 +299,6 @@ export default function TweetBuilder() {
         )}
       </div>
     </div>
+    </SidebarLayout>
   );
 }

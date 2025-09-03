@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent } from "./ui/card";
 import { TrendingUp, TrendingDown } from "lucide-react";
 

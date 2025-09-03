@@ -1,12 +1,14 @@
+'use client';
+
 import { Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const Pricing = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, isSignedIn } = useUser();
+  const router = useRouter();
   
   const plans = [
     {
@@ -41,19 +43,12 @@ const Pricing = () => {
   ];
 
   const handlePlanAction = (action: string) => {
-    if (!user) {
-      // Navigate to auth with plan info in state
-      navigate('/auth', { 
-        state: { 
-          planType: action,
-          returnTo: '/dashboard' 
-        }
-      });
+    if (!isSignedIn) {
+      router.push('/sign-in');
       return;
     }
 
-    // If user is logged in, redirect to settings for plan management
-    navigate('/settings');
+    router.push('/settings');
   };
   return (
     <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/20">

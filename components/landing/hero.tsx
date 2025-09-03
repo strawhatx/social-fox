@@ -1,12 +1,13 @@
+'use client';
+
 import React from 'react';
 import { Github, Linkedin, Zap, User, Twitter } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import MicroSurvey from '@/app/landing/MicroSurvey';
+import { useUser } from "@clerk/nextjs";
 
-const Hero: React.FC = () => {
-  const { user } = useAuth();
+const Hero = () => {
+  const { user } = useUser();
 
   return (
     <section className="relative bg-gradient-to-br from-blue-50 to-orange-50 py-4 overflow-hidden">
@@ -40,7 +41,7 @@ const Hero: React.FC = () => {
                 <Twitter className="w-4 h-4 text-brand-orange fill-orange-500" />
               </a>
             </Button>
-            <Link to={user ? "/dashboard" : "/auth"}>
+            <Link href={user ? "/dashboard" : "/sign-up"}>
               <Button variant="outline" className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
                 <span>{user ? "Dashboard" : "Get Started"}</span>
@@ -82,8 +83,8 @@ const Hero: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <Link
-              to="/auth"
-              state={{ openTab: 'signup', returnTo: '/dashboard' }}
+              href="/sign-up"
+              as={`/sign-up?openTab=signup&returnTo=/dashboard`}
             >
               <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
                 Join the Beta
@@ -145,12 +146,6 @@ const Hero: React.FC = () => {
             <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
               FAQ
             </a>
-            <MicroSurvey
-              formId={import.meta.env.VITE_TALLY_FORM_ID as string | undefined}
-              buttonText="Why didn't you sign up?"
-              autoOpenOnExit
-              showOnceKey="tally_exit_shown_home"
-            />
           </div>
         </div>
       </div>

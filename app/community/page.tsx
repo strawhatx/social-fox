@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SidebarLayout from '@/components/sidebar-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -215,6 +216,7 @@ export default function Community() {
   });
 
   return (
+    <SidebarLayout>
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="space-y-4">
@@ -534,5 +536,6 @@ export default function Community() {
         </div>
       </div>
     </div>
+    </SidebarLayout>
   );
 }

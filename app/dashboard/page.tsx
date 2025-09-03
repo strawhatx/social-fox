@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SidebarLayout from '@/components/sidebar-layout';
 import { Progress } from "@/components/ui/progress";

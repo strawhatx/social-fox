@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import SidebarLayout from '@/components/sidebar-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -8,6 +8,8 @@ function json(body: unknown, init?: ResponseInit) {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const { userId } = await auth();

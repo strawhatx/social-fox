@@ -8,50 +8,22 @@ import { Badge } from "../../components/ui/badge";
 import { Textarea } from "../../components/ui/textarea";
 import { Separator } from "../../components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import HashtagPicker from "@/components/hashtag-picker";
+import MentionPicker from "@/components/mention-picker";
 
 import {
-  GitCommit,
   Sparkles,
   Clock,
   Send,
   Copy,
-  Hash,
-  AtSign
+  
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function TweetBuilder() {
   const [selectedTweet, setSelectedTweet] = useState("");
   const [editedTweet, setEditedTweet] = useState("");
-
-  const commitTweets = [
-    {
-      id: 1,
-      commit: "feat: Add user authentication system",
-      suggestions: [
-        "🚀 Just shipped user authentication! Finally, your data is safe and sound. #WebDev #Security",
-        "New feature alert! 🔐 Added user authentication to keep your information secure. Building trust, one commit at a time.",
-        "Authentication system is live! 💪 Users can now sign up, log in, and feel confident their data is protected."
-      ]
-    },
-    {
-      id: 2,
-      commit: "fix: Resolve mobile responsive issues",
-      suggestions: [
-        "📱 Fixed those pesky mobile bugs! Your app now looks perfect on every device. #ResponsiveDesign",
-        "Mobile experience just got a major upgrade! 🎯 No more zooming and squinting.",
-        "Bug squashed! 🐛➡️✨ Mobile users, you're gonna love this update."
-      ]
-    },
-    {
-      id: 3,
-      commit: "refactor: Optimize database queries for better performance",
-      suggestions: [
-        "⚡ Database queries are now lightning fast! Performance optimization complete. #Performance",
-        "Speed matters! 🏃‍♂️ Just optimized our database queries for 3x faster load times."
-      ]
-    }
-  ];
+  // suggestion state lifted to components; only insertion logic remains here
 
   const viralSuggestions = [
     "The best developers aren't the ones who never make mistakes—they're the ones who learn from them the fastest. 🧠💡",
@@ -96,6 +68,7 @@ export default function TweetBuilder() {
   };
 
   const addHashtag = () => {
+    // Kept for manual insertion fallback
     setEditedTweet(prev => prev + " #");
   };
 
@@ -103,65 +76,48 @@ export default function TweetBuilder() {
     setEditedTweet(prev => prev + " @");
   };
 
+  // fetching is handled inside HashtagPicker/MentionPicker
+
+  const handleInsertHashtag = (tag: string) => {
+    const cleanTag = tag.startsWith('#') ? tag : `#${tag}`;
+    const addition = (editedTweet.endsWith(' ') || editedTweet.length === 0) ? cleanTag : ` ${cleanTag}`;
+    const next = editedTweet + addition;
+    if (next.length > 280) {
+      toast({
+        title: "Too long",
+        description: "Adding this hashtag would exceed 280 characters.",
+      });
+      return;
+    }
+    setEditedTweet(next);
+  };
+
+  const handleInsertMention = (handle: string) => {
+    const clean = handle.startsWith('@') ? handle : `@${handle}`;
+    const addition = (editedTweet.endsWith(' ') || editedTweet.length === 0) ? clean : ` ${clean}`;
+    const next = editedTweet + addition;
+    if (next.length > 280) {
+      toast({
+        title: "Too long",
+        description: "Adding this mention would exceed 280 characters.",
+      });
+      return;
+    }
+    setEditedTweet(next);
+  };
+
   return (
     <SidebarLayout>
     <div className="flex h-full">
       {/* Left Panel - Content Sources with Tabs */}
       <div className="w-2/3 border-r border-border p-4">
-        <Tabs defaultValue="commits" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="commits" className="flex items-center gap-2">
-              <GitCommit className="h-4 w-4" />
-              Commits
-            </TabsTrigger>
+        <Tabs defaultValue="ai-suggestions" className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="ai-suggestions" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               AI Suggestions
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="commits" className="flex-1 mt-4 space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <GitCommit className="h-5 w-5 text-blue-600" />
-              <h3 className="text-blue-600">Commit-Based Tweets</h3>
-              <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 text-xs">
-                {commitTweets.length} commits
-              </Badge>
-            </div>
-
-            <div className="space-y-4 overflow-y-auto">
-              {commitTweets.map((item) => (
-                <Card key={item.id} className="border-blue-200">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start gap-2">
-                      <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
-                        Commit
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground font-mono">
-                      {item.commit}
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {item.suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="p-3 border border-blue-100 rounded-md cursor-pointer hover:bg-blue-50 transition-colors group"
-                        onClick={() => handleTweetSelect(suggestion)}
-                      >
-                        <p className="text-sm leading-relaxed">{suggestion}</p>
-                        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button size="sm" variant="ghost" className="h-6 text-xs text-blue-600">
-                            Use this tweet
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
 
           <TabsContent value="ai-suggestions" className="flex-1 mt-4 space-y-4">
             <div className="flex items-center gap-2 mb-4">
@@ -229,24 +185,16 @@ export default function TweetBuilder() {
             />
 
             <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={addHashtag}
-                className="flex items-center gap-1"
-              >
-                <Hash className="h-3 w-3" />
-                Hashtag
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={addMention}
-                className="flex items-center gap-1"
-              >
-                <AtSign className="h-3 w-3" />
-                Mention
-              </Button>
+              <HashtagPicker
+                content={editedTweet || selectedTweet || ""}
+                onInsert={handleInsertHashtag}
+                onAddManual={addHashtag}
+              />
+              <MentionPicker
+                content={editedTweet || selectedTweet || ""}
+                onInsert={handleInsertMention}
+                onAddManual={addMention}
+              />
             </div>
 
             <Separator />

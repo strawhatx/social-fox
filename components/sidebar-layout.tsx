@@ -11,7 +11,7 @@ import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 const menuItems = [
   { id: 'home', title: 'Home', path: '/dashboard', icon: '🏠', color: 'text-blue-500 hover:bg-blue-50', stats: '7-day streak', description: 'View your posting streak and engagement stats' },
   { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-purple-500 hover:bg-purple-50', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
-  { id: 'community', title: 'Community', path: '/community', icon: '@', color: 'text-red-500 hover:bg-red-50', stats: '6 posts', description: 'Engage with your community' },
+  { id: 'community', title: 'Community', path: '/community', icon: '👥', color: 'text-red-500 hover:bg-red-50', stats: '6 posts', description: 'Engage with your community' },
   { id: 'outreach', title: 'Outreach Assistant', path: '/outreach', icon: '🎯', color: 'text-indigo-500 hover:bg-indigo-50', stats: '4 new leads', description: 'AI-powered recommendations to grow your network' },
   { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-500 hover:bg-orange-50', stats: '5 queued', description: 'Manage your scheduled tweets' },
 ];

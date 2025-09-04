@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
+import { UserButton, SignOutButton } from '@clerk/nextjs';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 
 const menuItems = [
@@ -109,6 +110,9 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
                 <Menu className="h-4 w-4" />
               </Button>
               <h1 className="text-lg font-semibold">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
+              <div className="ml-auto flex items-center gap-2">
+                <UserButton afterSignOutUrl="/sign-in" />
+              </div>
             </header>
             <div className="flex-1 overflow-auto">{children}</div>
           </main>

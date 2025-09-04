@@ -1,0 +1,39 @@
+{
+  "name": "twitter-account-sync",
+  "version": "1.0.0",
+  "description": "background microservice that syncs twitter accounts",
+  "license": "ISC",
+  "author": "Nathaniel James",
+  "type": "es6",
+  "main": "dist/handler.ts",
+  "scripts": {
+    "dev": "serverless offline",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "deploy": "serverless deploy",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.42",
+    "@supabase/supabase-js": "^2.39.7",
+    "aws-sdk": "^2.1574.0",
+    "bottleneck": "^2.19.5",
+    "dotenv": "^17.2.0",
+    "mongodb": "^6.17.0",
+    "mssql": "^11.0.1",
+    "mysql2": "^3.14.1",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/aws-sdk": "^2.7.4",
+    "@types/mssql": "^9.1.7",
+    "@types/node": "^20.11.24",
+    "@types/pg": "^8.15.4",
+    "serverless": "^4.17.1",
+    "serverless-offline": "^14.4.0",
+    "typescript": "^5.3.3"
+  }
+}

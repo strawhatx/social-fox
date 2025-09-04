@@ -4,24 +4,22 @@ import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Textarea } from './ui/textarea';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
-import { Plus, Image, Hash, AtSign, Smile, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Plus, AtSign, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { TweetComposer } from './tweet-composer';
 import HashtagPicker from './hashtag-picker';
 import EmojiPicker from './emoji-picker';
 import ImageUploader from './image-uploader';
 import SchedulePicker from './schedule-picker';
-import { CommunitySearchPopover } from './community-search-popover';
+import { Input } from './ui/input';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from './ui/hover-card';
 
 export default function TweetEditor() {
     const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
     const [editedTweet, setEditedTweet] = useState('');
     const [isScheduled, setIsScheduled] = useState(false);
-    const [selectedClient, setSelectedClient] = useState('personal');
     const [attachments, setAttachments] = useState<{ url: string; file: File }[]>([]);
-    const [selectedCommunity, setSelectedCommunity] = useState<{ id: string; name: string; platform: string } | null>(null);
+    const [communityUrl, setCommunityUrl] = useState('');
 
     const drafts = [
         "Working on something exciting... stay tuned! 👀",
@@ -132,6 +130,30 @@ export default function TweetEditor() {
 
                 {/* Main Composer */}
                 <div className="bg-muted/20 border-border shadow-sm">
+                    <div className="flex flex-col gap-2 w-full mb-4">
+                        <div className="flex items-center gap-2 max-w-2xl">
+                            <Input
+                                value={communityUrl}
+                                onChange={(e) => setCommunityUrl(e.target.value)}
+                                placeholder="Community URL (e.g. https://x.com/i/communities/123456789)"
+                                className="text-sm"
+                            />
+                            <HoverCard>
+                                <HoverCardTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
+                                        <Info className="h-4 w-4" />
+                                    </Button>
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-80">
+                                    <div className="text-xs font-medium mb-1">Share to a community</div>
+                                    <p className="text-[10px] leading-tight text-muted-foreground">
+                                        Paste the community URL from X. On X: open your Community and copy the URL from the address bar (for example: https://x.com/i/communities/123456789).
+                                    </p>
+                                </HoverCardContent>
+                            </HoverCard>
+                        </div>
+                    </div>
+
                     <TweetComposer
                         value={editedTweet}
                         onChange={setEditedTweet}
@@ -213,42 +235,24 @@ export default function TweetEditor() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="space-y-2 gap-4">
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            disabled={!editedTweet.trim()}
-                            onClick={handlePostNow}
-                            className="text-sm"
-                            size="sm"
-                        >
-                            Tweet now
-                        </Button>
-                        <SchedulePicker
-                            disabled={!editedTweet.trim()}
-                            scheduledAt={isScheduled ? new Date() : undefined}
-                            onConfirm={(d) => {
-                                setIsScheduled(true);
-                                toast({ title: 'Scheduled', description: `Will post ${d.toLocaleString()}` });
-                            }}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <CommunitySearchPopover
-                            onSelect={(c) => {
-                                setSelectedCommunity(c);
-                                toast({ title: 'Community selected', description: c.name });
-                            }}
-                        >
-                            <Button variant="ghost" size="sm" className="text-sm">
-                                Share to community
-                            </Button>
-                        </CommunitySearchPopover>
-                        {selectedCommunity && (
-                            <span className="text-xs text-muted-foreground">Selected: {selectedCommunity.name}</span>
-                        )}
-                    </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        disabled={!editedTweet.trim()}
+                        onClick={handlePostNow}
+                        className="text-sm"
+                        size="sm"
+                    >
+                        Tweet now
+                    </Button>
+                    <SchedulePicker
+                        disabled={!editedTweet.trim()}
+                        scheduledAt={isScheduled ? new Date() : undefined}
+                        onConfirm={(d) => {
+                            setIsScheduled(true);
+                            toast({ title: 'Scheduled', description: `Will post ${d.toLocaleString()}` });
+                        }}
+                    />
                 </div>
             </TabsContent>
 

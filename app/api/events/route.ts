@@ -40,6 +40,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, created: false, actions: [] });
     }
 
+    // Manual conflict check: if a pending job exists for same user/action, return 409
+    const conflicts = await Promise.all(
+      actions.map((a) => sql`SELECT 1 FROM public.twitter_account_sync_job WHERE user_id = ${userId} AND action = ${a} AND status = 'pending' LIMIT 1`)
+    );
+
+    // If a conflict is found, return 200 but don't enqueue the job
+    const hasConflict = conflicts.some((r) => Array.isArray(r) ? r.length > 0 : false);
+    if (hasConflict) {
+      return NextResponse.json({ ok: true, created: false, actions }, { status: 200 });
+    }
+
     // Insert jobs with required action
     await Promise.all(actions.map((a) => sql`INSERT INTO public.twitter_account_sync_job (user_id, action) VALUES (${userId}, ${a})`));
 

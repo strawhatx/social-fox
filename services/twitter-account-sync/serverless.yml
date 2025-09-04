@@ -25,6 +25,11 @@ provider:
 plugins:
   - serverless-offline
 
+custom:
+  serverless-offline:
+    httpPort: 3005
+    lambdaPort: 3006
+
 package:
   patterns:
     - '!node_modules/**'

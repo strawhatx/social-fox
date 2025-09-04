@@ -1,0 +1,27 @@
+{
+  "name": "tweets-sync",
+  "version": "1.0.0",
+  "description": "background microservice that syncs twitter tweets",
+  "license": "ISC",
+  "author": "Nathaniel James",
+  "type": "es6",
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.42",
+    "@google/generative-ai": "^0.17.2",
+    "node-fetch": "^3.3.2",
+    "openai": "^5.15.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/node": "^20.11.24",
+    "@types/pg": "^8.15.4",
+    "serverless": "^4.17.1",
+    "serverless-offline": "^14.4.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -13,7 +13,8 @@ export async function GET(req: Request) {
   if (!token) return Response.json({ communities: [] });
 
   try {
-    const endpoint = `https://api.twitter.com/2/communities/search?max_results=10&query=${encodeURIComponent(q)}`;
+    
+    const endpoint = `https://api.twitter.com/2/communities/search?max_results=10&query=${encodeURIComponent(q)}&community.fields=id&community.fields=name&community.fields=access&community.fields=member_count`;
     const resp = await fetch(endpoint, {
       headers: {
         Authorization: `Bearer ${token}`,

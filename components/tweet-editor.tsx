@@ -213,7 +213,7 @@ export default function TweetEditor() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="space-y-2">
+                <div className="space-y-2 gap-4">
                     <div className="flex items-center gap-2">
                         <Button
                             variant="ghost"

@@ -40,33 +40,6 @@ export function CommunitySearchPopover({
     }
   };
 
-  // Debounced search with cache
-  useEffect(() => {
-    if (!open) return;
-    const term = query.trim();
-    if (term.length < 2) {
-      setResults([]);
-      return;
-    }
-    if (cache.has(term)) {
-      setResults(cache.get(term) || []);
-      return;
-    }
-    const id = setTimeout(async () => {
-      try {
-        setIsSearching(true);
-        const res = await fetch(`/api/communities?q=${encodeURIComponent(term)}`);
-        const json = await res.json();
-        const list: Community[] = json?.communities || [];
-        cache.set(term, list);
-        setResults(list);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 300);
-    return () => clearTimeout(id);
-  }, [query, open, cache]);
-
   const emptyState = useMemo(() => query.trim().length >= 2 && !isSearching && results.length === 0, [query, isSearching, results]);
 
   return (

@@ -37,20 +37,19 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
         return;
       }
 
-      const handle = ((content || "").match(/@([a-zA-Z0-9_]{2,15})/) || [])[1] || undefined;
       const resp = await fetch(`/api/hashtags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, twitterHandle: handle, limit: 10 }),
+        body: JSON.stringify({ content, limit: 10 }),
       });
 
       if (!resp.ok) throw new Error('Failed to fetch hashtags');
-      
+
       const data = await resp.json();
       const result = Array.isArray(data.hashtags) ? data.hashtags : [];
-      
+
       setSuggestions(result);
-      
+
       if (cacheKey) cacheRef.current[cacheKey] = result;
       if (!result.length) setError("No suggestions found. Try a different topic.");
     } catch (e) {
@@ -63,9 +62,8 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="outline" onClick={fetchHashtags} className="flex items-center gap-1">
+        <Button variant="ghost" size="sm" onClick={fetchHashtags} className="text-muted-foreground hover:text-foreground h-7 w-7 p-0">
           <Hash className="h-3 w-3" />
-          Hashtags
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-3">

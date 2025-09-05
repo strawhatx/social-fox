@@ -1,21 +1,28 @@
 import OpenAI from 'openai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 type Profile = {
-  handle: string | null;
-  name?: string | null;
-  description?: string | null;
-  followers_count?: number | null;
-  following_count?: number | null;
-  tweet_count?: number | null;
-  last_posts?: any | null;
+    handle: string | null;
+    name?: string | null;
+    description?: string | null;
+    followers_count?: number | null;
+    following_count?: number | null;
+    tweet_count?: number | null;
+    last_posts?: any | null;
+};
+
+type GeminiResponse = {
+    candidates: {
+        content: {
+            parts: { text: string }[];
+        };
+    }[];
 };
 
 function buildPrompt(profile: Profile, count: number): string {
-  const lastSamples = Array.isArray(profile?.last_posts?.data)
-    ? profile.last_posts.data.slice(0, 5).map((p: any) => `- ${p.text}`).join('\n')
-    : '';
-  return `You are an assistant that writes high-quality, concise tweets for the user @${profile.handle || 'user'}. 
+    const lastSamples = Array.isArray(profile?.last_posts?.data)
+        ? profile.last_posts.data.slice(0, 5).map((p: any) => `- ${p.text}`).join('\n')
+        : '';
+    return `You are an assistant that writes high-quality, concise tweets for the user @${profile.handle || 'user'}. 
 Profile:
 - Name: ${profile.name || ''}
 - Bio: ${profile.description || ''}
@@ -36,49 +43,74 @@ Guidelines:
 }
 
 export async function generateTweetsFromProfile(profile: Profile, count: number): Promise<string[]> {
-  const openaiKey = process.env.OPENAI_API_KEY;
-  const geminiKey = process.env.GOOGLE_API_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
+    const geminiKey = process.env.GOOGLE_API_KEY;
 
-  // Try OpenAI first
-  if (openaiKey) {
-    try {
-      const openai = new OpenAI({ apiKey: openaiKey });
-      const prompt = buildPrompt(profile, count);
-      
-      const resp = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.8,
-      });
+    // Try OpenAI first
+    if (openaiKey) {
+        try {
+            const openai = new OpenAI({ apiKey: openaiKey });
+            const prompt = buildPrompt(profile, count);
 
-      const text = resp.choices?.[0]?.message?.content || '[]';
-      const parsed = JSON.parse(text);
-      
-      if (Array.isArray(parsed)) 
-        return parsed.map(String).slice(0, count);
-    } catch (e) {
-      // fall through to gemini
+            console.log('OpenAI prompt:', prompt);
+
+            const resp = await openai.chat.completions.create({
+                model: 'gpt-4o-mini',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.8,
+            });
+
+            console.log('OpenAI response:', resp);
+
+            const text = resp.choices?.[0]?.message?.content || '[]';
+            const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
+
+            if (Array.isArray(parsed))
+                return parsed.map(String).slice(0, count);
+        } catch (e) {
+            // fall through to gemini
+            console.log('OpenAI error:', e);
+        }
     }
-  }
 
-  // Fallback to Gemini
-  if (geminiKey) {
-    try {
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const prompt = buildPrompt(profile, count);
-      const result = await model.generateContent(prompt);
-      const text = result.response.text() || '[]';
-      const parsed = JSON.parse(text);
-      
-      if (Array.isArray(parsed)) 
-        return parsed.map(String).slice(0, count);
-    } catch (e) {
-      // ignore
+    // Fallback to Gemini
+    if (geminiKey) {
+        try {
+            const prompt = buildPrompt(profile, count)
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }],
+                        generationConfig: { temperature: 0.7 }
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                if (errorText.includes("429") || errorText.includes("Too Many Requests"))
+                    console.log("Rate limit hit, retrying after delay...");
+                else
+                    console.log("Gemini error:", errorText);
+            }
+
+            const responseJson = await response.json() as GeminiResponse;
+            const text = responseJson.candidates?.[0]?.content?.parts?.[0]?.text;
+            const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
+
+            if (Array.isArray(parsed))
+                return parsed.map(String).slice(0, count);
+        } catch (e) {
+            console.log("Gemini error:", e);
+        }
     }
-  }
 
-  return [];
+    return [];
 }
 
 

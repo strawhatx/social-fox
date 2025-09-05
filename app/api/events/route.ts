@@ -24,38 +24,40 @@ export async function POST(request: Request) {
       return nowMs - t >= DAY_MS;
     };
 
-    // Determine which actions to enqueue
-    let actions: ('profile' | 'posts')[] = [];
-    if (!cache) {
-      actions = ['profile', 'posts'];
-    } else {
-      const profileStale = isStale(cache.last_profile_fetch_at);
-      const postsStale = isStale(cache.last_posts_fetch_at);
-      if (profileStale) actions.push('profile');
-      if (postsStale) actions.push('posts');
-    }
+    // Helper: enqueue platform jobs (profile/posts) in a single table
+    const enqueuePlatformJobs = async (): Promise<('profile' | 'posts')[]> => {
+      const doProfile = !cache || isStale(cache.last_profile_fetch_at);
+      const doPosts = !cache || isStale(cache.last_posts_fetch_at);
+      const created: ('profile' | 'posts')[] = [];
+      if (doProfile) {
+        const p = await sql`SELECT 1 FROM public.twitter_account_sync_job WHERE user_id = ${userId} AND action = 'profile' AND status = 'pending' LIMIT 1`;
+        if (!(Array.isArray(p) && p.length)) {
+          await sql`INSERT INTO public.twitter_account_sync_job (user_id, action) VALUES (${userId}, 'profile')`;
+          created.push('profile');
+        }
+      }
+      if (doPosts) {
+        const q = await sql`SELECT 1 FROM public.twitter_account_sync_job WHERE user_id = ${userId} AND action = 'posts' AND status = 'pending' LIMIT 1`;
+        if (!(Array.isArray(q) && q.length)) {
+          await sql`INSERT INTO public.twitter_account_sync_job (user_id, action) VALUES (${userId}, 'posts')`;
+          created.push('posts');
+        }
+      }
+      return created;
+    };
 
-    if (actions.length === 0) {
-      console.log('Auth event received; no job enqueued (cache fresh):', { type, userId });
-      return NextResponse.json({ ok: true, created: false, actions: [] });
-    }
+    // Helper: enqueue tweets template generation job in its own table
+    const enqueueTemplateJob = async (): Promise<boolean> => {
+      const r = await sql`SELECT 1 FROM public.tweets_sync_job WHERE user_id = ${userId} AND status = 'pending' LIMIT 1`;
+      if (Array.isArray(r) && r.length) return false;
+      await sql`INSERT INTO public.tweets_sync_job (user_id) VALUES (${userId})`;
+      return true;
+    };
 
-    // Manual conflict check: if a pending job exists for same user/action, return 409
-    const conflicts = await Promise.all(
-      actions.map((a) => sql`SELECT 1 FROM public.twitter_account_sync_job WHERE user_id = ${userId} AND action = ${a} AND status = 'pending' LIMIT 1`)
-    );
+    const actionsCreated = await enqueuePlatformJobs();
+    const templateCreated = await enqueueTemplateJob();
 
-    // If a conflict is found, return 200 but don't enqueue the job
-    const hasConflict = conflicts.some((r) => Array.isArray(r) ? r.length > 0 : false);
-    if (hasConflict) {
-      return NextResponse.json({ ok: true, created: false, actions }, { status: 200 });
-    }
-
-    // Insert jobs with required action
-    await Promise.all(actions.map((a) => sql`INSERT INTO public.twitter_account_sync_job (user_id, action) VALUES (${userId}, ${a})`));
-
-    console.log('Auth event received and jobs queued:', { type, userId, actions });
-    return NextResponse.json({ ok: true, created: true, actions });
+    return NextResponse.json({ ok: true, created: actionsCreated.length > 0 || templateCreated, actions: actionsCreated, templateCreated });
   } catch (e) {
     return NextResponse.json({ ok: false, error: 'Invalid payload' }, { status: 400 });
   }

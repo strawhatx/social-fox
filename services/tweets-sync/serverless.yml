@@ -8,6 +8,8 @@ provider:
   environment:
     CLERK_SECRET_KEY: ${env:CLERK_SECRET_KEY}
     NEON_DATABASE_URL: ${env:NEON_DATABASE_URL, env:DATABASE_URL}
+    GEMINI_API_KEY: ${env:GEMINI_KEY}
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY}
 
 plugins:
   - serverless-offline

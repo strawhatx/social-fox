@@ -18,4 +18,23 @@ export async function getUserTwitterBearerToken(userId: string): Promise<string 
   }
 }
 
+// Best-effort fetch of an X (Twitter) Community by ID using a user bearer token
+// Returns minimal metadata or null if unavailable
+export async function fetchXCommunityById(communityId: string, bearer: string | null): Promise<{ name: string | null; description?: string | null } | null> {
+  if (!bearer) return null;
+  try {
+    // Note: X's Communities API is not publicly documented; this is a best-effort attempt.
+    // If endpoint changes or is unavailable, we gracefully return null.
+    const url = `https://api.twitter.com/2/communities/${encodeURIComponent(communityId)}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${bearer}` } as any });
+    if (!('ok' in res) || !(res as any).ok) return null;
+    const data = await (res as any).json();
+    const name = data?.data?.name || data?.name || null;
+    const description = data?.data?.description || data?.description || null;
+    return { name, description };
+  } catch {
+    return null;
+  }
+}
+
 

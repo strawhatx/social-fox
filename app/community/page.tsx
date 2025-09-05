@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CommunityFilters from '@/components/community-filters';
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -161,23 +162,7 @@ export default function Community() {
   };
 
   // Filter options
-  const topics = [
-    { value: "all", label: "All Topics", count: 45 },
-    { value: "buildinpublic", label: "#buildinpublic", count: 12 },
-    { value: "react", label: "#react", count: 8 },
-    { value: "design", label: "#design", count: 6 },
-    { value: "ai", label: "#ai", count: 9 },
-    { value: "startup", label: "#startup", count: 10 }
-  ];
-
-  const communities = [
-    { value: "all", label: "All Communities" },
-    { value: "indie-hackers", label: "Indie Hackers" },
-    { value: "react", label: "React Developers" },
-    { value: "design", label: "Design" },
-    { value: "ai-ml", label: "AI/ML" },
-    { value: "product", label: "Product" }
-  ];
+  const communities: any[] = [];
 
   const handleEngagement = (postId: number, action: string) => {
     setEngagedPosts(prev => new Set(prev).add(postId));
@@ -242,53 +227,13 @@ export default function Community() {
         </div>
 
         {/* Filters */}
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-700">Filters:</span>
-              </div>
-              
-              <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Topic" />
-                </SelectTrigger>
-                <SelectContent>
-                  {topics.map((topic) => (
-                    <SelectItem key={topic.value} value={topic.value}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{topic.label}</span>
-                        <Badge variant="outline" className="ml-2 text-xs">
-                          {topic.count}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Community" />
-                </SelectTrigger>
-                <SelectContent>
-                  {communities.map((community) => (
-                    <SelectItem key={community.value} value={community.value}>
-                      {community.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-sm text-muted-foreground">
-                  {filteredPosts.length} trending posts
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <CommunityFilters
+          selectedTopic={selectedTopic}
+          setSelectedTopic={setSelectedTopic}
+          selectedCommunity={selectedFilter}
+          setSelectedCommunity={setSelectedFilter}
+          topicsCount={filteredPosts.length}
+        />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">

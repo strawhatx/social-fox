@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SidebarLayout from '@/components/sidebar-layout';
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -9,44 +9,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DraggableTweet } from "@/components/tweet-composer";
-import {
-  Sparkles,
-  Clock,
-  Send,
-  Copy,
-
-} from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Sparkles } from "lucide-react";
 import TweetEditor from "@/components/tweet-editor";
 
 export default function TweetBuilder() {
-  const [selectedTweet, setSelectedTweet] = useState("");
-  const [editedTweet, setEditedTweet] = useState("");
-  // suggestion state lifted to components; only insertion logic remains here
+  const [viralSuggestions, setViralSuggestions] = useState<string[]>([]);
 
-  const viralSuggestions = [
-    "The best developers aren't the ones who never make mistakes—they're the ones who learn from them the fastest. 🧠💡",
-    "Hot take: Reading other people's code is more valuable than writing your own. Change my mind. 🤔",
-    "PSA: Your side project doesn't need to be the next unicorn startup. Sometimes it's just for fun, and that's perfectly okay. ✨",
-    "Debugging is like being a detective in a crime movie where you're also the murderer. 🔍😅",
-    "The moment when your code works on the first try: 🎉 The moment when you realize you forgot to save: 😭",
-    "Reminder: Imposter syndrome is just your brain's way of saying you're growing. Keep pushing! 💪",
-    "Code review tip: Be kind. Remember, there's a human behind every line of code. 💝",
-    "That feeling when you delete more lines than you add and the app works better 📉➡️📈",
-    "Documentation is love letters to your future self. Write them. ❤️",
-    "Pro tip: The best code is the code you don't have to write. Simplicity wins every time. ⭐"
-  ];
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/tweets');
+        if (!res.ok) return;
+        const data = await res.json();
+        const suggestions = Array.isArray(data?.tweets)
+          ? data.tweets.map((t: any) => String(t.text)).filter(Boolean)
+          : [];
+        if (isMounted && suggestions.length > 0) {
+          setViralSuggestions(suggestions.slice(0, 100));
+        }
+      } catch (_) {}
+    })();
 
-  const handleTweetSelect = (tweet: string) => {
-    setSelectedTweet(tweet);
-    setEditedTweet(tweet);
-    toast({
-      title: "Tweet selected!",
-      description: "You can now edit and customize the tweet."
-    });
-  };
-
-  // Mentions temporarily removed
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <SidebarLayout>
@@ -71,7 +57,7 @@ export default function TweetBuilder() {
                   </Badge>
                 </div>
 
-                <div className="space-y-3 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
                   {viralSuggestions.map((suggestion, index) => (
                     <DraggableTweet
                       key={index}
@@ -81,7 +67,6 @@ export default function TweetBuilder() {
                       <Card
                         key={index}
                         className="border-purple-200 cursor-pointer hover:bg-purple-50 transition-colors group"
-                        onClick={() => handleTweetSelect(suggestion)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-2 mb-2">

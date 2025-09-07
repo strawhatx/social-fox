@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { aiRewrite } from '../_lib/rewrite';
+import { aiRewrite } from '@/lib/rewrite';
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();

@@ -1,0 +1,27 @@
+{
+  "name": "jobs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy"
+  },
+  "dependencies": {
+    "pg": "^8.16.3",
+    "node-fetch": "^3.3.2",
+    "@clerk/clerk-sdk-node": "^5.0.42",
+    "openai": "^5.15.0",
+    "@google/generative-ai": "^0.17.0"
+  },
+  "devDependencies": {
+    "serverless": "^4.17.1",
+    "serverless-offline": "^14.4.0",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.24",
+    "@types/pg": "^8.15.4",
+    "@types/aws-lambda": "^8.10.149"
+  }
+}
+
+

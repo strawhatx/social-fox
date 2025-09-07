@@ -7,7 +7,7 @@
 // - No GET handler; we intentionally avoid query-based scraping
 // - Keep responses small; caller controls `limit` (capped to 25)
 import { NextResponse } from "next/server";
-import { getHashtags } from "../_lib/hashtags";
+import { getHashtags } from "@/lib/hashtags";
 
 // Request payload for POST /api/hashtags
 type HashtagRequestBody = { content: string; limit?: number };

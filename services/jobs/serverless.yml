@@ -1,0 +1,33 @@
+service: jobs
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    CLERK_SECRET_KEY: ${env:CLERK_SECRET_KEY}
+    NEON_DATABASE_URL: ${env:NEON_DATABASE_URL, env:DATABASE_URL}
+    TWITTER_APP_ACCESS_TOKEN: ${env:TWITTER_APP_ACCESS_TOKEN}
+
+plugins:
+  - serverless-offline
+
+build:
+  esbuild:
+    bundle: true
+    sourcemap: true
+    target: node20
+    external:
+      - pg-native
+
+functions:
+  appJobs:
+    handler: src/router.appJobs
+    timeout: 900
+    events:
+      - schedule: rate(1 minute)
+    memorySize: 256
+    reservedConcurrency: 1
+
+

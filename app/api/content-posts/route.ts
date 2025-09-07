@@ -1,4 +1,4 @@
-import { sql } from '@/lib/db';
+import { sql, resolveUserUuid } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 
 function json(body: unknown, init?: ResponseInit) {
@@ -12,13 +12,16 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const { userId } = await auth();
+    const { userId} = await auth();
     if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
+    
+    const appUserId = await resolveUserUuid(userId);
+    if (!appUserId) return json({ error: 'User not found' }, { status: 404 });
 
     const rows = await sql`
       select *
       from content_posts
-      where user_id = ${userId}
+      where user_id = ${appUserId}
       order by scheduled_at asc nulls last
     `;
 

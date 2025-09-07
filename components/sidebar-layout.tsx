@@ -6,14 +6,14 @@ import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
-import { UserButton, SignOutButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
+import QuotaIndicator from '@/components/quota-indicator';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 
 const menuItems = [
   { id: 'home', title: 'Home', path: '/dashboard', icon: '🏠', color: 'text-blue-500 hover:bg-blue-50', stats: '7-day streak', description: 'View your posting streak and engagement stats' },
   { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-purple-500 hover:bg-purple-50', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
-  { id: 'community', title: 'Community', path: '/community', icon: '👥', color: 'text-red-500 hover:bg-red-50', stats: '6 posts', description: 'Engage with your community' },
-  { id: 'outreach', title: 'Outreach Assistant', path: '/outreach', icon: '🎯', color: 'text-indigo-500 hover:bg-indigo-50', stats: '4 new leads', description: 'AI-powered recommendations to grow your network' },
+  { id: "analytics", title: "Analytics", path: '/analytics', icon: "📊", color: "text-green-500 hover:bg-green-50", stats: "1 profile analyzed", description: "Analyze your own profile for actionable insights" },
   { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-500 hover:bg-orange-50', stats: '5 queued', description: 'Manage your scheduled tweets' },
 ];
 
@@ -50,8 +50,8 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
                     w-full h-12 rounded-xl flex items-center justify-center text-lg
                     transition-all duration-200 relative group cursor-pointer
                     hover:shadow-md active:scale-95
-                    ${activeTab === item.id 
-                      ? `${item.color.split(' ')[0]} bg-current bg-opacity-15 scale-105 shadow-lg` 
+                    ${activeTab === item.id
+                      ? `${item.color.split(' ')[0]} bg-current bg-opacity-15 scale-105 shadow-lg`
                       : `text-muted-foreground hover:scale-105 ${item.color} hover:shadow-sm`
                     }
                   `}
@@ -110,7 +110,8 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
                 <Menu className="h-4 w-4" />
               </Button>
               <h1 className="text-lg font-semibold">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-3">
+                <QuotaIndicator />
                 <UserButton afterSignOutUrl="/sign-in" />
               </div>
             </header>

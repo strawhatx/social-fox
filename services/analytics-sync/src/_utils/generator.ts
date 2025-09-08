@@ -7,6 +7,9 @@ type Profile = {
     followers_count?: number | null;
     following_count?: number | null;
     tweet_count?: number | null;
+    // Preferred: pass recent tweet texts directly
+    samples?: string[] | null;
+    // Back-compat: allow { data: [{ text }] } shape if provided inline
     last_posts?: any | null;
 };
 
@@ -19,9 +22,12 @@ type GeminiResponse = {
 };
 
 function buildPrompt(profile: Profile, count: number): string {
-    const lastSamples = Array.isArray(profile?.last_posts?.data)
-        ? profile.last_posts.data.slice(0, 5).map((p: any) => `- ${p.text}`).join('\n')
-        : '';
+    const direct = Array.isArray(profile?.samples) ? profile.samples : [];
+    const fallback = Array.isArray(profile?.last_posts?.data)
+        ? (profile.last_posts.data as any[]).map((p: any) => String(p?.text || '')).filter(Boolean)
+        : [];
+    const examples = (direct.length ? direct : fallback).slice(0, 5);
+    const lastSamples = examples.map((t) => `- ${t}`).join('\n');
     return `You are an assistant that writes high-quality, concise tweets for the user @${profile.handle || 'user'}. 
 Profile:
 - Name: ${profile.name || ''}

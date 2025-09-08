@@ -22,11 +22,20 @@ build:
       - pg-native
 
 functions:
-  appJobs:
-    handler: src/router.appJobs
+  dailyAnalytics:
+    handler: src/router.dailyAnalytics
     timeout: 900
     events:
-      - schedule: rate(1 minute)
+      - schedule: cron(0 0 * * ? *) # midnight UTC daily
+    memorySize: 256
+    reservedConcurrency: 1
+
+  periodicAnalytics:
+    handler: src/router.periodicAnalytics
+    timeout: 900
+    events:
+      - schedule: cron(0 1 ? * MON *) # weekly on Monday 01:00 UTC
+      - schedule: cron(0 2 1 * ? *)   # monthly on the 1st at 02:00 UTC
     memorySize: 256
     reservedConcurrency: 1
 

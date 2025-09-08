@@ -1,6 +1,6 @@
 import { getDb } from './config/db';
 import { getUserTwitterFromClerk } from './config/clerk';
-import { fetchTwitterProfileByUserId, fetchTwitterProfileByHandle, fetchTwitterPostsByUserId } from '../twitter-account-sync/services/twitter';
+import { fetchTwitterProfileByUserId, fetchTwitterProfileByHandle, fetchTwitterPostsByUserId } from './utils/twitter';
 
 type TwitterAccountRow = {
   id: string;

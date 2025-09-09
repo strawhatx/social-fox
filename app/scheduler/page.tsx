@@ -123,8 +123,8 @@ export default function Scheduler() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          <h2>Scheduler & Queue</h2>
+          <Calendar className="h-5 w-5 text-orange-500" />
+          <h2 className="text-2xl font-bold text-gray-900">Scheduler & Queue</h2>
         </div>
         
         <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function Scheduler() {
         {sortedGroups.map(([date, tweets]) => (
           <div key={date}>
             {/* Date Header */}
-            <h3 className="mb-4 text-muted-foreground font-medium">
+            <h3 className="mb-4 text-orange-600 font-semibold text-lg">
               {date === 'Unscheduled' 
                 ? 'Unscheduled'
                 : new Date(date).toLocaleDateString('en-US', { 
@@ -184,8 +184,8 @@ export default function Scheduler() {
                   key={tweet.id}
                   className={`
                     group flex items-center gap-4 p-3 rounded-lg transition-all duration-200
-                    hover:bg-muted/50 hover:shadow-sm border border-transparent hover:border-border/50
-                    cursor-pointer ${getRowStyle(tweet.status)}
+                    hover:bg-orange-50 border border-transparent hover:border-orange-200
+                    cursor-pointer bg-white/80 backdrop-blur-sm ${getRowStyle(tweet.status)}
                   `}
                 >
                   {/* Time Only (since date is in header) */}
@@ -237,7 +237,7 @@ export default function Scheduler() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600"
+                      className="h-8 w-8 p-0 hover:bg-orange-100 hover:text-orange-600"
                       title="Edit"
                       onClick={() => openEdit(tweet)}
                     >
@@ -265,19 +265,19 @@ export default function Scheduler() {
 
       {/* Empty State */}
       {loading && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
           <CardContent className="p-8 text-center">
-            <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="mb-2">Loading schedule…</h3>
+            <Clock className="h-12 w-12 mx-auto mb-4 text-orange-500" />
+            <h3 className="mb-2 text-gray-900">Loading schedule…</h3>
           </CardContent>
         </Card>
       )}
       {!loading && Object.keys(groupedTweets).length === 0 && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
           <CardContent className="p-8 text-center">
-            <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="mb-2">No tweets found</h3>
-            <p className="text-muted-foreground">
+            <Calendar className="h-12 w-12 mx-auto mb-4 text-orange-500" />
+            <h3 className="mb-2 text-gray-900">No tweets found</h3>
+            <p className="text-gray-600">
               Try adjusting your filters or create some tweets in the Tweet Builder.
             </p>
           </CardContent>

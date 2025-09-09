@@ -9,7 +9,7 @@ export async function GET() {
     const appUserId = await resolveUserUuid(userId);
     
     if (!appUserId) return NextResponse.json({ ok: false, error: 'user_not_found' }, { status: 404 });
-    const rows = await sql`SELECT tweet_id, text, created_at FROM public.ai_templates WHERE user_id = ${appUserId} ORDER BY created_at DESC LIMIT 100`;
+    const rows = await sql`SELECT id, text, created_at FROM public.ai_templates WHERE user_id = ${appUserId} ORDER BY created_at DESC LIMIT 100`;
     
     return NextResponse.json({ ok: true, tweets: rows });
   } catch (e) {

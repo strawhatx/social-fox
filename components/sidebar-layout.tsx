@@ -11,10 +11,9 @@ import QuotaIndicator from '@/components/quota-indicator';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 
 const menuItems = [
-  { id: 'home', title: 'Home', path: '/dashboard', icon: '🏠', color: 'text-blue-500 hover:bg-blue-50', stats: '7-day streak', description: 'View your posting streak and engagement stats' },
-  { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-purple-500 hover:bg-purple-50', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
-  { id: "analytics", title: "Analytics", path: '/analytics', icon: "📊", color: "text-green-500 hover:bg-green-50", stats: "1 profile analyzed", description: "Analyze your own profile for actionable insights" },
-  { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-500 hover:bg-orange-50', stats: '5 queued', description: 'Manage your scheduled tweets' },
+  { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
+  { id: "library", title: "X Library", icon: "✨", path: '/library', color: "text-orange-500 hover:bg-orange-100", stats: "15 templates",description: "AI-powered tweet templates for indie hackers and builders" },
+  { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-600 hover:bg-orange-100', stats: '5 queued', description: 'Manage your scheduled tweets' },
 ];
 
 function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {
@@ -36,9 +35,9 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
           md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
-        <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-8 shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+        <Link href="/" className="w-11 h-11 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-8 cursor-pointer">
           <img src="/fox-logo.png" alt="Fox Logo" className="w-4 h-4" />
-        </div>
+        </Link>
 
         <nav className="flex flex-col gap-4 flex-1 w-full px-2">
           {menuItems.map((item) => (
@@ -49,10 +48,10 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
                   className={`
                     w-full h-12 rounded-xl flex items-center justify-center text-lg
                     transition-all duration-200 relative group cursor-pointer
-                    hover:shadow-md active:scale-95
+                    active:scale-95
                     ${activeTab === item.id
-                      ? `${item.color.split(' ')[0]} bg-current bg-opacity-15 scale-105 shadow-lg`
-                      : `text-muted-foreground hover:scale-105 ${item.color} hover:shadow-sm`
+                      ? `${item.color.split(' ')[0]} bg-current bg-opacity-15 scale-105`
+                      : `text-muted-foreground hover:scale-105 ${item.color}`
                     }
                   `}
                   onClick={() => setIsMobileSidebarOpen(false)}
@@ -105,11 +104,11 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
             setIsMobileSidebarOpen={setIsMobileSidebarOpen}
           />
           <main className="flex-1 flex flex-col overflow-hidden md:ml-16">
-            <header className="border-b border-border p-4 flex items-center gap-4 bg-background">
-              <Button variant="ghost" size="sm" className="md:hidden w-10 h-10 p-0" onClick={toggleMobileSidebar}>
+            <header className="border-b border-orange-200 p-4 flex items-center gap-4 bg-white">
+              <Button variant="ghost" size="sm" className="md:hidden w-10 h-10 p-0 hover:bg-orange-100" onClick={toggleMobileSidebar}>
                 <Menu className="h-4 w-4" />
               </Button>
-              <h1 className="text-lg font-semibold">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
+              <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
               <div className="ml-auto flex items-center gap-3">
                 <QuotaIndicator />
                 <UserButton afterSignOutUrl="/sign-in" />

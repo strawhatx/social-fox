@@ -25,7 +25,7 @@ export default function AuthCompletePage() {
       } catch (e) {
         // ignore errors to avoid blocking redirect
       } finally {
-        router.replace('/dashboard');
+        router.replace('/tweet-builder');
       }
     };
     run();

@@ -22,12 +22,7 @@ type GeminiResponse = {
 };
 
 function buildPrompt(profile: Profile, count: number): string {
-    const direct = Array.isArray(profile?.samples) ? profile.samples : [];
-    const fallback = Array.isArray(profile?.last_posts?.data)
-        ? (profile.last_posts.data as any[]).map((p: any) => String(p?.text || '')).filter(Boolean)
-        : [];
-    const examples = (direct.length ? direct : fallback).slice(0, 5);
-    const lastSamples = examples.map((t) => `- ${t}`).join('\n');
+    // No recent style examples
     return `You are an assistant that writes high-quality, concise tweets for the user @${profile.handle || 'user'}. 
 Profile:
 - Name: ${profile.name || ''}
@@ -36,16 +31,13 @@ Profile:
 - Following: ${profile.following_count ?? ''}
 - Tweet Count: ${profile.tweet_count ?? ''}
 
-Recent style examples (if any):
-${lastSamples}
-
 Task: Generate ${count} tweet drafts. 
 Guidelines:
-- Keep each tweet under 280 characters.
-- No hashtags unless essential; no links.
-- Vary tone across tweets but keep it authentic to the profile.
-- Do not number the items.
-- Return as a JSON array of strings only.`;
+- Each tweet under 280 characters
+- Include 2–3 relevant hashtags (#buildinpublic, #indiehackers, #webdev)
+- Vary tone and style, some should be viral-ready
+- Return as a JSON array of strings only
+- Do not number the items`;
 }
 
 export async function generateTweetsFromProfile(profile: Profile, count: number): Promise<string[]> {

@@ -19,16 +19,17 @@ export default function TweetBuilder() {
     let isMounted = true;
     (async () => {
       try {
-        const res = await fetch('/api/tweets');
+        const res = await fetch('/api/ai-templates');
         if (!res.ok) return;
         const data = await res.json();
         const suggestions = Array.isArray(data?.tweets)
-          ? data.tweets.map((t: any) => String(t.text)).filter(Boolean)
-          : [];
+          ? data.tweets.map((t: any) => String(t.text)).filter(Boolean): [];
+        
         if (isMounted && suggestions.length > 0) {
           setViralSuggestions(suggestions.slice(0, 100));
         }
-      } catch (_) {}
+      } 
+      catch (_) {}
     })();
 
     return () => { isMounted = false; };
@@ -37,12 +38,12 @@ export default function TweetBuilder() {
   return (
     <SidebarLayout>
       <DndProvider backend={HTML5Backend}>
-        <div className="flex h-full">
+        <div className="flex h-full bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
           {/* Left Panel - Content Sources with Tabs */}
           <div className="w-1/2 md:w-3/5 xl:w-3/4 border-r border-border p-4">
             <Tabs defaultValue="ai-suggestions" className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-1">
-                <TabsTrigger value="ai-suggestions" className="flex items-center gap-2">
+              <TabsList className="grid w-full grid-cols-1 bg-white/80 backdrop-blur-sm border-orange-200">
+                <TabsTrigger value="ai-suggestions" className="flex items-center gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
                   <Sparkles className="h-4 w-4" />
                   AI Suggestions
                 </TabsTrigger>
@@ -50,9 +51,9 @@ export default function TweetBuilder() {
 
               <TabsContent value="ai-suggestions" className="flex-1 mt-4 space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="h-5 w-5 text-purple-600" />
-                  <h3 className="text-purple-600">AI Viral Suggestions</h3>
-                  <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50 text-xs">
+                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  <h3 className="text-orange-600">AI Viral Suggestions</h3>
+                  <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50 text-xs">
                     {viralSuggestions.length} suggestions
                   </Badge>
                 </div>
@@ -66,17 +67,17 @@ export default function TweetBuilder() {
                     >
                       <Card
                         key={index}
-                        className="border-purple-200 cursor-pointer hover:bg-purple-50 transition-colors group"
+                        className="border-orange-200 cursor-pointer hover:bg-orange-50 transition-colors group bg-white/80 backdrop-blur-sm"
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-2 mb-2">
-                            <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
+                            <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
                               AI
                             </Badge>
                           </div>
                           <p className="text-sm leading-relaxed">{suggestion}</p>
                           <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button size="sm" variant="ghost" className="h-6 text-xs text-purple-600">
+                            <Button size="sm" variant="ghost" className="h-6 text-xs text-orange-600">
                               Use this tweet
                             </Button>
                           </div>

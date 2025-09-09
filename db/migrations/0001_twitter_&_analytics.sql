@@ -20,9 +20,11 @@ create table twitter_accounts (
   following_count int default 0,
   tweet_count int default 0,
   listed_count int default 0,
-  last_posts JSONB,
-  last_profile_synced_at timestamptz,
-  last_posts_synced_at timestamptz
+  last_synced_at timestamptz,
+  
+  backfill_status TEXT DEFAULT 'pending', -- 'pending' | 'in_progress' | 'done'
+  backfill_started_at TIMESTAMP NULL,
+  backfill_completed_at TIMESTAMP NULL
 );
 
 -- 3. Audience Metrics (growth snapshots)

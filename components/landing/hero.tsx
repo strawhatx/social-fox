@@ -41,7 +41,7 @@ const Hero = () => {
                 <Twitter className="w-4 h-4 text-brand-orange fill-orange-500" />
               </a>
             </Button>
-            <Link href={user ? "/dashboard" : "/sign-up"}>
+            <Link href={user ? "/tweet-builder" : "/sign-up"}>
               <Button variant="outline" className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
                 <span>{user ? "Dashboard" : "Get Started"}</span>
@@ -84,7 +84,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <Link
               href="/sign-up"
-              as={`/sign-up?openTab=signup&returnTo=/dashboard`}
+              as={`/sign-up?openTab=signup&returnTo=/tweet-builder`}
             >
               <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
                 Join the Beta

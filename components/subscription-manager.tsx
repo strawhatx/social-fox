@@ -127,9 +127,8 @@ export default function SubscriptionManager() {
     );
   }
 
-  const { plan, status, planDetails } = subscription;
+  const { status, planDetails } = subscription;
   const isActive = status === 'active';
-  const isFree = plan === 'free';
 
   return (
     <div className="space-y-6">
@@ -146,7 +145,7 @@ export default function SubscriptionManager() {
             <div>
               <h3 className="text-lg font-semibold">{planDetails.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {planDetails.price === 0 ? 'Free' : `$${planDetails.price}/${planDetails.interval}`}
+                ${planDetails.price}/{planDetails.interval}
               </p>
             </div>
             <Badge variant={isActive ? 'default' : 'secondary'} className="bg-gradient-to-r from-orange-500 to-red-500">
@@ -154,7 +153,7 @@ export default function SubscriptionManager() {
             </Badge>
           </div>
 
-          {!isFree && isActive && (
+          {isActive && (
             <Button 
               variant="outline" 
               onClick={handleManageSubscription}
@@ -186,64 +185,62 @@ export default function SubscriptionManager() {
         </CardContent>
       </Card>
 
-      {/* Upgrade Options */}
-      {isFree && (
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Upgrade Your Plan</CardTitle>
-            <CardDescription>
-              Unlock more features and higher limits
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4">
-              {/* Explore Plan */}
-              <div className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Explore</h3>
-                  <span className="text-lg font-bold">$5/month</span>
-                </div>
-                <ul className="text-sm space-y-1">
-                  <li>• Full access to Tweet Builder</li>
-                  <li>• 10 posts per month</li>
-                  <li>• AI suggestions and starter library</li>
-                  <li>• Basic scheduling</li>
-                  <li>• Hashtag suggestions</li>
-                  <li>• Emoji picker</li>
-                </ul>
-                <Button 
-                  onClick={() => handleUpgrade('explore')}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                >
-                  Upgrade to Explore
-                </Button>
+      {/* Upgrade Options: Always show both paid plans for upgrade */}
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Upgrade Your Plan</CardTitle>
+          <CardDescription>
+            Unlock more features and higher limits
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4">
+            {/* Explore Plan */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">Explore</h3>
+                <span className="text-lg font-bold">$5/month</span>
               </div>
-
-              {/* Creative Plan */}
-              <div className="border rounded-lg p-4 space-y-3 border-orange-200 bg-orange-50">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Creative</h3>
-                  <span className="text-lg font-bold">$14/month</span>
-                </div>
-                <ul className="text-sm space-y-1">
-                  <li>• Everything in Explore</li>
-                  <li>• Unlimited posts</li>
-                  <li>• Advanced AI features</li>
-                  <li>• Bulk scheduling</li>
-                  <li>• Priority support</li>
-                  <li>• Advanced analytics</li>
-                </ul>
-                <Button 
-                  onClick={() => handleUpgrade('creative')}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                >
-                  Upgrade to Creative
-                </Button>
-              </div>
+              <ul className="text-sm space-y-1">
+                <li>• Full access to Tweet Builder</li>
+                <li>• 10 posts per month</li>
+                <li>• AI suggestions and starter library</li>
+                <li>• Basic scheduling</li>
+                <li>• Hashtag suggestions</li>
+                <li>• Emoji picker</li>
+              </ul>
+              <Button 
+                onClick={() => handleUpgrade('explore')}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+              >
+                Upgrade to Explore
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+
+            {/* Creative Plan */}
+            <div className="border rounded-lg p-4 space-y-3 border-orange-200 bg-orange-50">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">Creative</h3>
+                <span className="text-lg font-bold">$14/month</span>
+              </div>
+              <ul className="text-sm space-y-1">
+                <li>• Everything in Explore</li>
+                <li>• Unlimited posts</li>
+                <li>• Advanced AI features</li>
+                <li>• Bulk scheduling</li>
+                <li>• Priority support</li>
+                <li>• Advanced analytics</li>
+              </ul>
+              <Button 
+                onClick={() => handleUpgrade('creative')}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+              >
+                Upgrade to Creative
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

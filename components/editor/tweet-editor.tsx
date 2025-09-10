@@ -7,10 +7,10 @@ import { Card, CardContent } from './ui/card';
 import { Plus, AtSign, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { TweetComposer } from './tweet-composer';
-import HashtagPicker from './hashtag-picker';
-import EmojiPicker from './emoji-picker';
-import ImageUploader from './image-uploader';
-import SchedulePicker from './schedule-picker';
+import HashtagPicker from './editor/hashtag-picker';
+import EmojiPicker from './editor/emoji-picker';
+import ImageUploader from './editor/image-uploader';
+import SchedulePicker from './editor/schedule-picker';
 import { Input } from './ui/input';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from './ui/hover-card';
 

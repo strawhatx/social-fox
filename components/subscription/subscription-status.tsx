@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Badge } from './ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Crown, Lock } from 'lucide-react';
 
 interface SubscriptionData {

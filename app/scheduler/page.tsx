@@ -14,7 +14,7 @@ import {
   Linkedin
 } from "lucide-react";
 import { useSchedulerPosts, type SchedulerItem } from '@/hooks/use-scheduler-posts';
-import EditPost from '@/components/edit-post';
+import EditPost from '@/components/editor/edit-post';
 import SidebarLayout from '@/components/sidebar-layout';
 import SubscriptionGuard from '@/components/subscription-guard';
 

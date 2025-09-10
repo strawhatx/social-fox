@@ -7,13 +7,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
-import QuotaIndicator from '@/components/quota-indicator';
+import QuotaIndicator from '@/components/editor/quota-indicator';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
-import { Crown, Lock } from 'lucide-react';
-import SubscriptionStatus from './subscription-status';
+import SubscriptionStatus from './subscription/subscription-status';
 
 const menuItems = [
-  { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
+  { id: 'editor', title: 'X Copilot', path: '/editor', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
   { id: "library", title: "X Library", icon: "✨", path: '/library', color: "text-orange-500 hover:bg-orange-100", stats: "15 templates",description: "AI-powered tweet templates for indie hackers and builders" },
   { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-600 hover:bg-orange-100', stats: '5 queued', description: 'Manage your scheduled tweets' },
 ];

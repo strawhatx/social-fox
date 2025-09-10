@@ -6,9 +6,9 @@
 // - onInsert: parent injects the hashtag into the editor with length checks
 
 import { useRef, useState } from "react";
-import { Button } from "./ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Separator } from "./ui/separator";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 import { Hash } from "lucide-react";
 
 type HashtagPickerProps = {

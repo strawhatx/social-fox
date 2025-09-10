@@ -1,4 +1,11 @@
 import { prisma } from '@/lib/prisma';
+import { neon } from '@neondatabase/serverless';
+
+// Create a database connection
+const sql = neon(process.env.DATABASE_URL!);
+
+// Export sql for use in other files
+export { sql };
 
 
 

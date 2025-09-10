@@ -5,7 +5,7 @@ import { useRef, useState, useMemo } from 'react';
 import { Textarea } from './ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
-import { AiRewritePopover } from './ai-rewrite-popover';
+import { AiRewritePopover } from './editor/ai-rewrite-popover';
 
 // Drag item types
 const ItemTypes = {

@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { format, setHours, setMinutes } from 'date-fns';
-import { Button } from './ui/button';
-import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
-import { Calendar } from './ui/calendar';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { Button } from '../ui/button';
+import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
+import { Calendar } from '../ui/calendar';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { ChevronDown } from 'lucide-react';
 
 type SchedulePickerProps = {

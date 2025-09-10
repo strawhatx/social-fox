@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import data from '@emoji-mart/data';
-import { Button } from './ui/button';
-import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
+import { Button } from '../ui/button';
+import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Smile } from 'lucide-react';
 
 const Picker = dynamic(() => import('@emoji-mart/react'), { ssr: false });

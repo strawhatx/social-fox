@@ -26,6 +26,7 @@ model User {
   userQuota         UserQuota?
   library           Library[]
   aiTemplates       AiTemplate[]
+  conversations     Conversation[]
 
   @@map("users")
 }
@@ -130,4 +131,33 @@ model AiTrainingTweet {
   type              String?
 
   @@map("ai_training_tweets")
+}
+
+model Conversation {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  title             String
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId    String   @map("conversation_id") @db.Uuid
+  role              String   // 'user' | 'assistant'
+  content           String
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }

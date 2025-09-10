@@ -1,7 +1,7 @@
 'use client';
 
-import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
-import { Button } from './ui/button';
+import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
+import { Button } from '../ui/button';
 import { Frown, Heart, Languages, Laugh, MessageCircle, Minus, Palette, PenTool, Star, Wand2, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 

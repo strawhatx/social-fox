@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, RefreshCw, Sparkles, Heart, MessageCircle, Repeat2, Edit3, Plus, BookOpen, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import SidebarLayout from "@/components/sidebar-layout";
+import SubscriptionGuard from "@/components/subscription-guard";
 
 interface TweetTemplate {
   id: string;
@@ -212,7 +213,8 @@ export default function LibraryPage() {
 
   return (
     <SidebarLayout>
-      <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
+      <SubscriptionGuard>
+        <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Template Library</h1>
@@ -485,7 +487,8 @@ export default function LibraryPage() {
             </CardContent>
           </Card>
         )}
-      </div>
+        </div>
+      </SubscriptionGuard>
     </SidebarLayout>
   );
 }

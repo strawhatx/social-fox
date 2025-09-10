@@ -9,6 +9,8 @@ import { Menu } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import QuotaIndicator from '@/components/quota-indicator';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
+import { Crown, Lock } from 'lucide-react';
+import SubscriptionStatus from './subscription-status';
 
 const menuItems = [
   { id: 'tweet-builder', title: 'Tweet Builder', path: '/tweet-builder', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
@@ -110,6 +112,7 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
               </Button>
               <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
               <div className="ml-auto flex items-center gap-3">
+                <SubscriptionStatus />
                 <QuotaIndicator />
                 <UserButton afterSignOutUrl="/sign-in" />
               </div>

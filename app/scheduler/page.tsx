@@ -16,6 +16,7 @@ import {
 import { useSchedulerPosts, type SchedulerItem } from '@/hooks/use-scheduler-posts';
 import EditPost from '@/components/edit-post';
 import SidebarLayout from '@/components/sidebar-layout';
+import SubscriptionGuard from '@/components/subscription-guard';
 
 export default function Scheduler() {
   const [filterType, setFilterType] = useState("all");
@@ -118,8 +119,8 @@ export default function Scheduler() {
 
   return (
     <SidebarLayout>
-    <>
-    <div className="p-4 space-y-4">
+      <SubscriptionGuard>
+        <div className="p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -283,19 +284,19 @@ export default function Scheduler() {
           </CardContent>
         </Card>
       )}
-    </div>
-    {editing && (
-      <EditPost
-        open={editOpen}
-        onOpenChange={(o) => setEditOpen(o)}
-        postId={editing.id}
-        initialContent={editing.content}
-        initialScheduledAt={editing.scheduledTime}
-        status={editing.status as any}
-        onSave={handleSaveEdit}
-      />
-    )}
-  </>
-  </SidebarLayout>
+        </div>
+        {editing && (
+          <EditPost
+            open={editOpen}
+            onOpenChange={(o) => setEditOpen(o)}
+            postId={editing.id}
+            initialContent={editing.content}
+            initialScheduledAt={editing.scheduledTime}
+            status={editing.status as any}
+            onSave={handleSaveEdit}
+          />
+        )}
+      </SubscriptionGuard>
+    </SidebarLayout>
   );
 }

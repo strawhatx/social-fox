@@ -74,14 +74,19 @@ export function AiRewritePopover({
         <Wand2 className="h-3 w-3" />
       </Button>
     </PopoverTrigger>
-    <PopoverContent className="w-80 p-0 bg-gray-900 border-gray-700" side="top">
+    <PopoverContent 
+      className="w-80 p-0 bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" 
+      sideOffset={15} 
+      alignOffset={100}
+      align="end"
+      >
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-gray-300 font-medium">Describe your change</h3>
+          <h3 className="text-orange-700 font-medium text-sm">Describe your change</h3>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-gray-400 hover:text-gray-300 h-6 w-6 p-0"
+            className="text-orange-600 hover:text-orange-700 h-6 w-6 p-0"
             onClick={() => onOpenChange(false)}
           >
             ✕
@@ -93,95 +98,95 @@ export function AiRewritePopover({
           <Button
             variant="ghost"
             onClick={() => handleAiEnhancement('improve-grammar')}
-            className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+            className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
           >
-            <PenTool className="h-4 w-4" />
-            <span className="text-sm">Improve grammar</span>
+            <PenTool className="h-3 w-3" />
+            <span className="text-xs">Improve grammar</span>
           </Button>
           <Button
             variant="ghost"
             onClick={() => handleAiEnhancement('translate')}
-            className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+            className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
           >
-            <Languages className="h-4 w-4" />
-            <span className="text-sm">Translate to English</span>
+            <Languages className="h-3 w-3" />
+            <span className="text-xs">Translate to English</span>
           </Button>
         </div>
 
         {/* Rephrase Section */}
         <div className="space-y-2">
-          <p className="text-gray-400 text-sm">Rephrase with</p>
+          <p className="text-orange-600 text-xs">Rephrase with</p>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('engaging-hook')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Heart className="h-4 w-4" />
-              <span className="text-sm">An engaging hook</span>
+              <Heart className="h-3 w-3" />
+              <span className="text-xs">An engaging hook</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('more-details')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <MessageCircle className="h-4 w-4" />
-              <span className="text-sm">More details</span>
+              <MessageCircle className="h-3 w-3" />
+              <span className="text-xs">More details</span>
             </Button>
           </div>
         </div>
 
         {/* Make it more Section */}
         <div className="space-y-2">
-          <p className="text-gray-400 text-sm">Make it more</p>
+          <p className="text-orange-600 text-xs">Make it more</p>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('engaging')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Zap className="h-4 w-4" />
-              <span className="text-sm">Engaging</span>
+              <Zap className="h-3 w-3" />
+              <span className="text-xs">Engaging</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('humorous')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Laugh className="h-4 w-4" />
-              <span className="text-sm">Humorous</span>
+              <Laugh className="h-3 w-3" />
+              <span className="text-xs">Humorous</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('creative')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Palette className="h-4 w-4" />
-              <span className="text-sm">Creative</span>
+              <Palette className="h-3 w-3" />
+              <span className="text-xs">Creative</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('sarcastic')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Frown className="h-4 w-4" />
-              <span className="text-sm">Sarcastic</span>
+              <Frown className="h-3 w-3" />
+              <span className="text-xs">Sarcastic</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('inspirational')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Star className="h-4 w-4" />
-              <span className="text-sm">Inspirational</span>
+              <Star className="h-3 w-3" />
+              <span className="text-xs">Inspirational</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => handleAiEnhancement('concise')}
-              className="flex items-center gap-2 justify-start text-gray-300 hover:text-white hover:bg-gray-800 h-10 px-3"
+              className="flex items-center gap-2 justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8 px-3"
             >
-              <Minus className="h-4 w-4" />
-              <span className="text-sm">Concise</span>
+              <Minus className="h-3 w-3" />
+              <span className="text-xs">Concise</span>
             </Button>
           </div>
         </div>

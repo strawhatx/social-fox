@@ -62,15 +62,17 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" onClick={fetchHashtags} className="text-muted-foreground hover:text-foreground h-7 w-7 p-0">
+        <Button variant="ghost" size="sm" onClick={fetchHashtags} className="text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-7 w-7 p-0">
           <Hash className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3">
+      <PopoverContent className="w-64 p-3 bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15} 
+      alignOffset={100}
+      align="end">
         <div className="space-y-2">
-          <div className="text-xs text-muted-foreground">Related hashtags</div>
-          {loading && <div className="text-sm">Loading…</div>}
-          {error && <div className="text-sm text-red-500">{error}</div>}
+          <div className="text-xs text-orange-600">Related hashtags</div>
+          {loading && <div className="text-xs text-orange-500">Loading…</div>}
+          {error && <div className="text-xs text-red-500">{error}</div>}
           {!loading && !error && (
             <div className="flex flex-wrap gap-2">
               {suggestions.map((tag) => (
@@ -78,7 +80,7 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
                   key={tag}
                   size="sm"
                   variant="secondary"
-                  className="h-7 text-xs"
+                  className="h-6 text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-200"
                   onClick={() => {
                     onInsert(tag);
                     setOpen(false);
@@ -88,14 +90,14 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
                 </Button>
               ))}
               {!suggestions.length && (
-                <div className="text-sm text-muted-foreground">No suggestions</div>
+                <div className="text-xs text-orange-500">No suggestions</div>
               )}
             </div>
           )}
           <Separator />
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onAddManual}>Add manual #</Button>
-            <Button size="sm" className="h-7 text-xs ml-auto" onClick={() => setOpen(false)}>Close</Button>
+            <Button size="sm" variant="ghost" className="h-6 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-100" onClick={onAddManual}>Add manual #</Button>
+            <Button size="sm" className="h-6 text-xs ml-auto bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white" onClick={() => setOpen(false)}>Close</Button>
           </div>
         </div>
       </PopoverContent>

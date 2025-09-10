@@ -38,7 +38,7 @@ export default function SchedulePicker({ scheduledAt, onConfirm, disabled }: Sch
             <PopoverTrigger asChild>
                 <Button
                     disabled={disabled}
-                    className={`flex-1 flex flex-col items-center py-2 text-sm ${scheduledAt ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                    className={`flex-1 flex flex-col items-center py-2 text-sm ${scheduledAt ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600'}`}
                 >
                     <div className="flex items-center gap-1">
                         <span>{label}</span>
@@ -47,13 +47,20 @@ export default function SchedulePicker({ scheduledAt, onConfirm, disabled }: Sch
                     <span className="text-xs opacity-90">{labelDate ?? format(preview, 'MMM d, yyyy h:mm a')}</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-3 w-[320px]">
+            <PopoverContent className="p-3 w-[320px] bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15}
+                alignOffset={100}
+                align="end">
                 <div className="space-y-3">
                     <Calendar
                         mode="single"
                         selected={day}
                         onSelect={(d) => d && setDay(d)}
                         initialFocus
+                        classNames={{
+                            day_selected: 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 focus:from-orange-600 focus:to-red-600',
+                            day_today: 'bg-orange-100 text-orange-700',
+                            day: 'hover:bg-orange-100 hover:text-orange-700'
+                        }}
                     />
                     <div className="flex items-center gap-2">
                         <Select value={hour} onValueChange={setHour}>
@@ -81,7 +88,7 @@ export default function SchedulePicker({ scheduledAt, onConfirm, disabled }: Sch
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
-                            className="flex-1"
+                            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
                             onClick={() => {
                                 onConfirm(preview);
                                 setOpen(false);
@@ -89,7 +96,7 @@ export default function SchedulePicker({ scheduledAt, onConfirm, disabled }: Sch
                         >
                             Confirm
                         </Button>
-                        <Button variant="outline" onClick={() => setOpen(false)} className="h-8 text-xs">Cancel</Button>
+                        <Button variant="outline" onClick={() => setOpen(false)} className="h-8 text-xs border-orange-200 text-orange-600 hover:bg-orange-100">Cancel</Button>
                     </div>
                 </div>
             </PopoverContent>

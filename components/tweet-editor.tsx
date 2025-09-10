@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -20,53 +20,218 @@ export default function TweetEditor() {
     const [isScheduled, setIsScheduled] = useState(false);
     const [attachments, setAttachments] = useState<{ url: string; file: File }[]>([]);
     const [communityUrl, setCommunityUrl] = useState('');
+    
+    // Real data state
+    const [drafts, setDrafts] = useState<any[]>([]);
+    const [scheduled, setScheduled] = useState<any[]>([]);
+    const [loadingDrafts, setLoadingDrafts] = useState(false);
+    const [loadingScheduled, setLoadingScheduled] = useState(false);
 
-    const drafts = [
-        "Working on something exciting... stay tuned! 👀",
-        "The future of web development is",
-        "Just discovered this amazing tool for"
-    ];
-
-    const scheduled = [
-        { content: "🚀 Launching our new feature tomorrow!", time: "Jan 25th, 2025 9:00 AM" },
-        { content: "Weekly tech tips thread coming up 🧵", time: "Jan 26th, 2025 2:00 PM" }
-    ];
-
-    const sent = [
-        { content: "Happy Monday everyone! Let's make this week count 💪", time: "Jan 20th, 2025" },
-        { content: "Just shipped a major update to our platform 🎉", time: "Jan 18th, 2025" }
-    ];
-
-    const handlePostNow = () => {
-        if (!editedTweet.trim()) return;
-        toast({
-            title: "Tweet posted!",
-            description: "Your tweet has been published successfully."
-        });
-        setEditedTweet("");
+    // Fetch drafts from API
+    const fetchDrafts = async () => {
+        setLoadingDrafts(true);
+        try {
+            const response = await fetch('/api/content-posts?status=draft');
+            if (response.ok) {
+                const data = await response.json();
+                setDrafts(data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching drafts:', error);
+        } finally {
+            setLoadingDrafts(false);
+        }
     };
 
-    const handleAddToQueue = () => {
-        if (!editedTweet.trim()) return;
-        setIsScheduled(true);
+    // Fetch scheduled posts from API
+    const fetchScheduled = async () => {
+        setLoadingScheduled(true);
+        try {
+            const response = await fetch('/api/content-posts?status=scheduled');
+            if (response.ok) {
+                const data = await response.json();
+                setScheduled(data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching scheduled posts:', error);
+        } finally {
+            setLoadingScheduled(false);
+        }
     };
 
-    const handleSave = () => {
-        // no-op placeholder
+    // Fetch data when component mounts or when tabs change
+    useEffect(() => {
+        if (activeComposerTab === 'drafts') {
+            fetchDrafts();
+        } else if (activeComposerTab === 'scheduled') {
+            fetchScheduled();
+        }
+    }, [activeComposerTab]);
+
+    const handlePostNow = async () => {
+        if (!editedTweet.trim()) return;
+
+        try {
+            const response = await fetch('/api/post-tweet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: editedTweet.trim(),
+                    platform: 'x',
+                    images: attachments.map(att => att.url),
+                    communityUrl: communityUrl || null
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 402 && data.error === 'quota_exhausted') {
+                    toast({
+                        title: "Quota Exhausted",
+                        description: `You've reached your monthly limit of ${data.quota?.monthly_limit || 'posts'}. Your quota resets on ${data.quota?.reset_date ? new Date(data.quota.reset_date).toLocaleDateString() : 'the next billing cycle'}.`,
+                        variant: "destructive"
+                    });
+                }
+
+                else if (data.error === 'twitter_not_connected') {
+                    toast({
+                        title: "Twitter Not Connected",
+                        description: data.message || "Please connect your Twitter account to post tweets.",
+                        variant: "destructive"
+                    });
+                }
+
+                else if (data.error === 'twitter_post_failed') {
+                    toast({
+                        title: "Failed to Post to Twitter",
+                        description: data.message || "There was an error posting to Twitter. Please try again.",
+                        variant: "destructive"
+                    });
+                }
+
+                else {
+                    throw new Error(data.error || 'Failed to post tweet');
+                }
+                return;
+            }
+
+            toast({
+                title: "Tweet posted!",
+                description: data.twitterTweetId
+                    ? `Your tweet has been published successfully. Tweet ID: ${data.twitterTweetId}`
+                    : "Your tweet has been published successfully."
+            });
+            setEditedTweet("");
+            setAttachments([]);
+            setCommunityUrl("");
+        } catch (error) {
+            console.error('Error posting tweet:', error);
+            toast({
+                title: "Error",
+                description: "Failed to post tweet. Please try again.",
+                variant: "destructive"
+            });
+        }
     };
 
-    const handleSchedule = () => {
+    const handleScheduleConfirm = async (date: Date) => {
         if (!editedTweet.trim()) return;
-        toast({
-            title: "Tweet scheduled!",
-            description: "Your tweet has been added to the scheduler."
-        });
-        setEditedTweet("");
+
+        try {
+            const response = await fetch('/api/content-posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: editedTweet.trim(),
+                    platform: 'x',
+                    scheduled_at: date.toISOString(),
+                    status: 'scheduled'
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to schedule tweet');
+            }
+
+            setIsScheduled(true);
+            toast({ 
+                title: 'Scheduled', 
+                description: `Will post ${date.toLocaleString()}` 
+            });
+            setEditedTweet("");
+            // Refresh scheduled if we're on the scheduled tab
+            if (activeComposerTab === 'scheduled') {
+                fetchScheduled();
+            }
+        } catch (error) {
+            console.error('Error scheduling tweet:', error);
+            toast({
+                title: "Error",
+                description: "Failed to schedule tweet. Please try again.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const handleSaveDraft = async () => {
+        if (!editedTweet.trim()) return;
+
+        try {
+            const response = await fetch('/api/content-posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: editedTweet.trim(),
+                    platform: 'twitter',
+                    status: 'draft'
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save draft');
+            }
+
+            toast({
+                title: "Draft saved!",
+                description: "Your tweet has been saved as a draft."
+            });
+            setEditedTweet("");
+            // Refresh drafts if we're on the drafts tab
+            if (activeComposerTab === 'drafts') {
+                fetchDrafts();
+            }
+        } catch (error) {
+            console.error('Error saving draft:', error);
+            toast({
+                title: "Error",
+                description: "Failed to save draft. Please try again.",
+                variant: "destructive"
+            });
+        }
     };
 
     const addHashtag = () => {
         // Kept for manual insertion fallback
         setEditedTweet(prev => prev + " #");
+    };
+
+    const loadDraft = (draft: any) => {
+        setEditedTweet(draft.content);
+        setActiveComposerTab('compose');
+        // TODO: Load attachments and community URL from draft metadata if available
+    };
+
+    const loadScheduled = (scheduled: any) => {
+        setEditedTweet(scheduled.content);
+        setActiveComposerTab('compose');
+        // TODO: Load attachments and community URL from scheduled metadata if available
     };
 
     const handleInsertHashtag = (tag: string) => {
@@ -106,23 +271,17 @@ export default function TweetEditor() {
                 >
                     Scheduled
                 </TabsTrigger>
-                <TabsTrigger
-                    value="sent"
-                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-xs"
-                >
-                    Sent
-                </TabsTrigger>
             </TabsList>
 
             <TabsContent value="compose" className="space-y-3 mt-4">
                 {/* Your content status */}
-                <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Your content</span>
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                    </div>
-                    <span className="text-muted-foreground text-sm">OK</span>
-                    <Button variant="ghost" size="sm" className="ml-auto text-xs">
+                <div className="flex items-end gap-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto text-xs"
+                        disabled={!editedTweet.trim()}
+                        onClick={handleSaveDraft}>
                         <Plus className="h-3 w-3 mr-1" />
                         New draft
                     </Button>
@@ -248,44 +407,55 @@ export default function TweetEditor() {
                     <SchedulePicker
                         disabled={!editedTweet.trim()}
                         scheduledAt={isScheduled ? new Date() : undefined}
-                        onConfirm={(d) => {
-                            setIsScheduled(true);
-                            toast({ title: 'Scheduled', description: `Will post ${d.toLocaleString()}` });
-                        }}
+                        onConfirm={handleScheduleConfirm}
                     />
                 </div>
             </TabsContent>
 
             <TabsContent value="drafts" className="space-y-2">
-                {drafts.map((draft, index) => (
-                    <Card key={index} className="cursor-pointer hover:bg-accent transition-colors">
-                        <CardContent className="p-2">
-                            <p className="text-xs">{draft}</p>
-                        </CardContent>
-                    </Card>
-                ))}
+                {loadingDrafts ? (
+                    <div className="text-center py-4">
+                        <p className="text-sm text-muted-foreground">Loading drafts...</p>
+                    </div>
+                ) : drafts.length === 0 ? (
+                    <div className="text-center py-4">
+                        <p className="text-sm text-muted-foreground">No drafts found</p>
+                    </div>
+                ) : (
+                    drafts.map((draft) => (
+                        <Card key={draft.id} className="cursor-pointer hover:bg-accent transition-colors" onClick={() => loadDraft(draft)}>
+                            <CardContent className="p-2">
+                                <p className="text-xs">{draft.content}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Created: {new Date(draft.created_at).toLocaleDateString()}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
             </TabsContent>
 
             <TabsContent value="scheduled" className="space-y-2">
-                {scheduled.map((item, index) => (
-                    <Card key={index} className="cursor-pointer hover:bg-accent transition-colors">
-                        <CardContent className="p-2">
-                            <p className="text-xs">{item.content}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{item.time}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </TabsContent>
-
-            <TabsContent value="sent" className="space-y-2">
-                {sent.map((item, index) => (
-                    <Card key={index} className="cursor-pointer hover:bg-accent transition-colors">
-                        <CardContent className="p-2">
-                            <p className="text-xs">{item.content}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{item.time}</p>
-                        </CardContent>
-                    </Card>
-                ))}
+                {loadingScheduled ? (
+                    <div className="text-center py-4">
+                        <p className="text-sm text-muted-foreground">Loading scheduled posts...</p>
+                    </div>
+                ) : scheduled.length === 0 ? (
+                    <div className="text-center py-4">
+                        <p className="text-sm text-muted-foreground">No scheduled posts found</p>
+                    </div>
+                ) : (
+                    scheduled.map((item) => (
+                        <Card key={item.id} className="cursor-pointer hover:bg-accent transition-colors" onClick={() => loadScheduled(item)}>
+                            <CardContent className="p-2">
+                                <p className="text-xs">{item.content}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Scheduled: {new Date(item.scheduled_at).toLocaleString()}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
             </TabsContent>
         </Tabs>
     );

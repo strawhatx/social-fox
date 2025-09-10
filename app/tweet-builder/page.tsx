@@ -11,6 +11,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DraggableTweet } from "@/components/tweet-composer";
 import { Sparkles } from "lucide-react";
 import TweetEditor from "@/components/tweet-editor";
+import SubscriptionGuard from "@/components/subscription-guard";
 
 export default function TweetBuilder() {
   const [viralSuggestions, setViralSuggestions] = useState<string[]>([]);
@@ -37,7 +38,8 @@ export default function TweetBuilder() {
 
   return (
     <SidebarLayout>
-      <DndProvider backend={HTML5Backend}>
+      <SubscriptionGuard>
+        <DndProvider backend={HTML5Backend}>
         <div className="flex h-full bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
           {/* Left Panel - Content Sources with Tabs */}
           <div className="w-1/2 md:w-3/5 xl:w-3/4 border-r border-border p-4">
@@ -96,8 +98,8 @@ export default function TweetBuilder() {
           <TweetEditor />
           </div>
         </div>
-      </DndProvider>
-
+        </DndProvider>
+      </SubscriptionGuard>
     </SidebarLayout>
   );
 }

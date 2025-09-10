@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, resolveUserUuid } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { resolveUserUuid } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 
 export async function GET(request: NextRequest) {
@@ -20,96 +21,62 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let result;
-    let totalResult;
-
+    // Build where conditions based on library type
+    let whereCondition: any = {};
+    
     if (libraryType === 'starter') {
-      // Get only starter templates
-      if (category && category !== 'All Templates') {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE is_starter = true AND category = ${category}
-          ORDER BY created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE is_starter = true AND category = ${category}
-        `;
-      } else {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE is_starter = true
-          ORDER BY created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE is_starter = true
-        `;
-      }
+      whereCondition.isStarter = true;
     } else if (libraryType === 'user') {
-      // Get only user templates
-      if (category && category !== 'All Templates') {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE user_id = ${appUserId} AND is_starter = false AND category = ${category}
-          ORDER BY created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE user_id = ${appUserId} AND is_starter = false AND category = ${category}
-        `;
-      } else {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE user_id = ${appUserId} AND is_starter = false
-          ORDER BY created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE user_id = ${appUserId} AND is_starter = false
-        `;
-      }
+      whereCondition.userId = appUserId;
+      whereCondition.isStarter = false;
     } else {
       // Get both starter and user templates
-      if (category && category !== 'All Templates') {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE (is_starter = true OR (user_id = ${appUserId} AND is_starter = false)) AND category = ${category}
-          ORDER BY is_starter DESC, created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE (is_starter = true OR (user_id = ${appUserId} AND is_starter = false)) AND category = ${category}
-        `;
+      whereCondition.OR = [
+        { isStarter: true },
+        { userId: appUserId, isStarter: false }
+      ];
+    }
+
+    // Add category filter if specified
+    if (category && category !== 'All Templates') {
+      if (whereCondition.OR) {
+        // For mixed queries, add category to both conditions
+        whereCondition.OR = whereCondition.OR.map((condition: any) => ({
+          ...condition,
+          category
+        }));
       } else {
-        result = await sql`
-          SELECT id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-          FROM public.library 
-          WHERE is_starter = true OR (user_id = ${appUserId} AND is_starter = false)
-          ORDER BY is_starter DESC, created_at DESC 
-          LIMIT ${limit} OFFSET ${offset}
-        `;
-        totalResult = await sql`
-          SELECT COUNT(*) as total FROM public.library 
-          WHERE is_starter = true OR (user_id = ${appUserId} AND is_starter = false)
-        `;
+        whereCondition.category = category;
       }
     }
 
-    const total = parseInt((totalResult as any[])[0]?.total || '0');
+    // Get templates and total count
+    const [templates, total] = await Promise.all([
+      prisma.Library.findMany({
+        where: whereCondition,
+        orderBy: libraryType === 'all' 
+          ? [{ isStarter: 'desc' }, { createdAt: 'desc' }]
+          : { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+        select: {
+          id: true,
+          text: true,
+          category: true,
+          hashtags: true,
+          isViralReady: true,
+          isStarter: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      }),
+      prisma.Library.count({
+        where: whereCondition
+      })
+    ]);
 
     return NextResponse.json({
-      templates: result,
+      templates,
       total,
       limit,
       offset,
@@ -140,13 +107,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Text and category are required' }, { status: 400 });
     }
 
-    const result = await sql`
-      INSERT INTO public.library (user_id, text, category, hashtags, is_viral_ready, is_starter)
-      VALUES (${appUserId}, ${text}, ${category}, ${hashtags}, ${is_viral_ready}, false)
-      RETURNING id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-    `;
+    const template = await prisma.Library.create({
+      data: {
+        userId: appUserId,
+        text,
+        category,
+        hashtags,
+        isViralReady: is_viral_ready,
+        isStarter: false
+      },
+      select: {
+        id: true,
+        text: true,
+        category: true,
+        hashtags: true,
+        isViralReady: true,
+        isStarter: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
 
-    return NextResponse.json({ template: (result as any[])[0] }, { status: 201 });
+    return NextResponse.json({ template }, { status: 201 });
   } catch (error) {
     console.error('Error creating library template:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -172,18 +154,40 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const result = await sql`
-      UPDATE public.library 
-      SET text = ${text}, category = ${category}, hashtags = ${hashtags}, is_viral_ready = ${is_viral_ready}, updated_at = NOW()
-      WHERE id = ${id} AND user_id = ${appUserId} AND is_starter = false
-      RETURNING id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-    `;
+    const template = await prisma.Library.updateMany({
+      where: {
+        id,
+        userId: appUserId,
+        isStarter: false
+      },
+      data: {
+        text,
+        category,
+        hashtags,
+        isViralReady: is_viral_ready
+      }
+    });
 
-    if ((result as any[]).length === 0) {
+    if (template.count === 0) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ template: (result as any[])[0] });
+    // Fetch the updated template
+    const updatedTemplate = await prisma.Library.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        text: true,
+        category: true,
+        hashtags: true,
+        isViralReady: true,
+        isStarter: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return NextResponse.json({ template: updatedTemplate });
   } catch (error) {
     console.error('Error updating library template:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -209,11 +213,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const result = await sql`
-      DELETE FROM public.library WHERE id = ${id} AND user_id = ${appUserId} AND is_starter = false RETURNING id
-    `;
+    const result = await prisma.Library.deleteMany({
+      where: {
+        id,
+        userId: appUserId,
+        isStarter: false
+      }
+    });
 
-    if ((result as any[]).length === 0) {
+    if (result.count === 0) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 

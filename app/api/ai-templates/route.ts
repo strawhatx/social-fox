@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { sql, resolveUserUuid } from '@/lib/db';
+import { resolveUserUuid } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -9,9 +10,17 @@ export async function GET() {
     const appUserId = await resolveUserUuid(userId);
     
     if (!appUserId) return NextResponse.json({ ok: false, error: 'user_not_found' }, { status: 404 });
-    const rows = await sql`SELECT id, text, created_at FROM public.ai_templates WHERE user_id = ${appUserId} ORDER BY created_at DESC LIMIT 100`;
-    
-    return NextResponse.json({ ok: true, tweets: rows });
+    const templates = await prisma.aiTemplate.findMany({
+      where: { userId: appUserId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: {
+        id: true,
+        text: true,
+        createdAt: true,
+      },
+    });
+    return NextResponse.json({ ok: true, tweets: templates });
   } catch (e) {
     return NextResponse.json({ ok: false, error: 'failed' }, { status: 500 });
   }

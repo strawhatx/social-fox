@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // Get templates and total count
     const [templates, total] = await Promise.all([
-      prisma.Library.findMany({
+      prisma.library.findMany({
         where: whereCondition,
         orderBy: libraryType === 'all' 
           ? [{ isStarter: 'desc' }, { createdAt: 'desc' }]
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
           updatedAt: true
         }
       }),
-      prisma.Library.count({
+      prisma.library.count({
         where: whereCondition
       })
     ]);
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Text and category are required' }, { status: 400 });
     }
 
-    const template = await prisma.Library.create({
+    const template = await prisma.library.create({
       data: {
         userId: appUserId,
         text,
@@ -154,7 +154,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const template = await prisma.Library.updateMany({
+    const template = await prisma.library.updateMany({
       where: {
         id,
         userId: appUserId,
@@ -173,7 +173,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Fetch the updated template
-    const updatedTemplate = await prisma.Library.findUnique({
+    const updatedTemplate = await prisma.library.findUnique({
       where: { id },
       select: {
         id: true,
@@ -213,7 +213,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
-    const result = await prisma.Library.deleteMany({
+    const result = await prisma.library.deleteMany({
       where: {
         id,
         userId: appUserId,

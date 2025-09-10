@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { sql, ensureAppUserId } from '@/lib/db';
+import { ensureAppUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/nextjs/server';
 import { getUserTwitterBearerToken, fetchTwitterUserByUsername } from '@/lib/twitter';
 
@@ -38,28 +39,33 @@ export async function POST(request: Request) {
       if (bearer && handle) {
         const d = await fetchTwitterUserByUsername(handle, bearer);
         if (d?.id && d?.username) {
-          await sql`
-            INSERT INTO public.twitter_accounts (
-              user_id, twitter_user_id, handle, name, description, profile_image_url,
-              followers_count, following_count, tweet_count, last_synced_at,
-              backfill_status
-            ) VALUES (
-              ${appUserId}, ${d.id}, ${d.username}, ${d.name || null}, ${d.description || null}, ${d.profile_image_url || null},
-              ${d.public_metrics?.followers_count ?? 0}, ${d.public_metrics?.following_count ?? 0}, ${d.public_metrics?.tweet_count ?? 0}, 
-              now(), 'pending'
-            )
-            ON CONFLICT (twitter_user_id)
-            DO UPDATE SET
-              handle = EXCLUDED.handle,
-              name = EXCLUDED.name,
-              description = EXCLUDED.description,
-              profile_image_url = EXCLUDED.profile_image_url,
-              followers_count = EXCLUDED.followers_count,
-              following_count = EXCLUDED.following_count,
-              tweet_count = EXCLUDED.tweet_count,
-              last_synced_at = now(),
-              backfill_status = EXCLUDED.backfill_status`;
-
+          await prisma.twitterAccount.upsert({
+            where: { twitterUserId: d.id },
+            update: {
+              handle: d.username,
+              name: d.name || null,
+              description: d.description || null,
+              profileImageUrl: d.profile_image_url || null,
+              followersCount: d.public_metrics?.followers_count ?? 0,
+              followingCount: d.public_metrics?.following_count ?? 0,
+              tweetCount: d.public_metrics?.tweet_count ?? 0,
+              lastSyncedAt: new Date(),
+              backfillStatus: 'pending',
+            },
+            create: {
+              userId: appUserId,
+              twitterUserId: d.id,
+              handle: d.username,
+              name: d.name || null,
+              description: d.description || null,
+              profileImageUrl: d.profile_image_url || null,
+              followersCount: d.public_metrics?.followers_count ?? 0,
+              followingCount: d.public_metrics?.following_count ?? 0,
+              tweetCount: d.public_metrics?.tweet_count ?? 0,
+              lastSyncedAt: new Date(),
+              backfillStatus: 'pending',
+            },
+          });
           return NextResponse.json({ ok: true, created: true, twitter: 'upserted' });
         }
       }

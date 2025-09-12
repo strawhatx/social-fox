@@ -11,12 +11,24 @@ export { sql };
 
 // Resolve or create the app-level user UUID from a Clerk user ID using Prisma
 export async function ensureAppUserId(clerkUserId: string): Promise<string> {
-  // Try to find the user first
-  let user = await prisma.user.findUnique({ where: { clerkUserId } });
-  if (user) return user.id;
-  // If not found, create the user
-  user = await prisma.user.create({ data: { clerkUserId } });
-  return user.id;
+  try {
+    // Try to find the user first
+    let user = await prisma.user.findUnique({ where: { clerkUserId } });
+    if (user) return user.id;
+    
+    // If not found, create the user with upsert to handle race conditions
+    user = await prisma.user.upsert({
+      where: { clerkUserId },
+      update: {},
+      create: { clerkUserId }
+    });
+    return user.id;
+  } catch (error) {
+    // If there's still a race condition, try to find the user again
+    const user = await prisma.user.findUnique({ where: { clerkUserId } });
+    if (user) return user.id;
+    throw error;
+  }
 }
 
 

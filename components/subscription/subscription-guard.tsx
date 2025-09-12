@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Lock, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { products } from '@/lib/utils';
 
 interface SubscriptionData {
   plan: string;
@@ -64,8 +65,8 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
   const handleUpgrade = (planId: string) => {
     // You'll need to replace these with your actual Lemon Squeezy product IDs
     const productIds: Record<string, string> = {
-      explore: '631823',
-      creative: '631761'
+      explore: products.explore,
+      creator: products.creative
     };
 
     const productId = productIds[planId];
@@ -173,23 +174,19 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Full access to Tweet Builder
+                      20 Content Copilot drafts
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      AI suggestions and templates
+                      10 scheduled posts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Basic scheduling
+                      Starter Library
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Hashtag suggestions
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Emoji picker
+                      Basic support
                     </li>
                   </ul>
                   <Button 
@@ -209,7 +206,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">Best Value</Badge>
                   </CardTitle>
                   <CardDescription>
-                    <span className="text-2xl font-bold text-orange-600">$14</span>
+                    <span className="text-2xl font-bold text-orange-600">$29</span>
                     <span className="text-orange-500">/month</span>
                   </CardDescription>
                 </CardHeader>
@@ -221,23 +218,19 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Unlimited posts
+                      150 Content Copilot drafts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Advanced AI features
+                      100 scheduled posts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      Bulk scheduling
+                      Custom Library
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
                       Priority support
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Advanced analytics
                     </li>
                   </ul>
                   <Button 

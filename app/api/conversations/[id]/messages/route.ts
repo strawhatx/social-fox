@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
+import { withQuotaCheck, getUserFromRequest } from '@/lib/quota-middleware';
 
 export async function GET(
   request: NextRequest,
@@ -48,17 +49,13 @@ export async function GET(
   }
 }
 
-export async function POST(
+export const POST = withQuotaCheck('aiGenerations', async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: { id: string } },
+  user,
+  usage
+) => {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { role, content, metadata } = await request.json();
 
     if (!role || !content) {
@@ -67,15 +64,6 @@ export async function POST(
 
     if (!['user', 'assistant'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
-    }
-
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { clerkUserId: userId }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Verify conversation belongs to user
@@ -90,16 +78,7 @@ export async function POST(
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
-    // Check quota for assistant messages
-    if (role === 'assistant') {
-      const quota = await prisma.userQuota.findUnique({
-        where: { userId: user.id }
-      });
-      
-      if (quota && quota.aiPostsUsed >= quota.aiPostsLimit) {
-        return NextResponse.json({ error: 'Quota exceeded' }, { status: 402 });
-      }
-    }
+    // Note: Quota checking is now handled by the middleware wrapper
 
     // Create new message
     const message = await prisma.message.create({
@@ -111,13 +90,7 @@ export async function POST(
       }
     });
 
-    // Increment quota for assistant messages
-    if (role === 'assistant') {
-      await prisma.userQuota.update({
-        where: { userId: user.id },
-        data: { aiPostsUsed: { increment: 1 } }
-      });
-    }
+    // Note: Usage increment is now handled by the middleware wrapper
 
     // Update conversation's updated_at timestamp
     await prisma.conversation.update({
@@ -130,4 +103,4 @@ export async function POST(
     console.error('Error creating message:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

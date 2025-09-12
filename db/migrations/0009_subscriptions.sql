@@ -1,5 +1,5 @@
 -- Add subscription tracking fields to users table
-ALTER TABLE users ADD COLUMN IF NOT EXISTS plan VARCHAR(50) NOT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS plan VARCHAR(50);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'inactive';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_id VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_expiry TIMESTAMP WITH TIME ZONE;

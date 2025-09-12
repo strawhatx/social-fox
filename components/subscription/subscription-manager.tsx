@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { products } from '@/lib/utils';
 
 interface SubscriptionData {
   plan: string;
@@ -51,8 +52,8 @@ export default function SubscriptionManager() {
   const handleUpgrade = (planId: string) => {
     // You'll need to replace these with your actual Lemon Squeezy product IDs
     const productIds: Record<string, string> = {
-      explore: '631823',
-      creative: '631761'
+      explore: products.explore,
+      creator: products.creative
     };
 
     const productId = productIds[planId];
@@ -202,12 +203,10 @@ export default function SubscriptionManager() {
                 <span className="text-lg font-bold">$5/month</span>
               </div>
               <ul className="text-sm space-y-1">
-                <li>• Full access to Tweet Builder</li>
-                <li>• 10 posts per month</li>
-                <li>• AI suggestions and starter library</li>
-                <li>• Basic scheduling</li>
-                <li>• Hashtag suggestions</li>
-                <li>• Emoji picker</li>
+                <li>• 20 Content Copilot drafts</li>
+                <li>• 10 scheduled posts per month</li>
+                <li>• Starter Library</li>
+                <li>• Basic support</li>
               </ul>
               <Button 
                 onClick={() => handleUpgrade('explore')}
@@ -217,22 +216,22 @@ export default function SubscriptionManager() {
               </Button>
             </div>
 
-            {/* Creative Plan */}
+            {/* Creator Plan */}
             <div className="border rounded-lg p-4 space-y-3 border-orange-200 bg-orange-50">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Creative</h3>
-                <span className="text-lg font-bold">$14/month</span>
+                <span className="text-lg font-bold">$29/month</span>
               </div>
               <ul className="text-sm space-y-1">
                 <li>• Everything in Explore</li>
-                <li>• Unlimited posts</li>
-                <li>• Advanced AI features</li>
-                <li>• Bulk scheduling</li>
+                <li>• 150 Content Copilot drafts per month</li>
+                <li>• 100 scheduled posts per month</li>
+                <li>• Custom Library</li>
                 <li>• Priority support</li>
-                <li>• Advanced analytics</li>
+
               </ul>
               <Button 
-                onClick={() => handleUpgrade('creative')}
+                onClick={() => handleUpgrade('creator')}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
               >
                 Upgrade to Creative

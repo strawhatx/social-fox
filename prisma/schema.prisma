@@ -13,7 +13,7 @@ datasource db {
 model User {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   clerkUserId       String   @unique @map("clerk_user_id")
-  plan              String   @default("free")
+  plan              String?
   subscriptionStatus String  @default("inactive") @map("subscription_status")
   subscriptionId    String?  @map("subscription_id")
   subscriptionExpiry DateTime? @map("subscription_expiry") @db.Timestamptz
@@ -24,6 +24,7 @@ model User {
   twitterAccounts   TwitterAccount[]
   contentPosts      ContentPost[]
   userQuota         UserQuota?
+  userUsage         UserUsage[]
   library           Library[]
   aiTemplates       AiTemplate[]
   conversations     Conversation[]
@@ -100,6 +101,7 @@ model Library {
   hashtags          String[] @default([])
   isViralReady      Boolean  @default(false) @map("is_viral_ready")
   isStarter         Boolean  @default(false) @map("is_starter")
+  characterCount    Int?     @map("character_count")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -160,4 +162,21 @@ model Message {
   conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
+}
+
+model UserUsage {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  feature           String   // "aiGenerations", "scheduledPosts", "projects"
+  used              Int      @default(0)
+  periodStart       DateTime @map("period_start") @db.Timestamptz
+  periodEnd         DateTime @map("period_end") @db.Timestamptz
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, feature, periodStart, periodEnd])
+  @@map("user_usage")
 }

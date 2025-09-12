@@ -15,7 +15,7 @@ Your app now has a complete paywall system that requires users to have an active
 
 ### 2. Protected Pages
 The following pages are now protected and require an active subscription:
-- **Tweet Builder** (`/tweet-builder`)
+- **X Copilot** (`/editor`)
 - **Library** (`/library`) 
 - **Scheduler** (`/scheduler`)
 

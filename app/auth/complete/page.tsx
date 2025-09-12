@@ -24,8 +24,9 @@ export default function AuthCompletePage() {
         });
       } catch (e) {
         // ignore errors to avoid blocking redirect
+        console.error(e);
       } finally {
-        router.replace('/tweet-builder');
+        router.replace('/editor');
       }
     };
     run();

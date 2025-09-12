@@ -16,7 +16,7 @@ import {
 import { useSchedulerPosts, type SchedulerItem } from '@/hooks/use-scheduler-posts';
 import EditPost from '@/components/editor/edit-post';
 import SidebarLayout from '@/components/sidebar-layout';
-import SubscriptionGuard from '@/components/subscription-guard';
+import SubscriptionGuard from '@/components/subscription/subscription-guard';
 
 export default function Scheduler() {
   const [filterType, setFilterType] = useState("all");

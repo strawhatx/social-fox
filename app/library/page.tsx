@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, RefreshCw, Sparkles, Heart, MessageCircle, Repeat2, Edit3, Plus, BookOpen, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import SidebarLayout from "@/components/sidebar-layout";
-import SubscriptionGuard from "@/components/subscription-guard";
+import SubscriptionGuard from "@/components/subscription/subscription-guard";
 
 interface TweetTemplate {
   id: string;

@@ -76,14 +76,14 @@ export async function getUserSubscription(userId: string) {
       }
     });
 
-    if (!user) return null;
+    if (!user || !user.plan) return null;
 
     return {
-      plan: user.plan || 'free',
+      plan: user.plan,
       status: user.subscriptionStatus || 'inactive',
       subscriptionId: user.subscriptionId,
       expiry: user.subscriptionExpiry,
-      planDetails: SUBSCRIPTION_PLANS[user.plan || 'free']
+      planDetails: SUBSCRIPTION_PLANS[user.plan]
     };
   } catch (error) {
     console.error('Error fetching user subscription:', error);

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Plus, AtSign, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { TweetComposer } from './tweet-composer';
-import HashtagPicker from './editor/hashtag-picker';
-import EmojiPicker from './editor/emoji-picker';
-import ImageUploader from './editor/image-uploader';
-import SchedulePicker from './editor/schedule-picker';
-import { Input } from './ui/input';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from './ui/hover-card';
+import HashtagPicker from '@/components/editor/hashtag-picker';
+import EmojiPicker from '@/components/editor/emoji-picker';
+import ImageUploader from '@/components/editor/image-uploader';
+import SchedulePicker from '@/components/editor/schedule-picker';
+import { Input } from '@/components/ui/input';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 export default function TweetEditor() {
     const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
+import { withQuotaCheck, getUserFromRequest } from '@/lib/quota-middleware';
 
 export async function GET() {
   try {
@@ -38,38 +39,12 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withQuotaCheck('aiGenerations', async (request, context, user, usage) => {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { title, firstMessage } = await request.json();
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
-
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { clerkUserId: userId }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Check quota before creating conversation (only if there's a first message)
-    if (firstMessage) {
-      const quota = await prisma.userQuota.findUnique({
-        where: { userId: user.id }
-      });
-      
-      if (quota && quota.aiPostsUsed >= quota.aiPostsLimit) {
-        return NextResponse.json({ error: 'Quota exceeded' }, { status: 402 });
-      }
     }
 
     // Create new conversation with first message if provided
@@ -92,17 +67,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Increment quota if first message was created
-    if (firstMessage) {
-      await prisma.userQuota.update({
-        where: { userId: user.id },
-        data: { aiPostsUsed: { increment: 1 } }
-      });
-    }
-
     return NextResponse.json(conversation);
   } catch (error) {
     console.error('Error creating conversation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

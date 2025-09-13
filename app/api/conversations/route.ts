@@ -39,7 +39,7 @@ export async function GET() {
   }
 }
 
-export const POST = withQuotaCheck('aiGenerations', async (request, context, user, usage) => {
+export const POST = withQuotaCheck('copilotDrafts', async (request, context, user, usage) => {
   try {
     const { title, firstMessage } = await request.json();
 

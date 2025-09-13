@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { neon } from '@neondatabase/serverless';
+import { clerkClient } from '@clerk/nextjs/server';
 
 // Create a database connection
 const sql = neon(process.env.DATABASE_URL!);
@@ -47,5 +48,44 @@ export async function resolveUserUuid(userIdentifier: string): Promise<string | 
     return null;
   }
 }
+
+export async function resolveUserFromWebhookData(customerId: string, identifier: string, customData: any): Promise<Record<string, any> | null> {
+  try {
+    // First try to find user by existing subscriptionId
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { subscriptionId: customerId },
+          { subscriptionId: identifier }
+        ]
+      }
+    });
+
+    if (user) {
+      console.log('Found user by existing subscriptionId:', user.id);
+      return user;
+    }
+
+    // Try to find user by user ID from custom_data (most reliable)
+    const userId = customData?.user_id || customData?.userId || customData?.clerk_user_id;
+    if (userId) {
+      console.log('Looking up user by user ID:', userId);
+      
+      const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+      if (user) {
+        console.log('Found user by user ID:', user.id);
+        return user;
+      }
+    }
+
+    console.error('Could not resolve user by any method:', { userId });
+    return null;
+  } 
+  catch (error) {
+    console.error('Error resolving user from webhook data:', error);
+    return null;
+  }
+}
+
 
 

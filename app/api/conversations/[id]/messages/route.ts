@@ -49,7 +49,7 @@ export async function GET(
   }
 }
 
-export const POST = withQuotaCheck('aiGenerations', async (
+export const POST = withQuotaCheck('copilotDrafts', async (
   request: NextRequest,
   { params }: { params: { id: string } },
   user,

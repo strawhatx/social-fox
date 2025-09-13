@@ -57,7 +57,7 @@ const PLANS = {
 CREATE TABLE user_usage (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    feature VARCHAR(50) NOT NULL, -- "aiGenerations", "scheduledPosts", "projects"
+    feature VARCHAR(50) NOT NULL, -- "copilotDrafts", "scheduledPosts", "projects"
     used INT DEFAULT 0,
     period_start TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -80,7 +80,7 @@ CREATE TABLE user_usage (
 import { withQuotaCheck } from '@/lib/quota-middleware';
 
 // Wrap your API route with quota checking
-export const POST = withQuotaCheck('aiGenerations', async (request, context, user, usage) => {
+export const POST = withQuotaCheck('copilotDrafts', async (request, context, user, usage) => {
   // Your API logic here
   // Usage is automatically incremented on success
   return NextResponse.json({ success: true });
@@ -93,13 +93,13 @@ export const POST = withQuotaCheck('aiGenerations', async (request, context, use
 import { canUseFeature, incrementFeatureUsage } from '@/lib/usage-tracking';
 
 // Check if user can use a feature
-const access = await canUseFeature(userId, 'aiGenerations');
+const access = await canUseFeature(userId, 'copilotDrafts');
 if (!access.canUse) {
   throw new Error(access.reason);
 }
 
 // Increment usage after successful action
-const result = await incrementFeatureUsage(userId, 'aiGenerations');
+const result = await incrementFeatureUsage(userId, 'copilotDrafts');
 ```
 
 ### 3. Getting Usage Data
@@ -111,7 +111,7 @@ import { getAllUserUsage, getUserUsage } from '@/lib/usage-tracking';
 const allUsage = await getAllUserUsage(userId);
 
 // Get specific feature usage
-const aiUsage = await getUserUsage(userId, 'aiGenerations');
+const aiUsage = await getUserUsage(userId, 'copilotDrafts');
 ```
 
 ## 🚀 API Endpoints
@@ -127,7 +127,7 @@ Get current usage for all features or a specific feature.
 ```json
 {
   "userId": "uuid",
-  "feature": "aiGenerations",
+  "feature": "copilotDrafts",
   "used": 15,
   "limit": 20,
   "period": {
@@ -160,7 +160,7 @@ await prisma.userQuota.update({
 ### After (New System)
 ```typescript
 // Clean middleware wrapper
-export const POST = withQuotaCheck('aiGenerations', async (request, context, user, usage) => {
+export const POST = withQuotaCheck('copilotDrafts', async (request, context, user, usage) => {
   // Your logic here
   // Quota checking and incrementing handled automatically
 });
@@ -227,7 +227,7 @@ try {
 ```typescript
 const planLimits = {
   free: { 
-    aiGenerations: 20, 
+    copilotDrafts: 20, 
     scheduledPosts: 10, 
     projects: 1,
     newFeature: 5  // Add new feature
@@ -254,7 +254,7 @@ Simply update the numbers in `planLimits` - all API routes automatically use the
 const planLimits = {
   // ... existing plans
   enterprise: { 
-    aiGenerations: 5000, 
+    copilotDrafts: 5000, 
     scheduledPosts: Infinity, 
     projects: 50 
   }
@@ -285,7 +285,7 @@ const PLANS = {
   "error": "Usage limit reached for this billing period",
   "usage": {
     "userId": "uuid",
-    "feature": "aiGenerations",
+    "feature": "copilotDrafts",
     "used": 20,
     "limit": 20,
     "period": { "start": "...", "end": "..." }
@@ -339,7 +339,7 @@ const isNearLimit = percentage > 80;
 // Mock usage for testing
 const mockUsage = {
   userId: 'test-user',
-  feature: 'aiGenerations',
+  feature: 'copilotDrafts',
   used: 0,
   limit: 20,
   period: getCurrentBillingPeriod()

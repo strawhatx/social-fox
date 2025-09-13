@@ -167,7 +167,7 @@ model Message {
 model UserUsage {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId            String   @map("user_id") @db.Uuid
-  feature           String   // "aiGenerations", "scheduledPosts", "projects"
+  feature           String   // "copilotDrafts", "scheduledPosts", "projects"
   used              Int      @default(0)
   periodStart       DateTime @map("period_start") @db.Timestamptz
   periodEnd         DateTime @map("period_end") @db.Timestamptz

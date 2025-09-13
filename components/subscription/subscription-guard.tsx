@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Lock, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { products } from '@/lib/utils';
+import { product_url_ids as products } from '@/lib/utils';
+import { useUser } from '@clerk/nextjs';
 
 interface SubscriptionData {
   plan: string;
@@ -37,6 +38,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
     checkSubscription();
@@ -62,7 +64,28 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
     }
   };
 
-  const handleUpgrade = (planId: string) => {
+  const handleUpgrade = async (planId: string) => {
+    // Check if user already has an active subscription
+    if (subscription && subscription.status === 'active') {
+      if (planId === subscription.plan) {
+        toast({
+          title: 'Already Subscribed',
+          description: `You already have an active ${subscription.plan} subscription.`,
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      if (planId === 'explore' && subscription.plan === 'creator') {
+        toast({
+          title: 'Cannot Downgrade',
+          description: 'You cannot purchase explore when you already have a creator subscription.',
+          variant: 'destructive'
+        });
+        return;
+      }
+    }
+    
     // You'll need to replace these with your actual Lemon Squeezy product IDs
     const productIds: Record<string, string> = {
       explore: products.explore,
@@ -80,7 +103,8 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
     }
 
     // Open Lemon Squeezy checkout
-    const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}`;
+    const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
+
     window.open(checkoutUrl, '_blank');
   };
 
@@ -120,7 +144,6 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
 
   // Check if user has active subscription
   const hasActiveSubscription = subscription?.status === 'active';
-  const isFree = !subscription || subscription.plan === 'free' || subscription.status !== 'active';
 
   if (!hasActiveSubscription) {
     return (

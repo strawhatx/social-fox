@@ -133,6 +133,16 @@ export function canUseFeature(
   return { canUse: true };
 }
 
+// Plan limits mapping for easy access
+export const planLimits = {
+  explore: Object.fromEntries(
+    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.explore])
+  ),
+  creator: Object.fromEntries(
+    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.creator])
+  )
+};
+
 // Get upgrade suggestions
 export function getUpgradeSuggestions(
   featureName: string,

@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
+import { QUOTA_FEATURES, BINARY_FEATURES, PLANS } from '@/lib/features';
 
 export interface SubscriptionPlan {
   id: string;
@@ -8,13 +9,7 @@ export interface SubscriptionPlan {
   price: number;
   interval: 'month' | 'year';
   features: string[];
-  limits: {
-    posts: number;
-    ai_posts: number;
-    ai_rewrites: number;
-    starter_library_access: boolean;
-    my_library_access: boolean;
-  };
+  limits: Record<string, number | boolean>;
 }
 
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
@@ -24,39 +19,37 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     price: 5,
     interval: 'month',
     features: [
-      'Full access to Tweet Builder',
-      'AI suggestions and templates',
+      'AI-powered social media posts',
       'Basic scheduling',
-      'Hashtag suggestions',
-      'Emoji picker'
+      'Template library access',
+      '20 AI drafts per month',
+      '10 scheduled posts per month'
     ],
     limits: {
-      posts: 10,
-      ai_posts: 10,
-      ai_rewrites: 25,
-      starter_library_access: true,
-      my_library_access: false,
+      copilotDrafts: 20,
+      scheduledPosts: 10,
+      starterTemplates: true,
+      customTemplates: false
     }
   },
-  creative: {
-    id: 'creative',
-    name: 'Creative',
-    price: 14,
+  creator: {
+    id: 'creator',
+    name: 'Creator',
+    price: 15,
     interval: 'month',
     features: [
       'Everything in Explore',
-      'Unlimited posts',
       'Advanced AI features',
-      'Bulk scheduling',
-      'Priority support',
-      'Advanced analytics'
+      'Custom template creation',
+      '150 AI drafts per month',
+      '100 scheduled posts per month',
+      'Priority support'
     ],
     limits: {
-      posts: 60, // -1 means unlimited
-      ai_posts: 50,
-      ai_rewrites: -1,
-      starter_library_access: true,
-      my_library_access: true,
+      copilotDrafts: 150,
+      scheduledPosts: 100,
+      starterTemplates: true,
+      customTemplates: true
     }
   }
 };
@@ -91,23 +84,27 @@ export async function getUserSubscription(userId: string) {
   }
 }
 
-export async function checkFeatureAccess(userId: string, feature: 'posts' | 'ai_posts' | 'ai_rewrites' | 'starter_library_access' | 'my_library_access'): Promise<boolean> {
+export async function checkFeatureAccess(userId: string, feature: string): Promise<boolean> {
   const subscription = await getUserSubscription(userId);
   if (!subscription) return false;
 
   const { planDetails, status } = subscription;
   
   // Check if subscription is active
-  if (status !== 'active' && planDetails.id !== 'free') {
+  if (status !== 'active') {
     return false;
   }
 
-  // Check feature limits
+  // Check if feature exists in plan
   const limit = planDetails.limits[feature];
-  return limit === -1; // -1 means unlimited
+  if (typeof limit === 'boolean') {
+    return limit;
+  }
+  
+  return typeof limit === 'number' && limit > 0;
 }
 
-export async function checkQuotaLimit(userId: string, feature: 'posts' | 'ai_posts' | 'ai_rewrites' | 'starter_library_access' | 'my_library_access'): Promise<{ allowed: boolean; used: number; limit: number }> {
+export async function checkQuotaLimit(userId: string, feature: string): Promise<{ allowed: boolean; used: number; limit: number }> {
   const subscription = await getUserSubscription(userId);
   if (!subscription) {
     return { allowed: false, used: 0, limit: 0 };
@@ -121,52 +118,39 @@ export async function checkQuotaLimit(userId: string, feature: 'posts' | 'ai_pos
     return { allowed: limit, used: limit ? 1 : 0, limit: limit ? 1 : 0 };
   }
   
-  // Unlimited plan
-  if (limit === -1) {
-    return { allowed: true, used: 0, limit: -1 };
-  }
-
-  // Check current usage (you'll need to implement this based on your quota system)
+  // For numeric limits, check current usage
   const used = await getCurrentUsage(userId, feature);
   
   return {
-    allowed: used < limit,
+    allowed: used < (limit as number),
     used,
-    limit
+    limit: limit as number
   };
 }
 
-async function getCurrentUsage(userId: string, feature: 'posts' | 'ai_posts' | 'ai_rewrites' | 'starter_library_access' | 'my_library_access'): Promise<number> {
+async function getCurrentUsage(userId: string, feature: string): Promise<number> {
   const appUserId = await resolveUserUuid(userId);
   if (!appUserId) return 0;
 
   try {
-    // For boolean features, return 0 (they're not counted)
-    if (feature === 'starter_library_access' || feature === 'my_library_access') {
-      return 0;
-    }
+    // Get current billing period
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    // Use the single quota table
-    const quota = await prisma.userQuota.findFirst({
+    // Use the new UserUsage table
+    const usage = await prisma.userUsage.findUnique({
       where: {
-        userId: appUserId,
-        resetDate: { gt: new Date() }
-      },
-      select: {
-        postsUsed: true,
-        aiPostsUsed: true,
-        aiRewritesUsed: true
+        userId_feature_periodStart_periodEnd: {
+          userId: appUserId,
+          feature,
+          periodStart,
+          periodEnd
+        }
       }
     });
     
-    if (!quota) return 0;
-    
-    switch (feature) {
-      case 'posts': return quota.postsUsed || 0;
-      case 'ai_posts': return quota.aiPostsUsed || 0;
-      case 'ai_rewrites': return quota.aiRewritesUsed || 0;
-      default: return 0;
-    }
+    return usage?.used || 0;
   } catch (error) {
     console.error('Error getting current usage:', error);
     return 0;
@@ -181,24 +165,34 @@ export async function initializeUserQuotas(userId: string, plan: string): Promis
     const planConfig = SUBSCRIPTION_PLANS[plan];
     if (!planConfig) return false;
 
-    const resetDate = new Date();
-    resetDate.setMonth(resetDate.getMonth() + 1);
-    resetDate.setDate(1); // First day of next month
+    // Get current billing period
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    // Delete existing quota and create new one
-    await prisma.userQuota.deleteMany({
-      where: { userId: appUserId }
-    });
+    // Initialize usage records for all features in the plan
+    const features = Object.keys(planConfig.limits);
     
-    await prisma.userQuota.create({
-      data: {
-        userId: appUserId,
-        postsLimit: planConfig.limits.posts,
-        aiPostsLimit: planConfig.limits.ai_posts,
-        aiRewritesLimit: planConfig.limits.ai_rewrites,
-        resetDate: resetDate
-      }
-    });
+    for (const feature of features) {
+      await prisma.userUsage.upsert({
+        where: {
+          userId_feature_periodStart_periodEnd: {
+            userId: appUserId,
+            feature,
+            periodStart,
+            periodEnd
+          }
+        },
+        update: {},
+        create: {
+          userId: appUserId,
+          feature,
+          used: 0,
+          periodStart,
+          periodEnd
+        }
+      });
+    }
 
     return true;
   } catch (error) {
@@ -207,7 +201,7 @@ export async function initializeUserQuotas(userId: string, plan: string): Promis
   }
 }
 
-export async function incrementFeatureQuota(userId: string, feature: 'posts' | 'ai_posts' | 'ai_rewrites'): Promise<boolean> {
+export async function incrementFeatureQuota(userId: string, feature: string): Promise<boolean> {
   try {
     const appUserId = await resolveUserUuid(userId);
     if (!appUserId) return false;
@@ -218,104 +212,61 @@ export async function incrementFeatureQuota(userId: string, feature: 'posts' | '
       return false;
     }
 
-    // Increment the specific feature
-    let result;
-    switch (feature) {
-      case 'posts':
-        result = await prisma.userQuota.updateMany({
-          where: {
-            userId: appUserId,
-            resetDate: { gt: new Date() },
-            postsUsed: { lt: prisma.userQuota.fields.postsLimit }
-          },
-          data: {
-            postsUsed: { increment: 1 }
-          }
-        });
-        break;
-      case 'ai_posts':
-        result = await prisma.userQuota.updateMany({
-          where: {
-            userId: appUserId,
-            resetDate: { gt: new Date() },
-            aiPostsUsed: { lt: prisma.userQuota.fields.aiPostsLimit }
-          },
-          data: {
-            aiPostsUsed: { increment: 1 }
-          }
-        });
-        break;
-      case 'ai_rewrites':
-        result = await prisma.userQuota.updateMany({
-          where: {
-            userId: appUserId,
-            resetDate: { gt: new Date() },
-            OR: [
-              { aiRewritesLimit: -1 },
-              { aiRewritesUsed: { lt: prisma.userQuota.fields.aiRewritesLimit } }
-            ]
-          },
-          data: {
-            aiRewritesUsed: { increment: 1 }
-          }
-        });
-        break;
-      default:
-        return false;
-    }
+    // Get current billing period
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    return result.count > 0;
+    // Increment usage in the UserUsage table
+    await prisma.userUsage.upsert({
+      where: {
+        userId_feature_periodStart_periodEnd: {
+          userId: appUserId,
+          feature,
+          periodStart,
+          periodEnd
+        }
+      },
+      update: {
+        used: { increment: 1 }
+      },
+      create: {
+        userId: appUserId,
+        feature,
+        used: 1,
+        periodStart,
+        periodEnd
+      }
+    });
+
+    return true;
   } catch (error) {
     console.error('Error incrementing feature quota:', error);
     return false;
   }
 }
 
-export async function getFeatureQuotaStatus(userId: string, feature: 'posts' | 'ai_posts' | 'ai_rewrites'): Promise<{ used: number; limit: number; allowed: boolean } | null> {
+export async function getFeatureQuotaStatus(userId: string, feature: string): Promise<{ used: number; limit: number; allowed: boolean } | null> {
   try {
     const appUserId = await resolveUserUuid(userId);
     if (!appUserId) return null;
 
-    const quota = await prisma.userQuota.findFirst({
-      where: {
-        userId: appUserId,
-        resetDate: { gt: new Date() }
-      },
-      select: {
-        postsUsed: true,
-        postsLimit: true,
-        aiPostsUsed: true,
-        aiPostsLimit: true,
-        aiRewritesUsed: true,
-        aiRewritesLimit: true
-      }
-    });
+    // Get subscription to check limits
+    const subscription = await getUserSubscription(userId);
+    if (!subscription) return null;
+
+    const limit = subscription.planDetails.limits[feature];
     
-    if (!quota) return null;
-    
-    let used, limit, allowed;
-    
-    switch (feature) {
-      case 'posts':
-        used = quota.postsUsed || 0;
-        limit = quota.postsLimit || 0;
-        allowed = used < limit;
-        break;
-      case 'ai_posts':
-        used = quota.aiPostsUsed || 0;
-        limit = quota.aiPostsLimit || 0;
-        allowed = used < limit;
-        break;
-      case 'ai_rewrites':
-        used = quota.aiRewritesUsed || 0;
-        limit = quota.aiRewritesLimit || 0;
-        allowed = limit === -1 || used < limit; // -1 means unlimited
-        break;
-      default:
-        return null;
+    // For boolean features, return based on the boolean value
+    if (typeof limit === 'boolean') {
+      return { used: limit ? 1 : 0, limit: limit ? 1 : 0, allowed: limit };
     }
 
-    return { used, limit, allowed };
+    // Get current usage
+    const used = await getCurrentUsage(userId, feature);
+    const allowed = used < (limit as number);
+
+    return { used, limit: limit as number, allowed };
   } catch (error) {
     console.error('Error getting feature quota status:', error);
     return null;

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { planLimits, type UserPlan } from './features';
+import { planLimits } from '@/lib/features';
 
 export interface UsagePeriod {
   start: Date;

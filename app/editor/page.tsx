@@ -89,14 +89,18 @@ export default function TweetBuilder() {
     <SidebarLayout>
       <SubscriptionGuard>
         {/* Header */}
-        <header className="flex items-center px-2 py-4">
-          <div className="max-w-4xl mx-auto">
+        <header className="flex items-center px-2 py-4 border-b border-orange-100">
+          <div className="max-w-4xl mx-auto w-full">
             <div className="flex gap-2 overflow-x-auto pb-2">
               {CONTENT_CATEGORIES.map((cate) => (
                 <Badge
                   key={cate.id}
                   variant={category === cate.id ? "default" : "secondary"}
-                  className="flex items-center gap-1 px-3 py-1 cursor-pointer whitespace-nowrap"
+                  className={`flex items-center gap-1 px-3 py-1 cursor-pointer whitespace-nowrap transition-colors ${
+                    category === cate.id 
+                      ? "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600" 
+                      : "bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200"
+                  }`}
                   onClick={() => setCategory(cate.id)}
                 >
                   <cate.icon className="h-3 w-3" />
@@ -111,10 +115,14 @@ export default function TweetBuilder() {
         <main className="max-w-4xl mx-auto px-6 py-12">
           {/* Welcome Section */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl text-foreground mb-4">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Zap className="h-4 w-4" />
+              Powered by Social Fox AI
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4">
               Hi, I am your Social Media AI Assistant
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
               I'm here to help you create engaging social media posts for X.
               From viral threads to professional updates, let's craft content that resonates with your audience.
             </p>
@@ -129,16 +137,16 @@ export default function TweetBuilder() {
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Ask anything Social Fox AI..."
-                  className="min-h-[140px]  resize-none rounded-xl border-border"
+                  className="min-h-[140px] resize-none rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 shadow-sm"
                   disabled={isGenerating}
                 />
 
                 <div className="absolute right-3 bottom-3 flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="h-8 px-3 text-sm">
+                  <Button variant="ghost" size="sm" className="h-8 px-3 text-sm text-orange-600 hover:bg-orange-50">
                     <Paperclip className="h-4 w-4 mr-1" />
                     Attach
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-8 px-3 text-sm">
+                  <Button variant="ghost" size="sm" className="h-8 px-3 text-sm text-orange-600 hover:bg-orange-50">
                     <Mic className="h-4 w-4 mr-1" />
                     Upload Media
                   </Button>
@@ -146,7 +154,7 @@ export default function TweetBuilder() {
                     onClick={handleSend}
                     disabled={!prompt.trim() || isGenerating}
                     size="icon"
-                    className="h-8 w-8 bg-gray-800 hover:bg-gray-700"
+                    className="h-8 w-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md"
                   >
                     {isGenerating ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -162,8 +170,11 @@ export default function TweetBuilder() {
 
           <div className="flex flex-col items-center gap-6">
             <div className="text-center mt-12">
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-gray-600 font-medium">
                 Find Your Template Chats AI
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Click on any template to get started instantly
               </p>
             </div>
             {/* Template Cards */}
@@ -171,18 +182,20 @@ export default function TweetBuilder() {
               {QUICK_TEMPLATES.map((template) => (
                 <Card
                   key={template.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-orange-100 hover:border-orange-300 hover:scale-105"
                   onClick={() => handleTemplateSelect(template.prompt)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
-                      <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="font-medium">{template.label}</h3>
+                      <div className="p-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg">
+                        <MessageSquare className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <h3 className="font-semibold text-gray-800">{template.label}</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed mb-4">
                       {template.prompt}
                     </p>
-                    <Badge variant="outline" className="mt-3">
+                    <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600">
                       {template.category}
                     </Badge>
                   </CardContent>

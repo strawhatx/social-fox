@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { products } from '@/lib/utils';
+import { product_url_ids as products } from '@/lib/utils';
+import { useUser } from '@clerk/nextjs';
 
 interface SubscriptionData {
   plan: string;
@@ -30,6 +31,7 @@ interface SubscriptionData {
 export default function SubscriptionManager() {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useUser();
 
   useEffect(() => {
     fetchSubscription();
@@ -49,27 +51,59 @@ export default function SubscriptionManager() {
     }
   };
 
-  const handleUpgrade = (planId: string) => {
-    // You'll need to replace these with your actual Lemon Squeezy product IDs
-    const productIds: Record<string, string> = {
-      explore: products.explore,
-      creator: products.creative
-    };
+  const handleUpgrade = async (planId: string) => {
+    try {
+      // Check if user already has an active subscription
+      if (subscription && subscription.status === 'active') {
+        if (planId === subscription.plan) {
+          toast({
+            title: 'Already Subscribed',
+            description: `You already have an active ${subscription.plan} subscription.`,
+            variant: 'destructive'
+          });
+          return;
+        }
+        
+        if (planId === 'explore' && subscription.plan === 'creator') {
+          toast({
+            title: 'Cannot Downgrade',
+            description: 'You cannot purchase explore when you already have a creator subscription.',
+            variant: 'destructive'
+          });
+          return;
+        }
+      }
 
-    const productId = productIds[planId];
-    if (!productId) {
+      // You'll need to replace these with your actual Lemon Squeezy product IDs
+      const productIds: Record<string, string> = {
+        explore: products.explore,
+        creator: products.creative
+      };
+
+      const productId = productIds[planId];
+      if (!productId) {
+        toast({
+          title: 'Error',
+          description: 'Product not found. Please contact support.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
+
+      window.open(checkoutUrl, '_blank');
+    } 
+    
+    catch (error) {
+      console.error('Error creating checkout:', error);
       toast({
         title: 'Error',
-        description: 'Product not found. Please contact support.',
+        description: 'Failed to create checkout. Please try again.',
         variant: 'destructive'
       });
-      return;
     }
-
-    // Open Lemon Squeezy checkout
-    const checkoutUrl = `https://app.lemonsqueezy.com/checkout/buy/${productId}`;
-    window.open(checkoutUrl, '_blank');
-  };
+  }
 
   const handleManageSubscription = async () => {
     try {
@@ -155,8 +189,8 @@ export default function SubscriptionManager() {
           </div>
 
           {isActive && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleManageSubscription}
               className="w-full border-orange-200 text-orange-600 hover:bg-orange-100"
             >
@@ -208,7 +242,7 @@ export default function SubscriptionManager() {
                 <li>• Starter Library</li>
                 <li>• Basic support</li>
               </ul>
-              <Button 
+              <Button
                 onClick={() => handleUpgrade('explore')}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
               >
@@ -230,7 +264,7 @@ export default function SubscriptionManager() {
                 <li>• Priority support</li>
 
               </ul>
-              <Button 
+              <Button
                 onClick={() => handleUpgrade('creator')}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
               >

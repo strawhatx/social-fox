@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     // Check subscription-based quota before posting
-    const quotaStatus = await getFeatureQuotaStatus(userId, 'posts');
+    const quotaStatus = await getFeatureQuotaStatus(userId, 'scheduledPosts');
     if (!quotaStatus || !quotaStatus.allowed) {
       return NextResponse.json({ 
         ok: false, 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     }
 
     // Increment quota usage only after successful Twitter post
-    const quotaIncremented = await incrementFeatureQuota(userId, 'posts');
+    const quotaIncremented = await incrementFeatureQuota(userId, 'scheduledPosts');
     if (!quotaIncremented) {
       return NextResponse.json({ 
         ok: false, 

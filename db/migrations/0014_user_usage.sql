@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS user_usage (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    feature VARCHAR(50) NOT NULL, -- "aiGenerations", "scheduledPosts", "projects"
+    feature VARCHAR(50) NOT NULL, -- "copilotDrafts", "scheduledPosts", "projects"
     used INT DEFAULT 0,
     period_start TIMESTAMP WITH TIME ZONE NOT NULL,
     period_end TIMESTAMP WITH TIME ZONE NOT NULL,

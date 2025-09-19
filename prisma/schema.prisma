@@ -139,6 +139,7 @@ model Conversation {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId            String   @map("user_id") @db.Uuid
   title             String
+  status            String   @default("active") // 'draft' | 'active' | 'archived'
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -155,8 +156,9 @@ model Message {
   role              String   // 'user' | 'assistant'
   content           String
   metadata          Json     @default("{}")
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  status            String
+  createdAt         DateTime @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz
 
   // Relations
   conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
-import { resolveUserUuid } from '@/lib/db';
-import { withQuotaCheck, getUserFromRequest } from '@/lib/quota-middleware';
+import { withQuotaCheck } from '@/lib/quota-middleware';
 
 export async function GET() {
   try {
@@ -21,7 +20,7 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get conversations with messages ordered by updated_at
+    // Get conversations ordered by updated_at
     const conversations = await prisma.conversation.findMany({
       where: { userId: user.id },
       include: {
@@ -41,33 +40,22 @@ export async function GET() {
 
 export const POST = withQuotaCheck('copilotDrafts', async (request, context, user, usage) => {
   try {
-    const { title, firstMessage } = await request.json();
-
-    if (!title) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
-
-    // Create new conversation with first message if provided
+    // Create new empty conversation
     const conversation = await prisma.conversation.create({
       data: {
         userId: user.id,
-        title: title.trim(),
-        messages: firstMessage ? {
-          create: {
-            role: firstMessage.role,
-            content: firstMessage.content,
-            metadata: firstMessage.metadata || {}
-          }
-        } : undefined
-      },
-      include: {
-        messages: {
-          orderBy: { createdAt: 'asc' }
-        }
+        title: 'New Conversation', // Default title, can be updated later
+        status: 'draft'
       }
     });
 
-    return NextResponse.json(conversation);
+    return NextResponse.json({
+      ...conversation,
+      usage: {
+        used: usage.used,
+        limit: usage.limit
+      }
+    });
   } catch (error) {
     console.error('Error creating conversation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

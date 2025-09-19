@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { canUseFeature, getUserPlan } from '@/lib/usage-tracking';
-import { FEATURES, getFeatureLimit } from '@/lib/features';
+import { getFeatureLimit, QUOTA_FEATURES } from '@/lib/features';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         reason: access.reason,
         currentPlan: plan,
         featureConfig: {
-          ...FEATURES[featureName],
+          ...QUOTA_FEATURES[featureName],
           used: access.usage?.used || 0,
           limit: limit
         }

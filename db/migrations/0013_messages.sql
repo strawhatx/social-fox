@@ -5,12 +5,13 @@ CREATE TABLE messages (
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
     content TEXT NOT NULL,
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create indexes for faster queries
 CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
+CREATE INDEX idx_messages_conversation_created ON messages (conversation_id, created_at ASC);
 CREATE INDEX idx_messages_created_at ON messages(created_at ASC);
 CREATE INDEX idx_messages_role ON messages(role);
 

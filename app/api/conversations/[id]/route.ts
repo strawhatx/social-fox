@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  request: NextRequest,
+export async function GET(request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user from database
-    const user = await db.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { clerkUserId: userId }
     });
 
@@ -23,10 +22,10 @@ export async function GET(
     }
 
     // Get conversation with messages
-    const conversation = await db.conversation.findFirst({
-      where: { 
+    const conversation = await prisma.conversation.findFirst({
+      where: {
         id: params.id,
-        userId: user.id 
+        userId: user.id
       },
       include: {
         messages: {
@@ -52,19 +51,19 @@ export async function PUT(
 ) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title } = await request.json();
+    const { title, status } = await request.json();
 
-    if (!title) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    if (!title && !status) {
+      return NextResponse.json({ error: 'Title or status is required' }, { status: 400 });
     }
 
     // Get user from database
-    const user = await db.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { clerkUserId: userId }
     });
 
@@ -73,14 +72,16 @@ export async function PUT(
     }
 
     // Update conversation
-    const conversation = await db.conversation.updateMany({
-      where: { 
+    const updateData: any = {};
+    if (title) updateData.title = title.trim();
+    if (status) updateData.status = status;
+
+    const conversation = await prisma.conversation.updateMany({
+      where: {
         id: params.id,
-        userId: user.id 
+        userId: user.id
       },
-      data: {
-        title: title.trim()
-      }
+      data: updateData
     });
 
     if (conversation.count === 0) {
@@ -100,13 +101,13 @@ export async function DELETE(
 ) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user from database
-    const user = await db.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { clerkUserId: userId }
     });
 
@@ -115,10 +116,10 @@ export async function DELETE(
     }
 
     // Delete conversation (messages will be deleted due to cascade)
-    const conversation = await db.conversation.deleteMany({
-      where: { 
+    const conversation = await prisma.conversation.deleteMany({
+      where: {
         id: params.id,
-        userId: user.id 
+        userId: user.id
       }
     });
 

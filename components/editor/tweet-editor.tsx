@@ -317,10 +317,6 @@ export default function TweetEditor() {
                         value={editedTweet}
                         onChange={setEditedTweet}
                         placeholder={editedTweet ? "Add another tweet" : "Write here..."}
-                        registerInserter={(fn) => {
-                            // expose to closures below
-                            (window as any).__insertIntoTweet = fn;
-                        }}
                     />
 
 
@@ -351,10 +347,6 @@ export default function TweetEditor() {
                                 onInsert={handleInsertHashtag}
                                 onAddManual={addHashtag}
                             />
-
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground h-7 w-7 p-0">
-                                <AtSign className="h-3 w-3" />
-                            </Button>
 
                             <EmojiPicker onInsert={(emoji) => {
                                 const insert = (window as any).__insertIntoTweet as undefined | ((t: string) => void);

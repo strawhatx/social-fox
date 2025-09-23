@@ -12,7 +12,7 @@
     "tunnel": "cloudflared tunnel --url http://localhost:3000"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/nextjs": "6.31.8",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
@@ -61,10 +61,10 @@
     "eslint-config-next": "14.2.25",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.446.0",
-    "next": "14.2.25",
+    "next": "^14.2.32",
     "next-themes": "^0.3.0",
     "openai": "^5.15.0",
-    "postcss": "8.4.30",
+    "postcss": "^8.5.6",
     "prisma": "^6.16.0",
     "react": "18.2.0",
     "react-day-picker": "^8.10.1",
@@ -81,10 +81,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "aws-lambda": "^1.0.7",
     "cloudflared": "^0.7.1",
     "serverless": "^3.38.0",
-    "serverless-esbuild": "^1.50.0",
-    "@types/aws-lambda": "^8.10.130",
-    "aws-lambda": "^1.0.7"
+    "serverless-esbuild": "^1.50.0"
   }
 }

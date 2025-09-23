@@ -31,12 +31,10 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
-  Edit2,
   Trash2,
   Sparkles
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useConversationContext } from "@/hooks/use-conversation-context";
 
 const CONTENT_CATEGORIES = [
   { id: 'engagement', label: 'Engagement', icon: MessageSquare, active: true },
@@ -61,7 +59,6 @@ interface Conversation {
 
 export default function TweetBuilder() {
   const router = useRouter();
-  const { setInitialMessage } = useConversationContext();
   const [category, setCategory] = useState('engagement');
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -143,11 +140,9 @@ export default function TweetBuilder() {
       // Refresh sidebar list
       await fetchConversations();
   
-      // Set initial message in context
-      setInitialMessage(prompt.trim());
-  
-      // Navigate to editor where message will be sent via WebSocket
-      router.push(`/editor/${conversation.id}`);
+      // Navigate to editor with message in URL
+      const encodedMessage = encodeURIComponent(prompt.trim());
+      router.push(`/editor/${conversation.id}?message=${encodedMessage}`);
     } 
     catch (error) {
       console.error('Error starting conversation:', error);

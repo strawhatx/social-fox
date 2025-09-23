@@ -1,10 +1,44 @@
 import OpenAI from 'openai';
 
+const SYSTEM_PROMPT = `
+You are Social Fox, an AI copilot that helps content creators write authentic 
+and engaging Twitter/X posts. Take the user's idea or draft and turn it into 
+short, scroll-stopping posts that maximize reach. 
+
+Rules:
+- Always suggest 2–3 different variations for each input.
+- Keep each variation within 280 characters unless the user explicitly asks for longer.
+- Match the tone and style to the user's input (professional, casual, humorous, motivational).
+- Sound human and authentic — avoid anything that feels corporate or AI-generated.
+- Expand rough thoughts into polished, authentic post ideas.
+
+Output format:
+Always return valid JSON in the following structure:
+
+{
+  "text": "A short sentence introducing the options",
+  "drafts": [
+    {
+      "text": "Variation 1 text",
+      "tone": "motivational"
+    },
+    {
+      "text": "Variation 2 text",
+      "tone": "authentic"
+    },
+    {
+      "text": "Variation 3 text",
+      "tone": "casual"
+    }
+  ]
+}
+`;
+
 function stripFences(text: string): string {
   return String(text || '').replace(/```json|```/g, '').trim();
 }
 
-export async function generateJsonFromPrompt(prompt: string, temperature = 0.4): Promise<string> {
+export async function generateJsonFromPrompt(conversation_history: {role: string, content: string}[], temperature = 0.4): Promise<string> {
   let jsonText = '';
 
   // Primary: OpenAI
@@ -13,7 +47,10 @@ export async function generateJsonFromPrompt(prompt: string, temperature = 0.4):
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const resp = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...conversation_history,
+        ] as  any,
         temperature,
       });
       jsonText = stripFences(resp.choices?.[0]?.message?.content || '');
@@ -30,7 +67,17 @@ export async function generateJsonFromPrompt(prompt: string, temperature = 0.4):
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature } }),
+          body: JSON.stringify({ 
+            contents: [{ 
+              parts: [{ 
+                text: [
+                  `system: ${SYSTEM_PROMPT}`,
+                  ...conversation_history.map(h => `${h.role}: ${h.content}`)
+                ].join('\n')
+              }] 
+            }], 
+            generationConfig: { temperature } 
+          }),
         }
       );
       if (res.ok) {

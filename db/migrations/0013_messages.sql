@@ -3,8 +3,7 @@ CREATE TABLE messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
-    content TEXT NOT NULL,
-    metadata JSONB DEFAULT '{}',
+    content JSONB DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

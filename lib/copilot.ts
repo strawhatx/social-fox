@@ -1,18 +1,21 @@
 // Mock data for the Social Fox MVP
 
 export interface Draft {
-  id: string;
   text: string;
   tone: string;
   length: number;
 }
 
+export interface MessageContent {
+  text: string;
+  drafts?: Draft[];
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
-  content: string;
+  content: MessageContent;
   timestamp: Date;
-  drafts?: Draft[];
 }
 
 export interface Conversation {
@@ -67,45 +70,11 @@ export const QUICK_TEMPLATES = [
   }
 ];
 
-// Mock AI generation function
-export async function generateDrafts(prompt: string, tone: ToneType): Promise<Draft[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-  
-  // Generate 2-3 mock drafts based on prompt and tone
-  const draftTemplates = {
-    motivational: [
-      "🚀 {prompt}. Every expert was once a beginner. Keep pushing forward!",
-      "💪 {prompt}. Your future self will thank you for starting today.",
-      "🔥 {prompt}. Success isn't about perfection, it's about persistence."
-    ],
-    spicy: [
-      "🌶️ Hot take: {prompt}. Most people won't agree, but that's the point.",
-      "🔥 Unpopular opinion: {prompt}. Change my mind.",
-      "⚡ {prompt}. If you're not making waves, you're not making progress."
-    ],
-    educational: [
-      "📚 {prompt}. Here's what I learned along the way:",
-      "💡 {prompt}. Key takeaways for anyone starting out:",
-      "🎯 {prompt}. Three things I wish I knew earlier:"
-    ],
-    humorous: [
-      "😄 {prompt}. It's like they say: if you can't laugh at yourself, I'll do it for you!",
-      "🤣 {prompt}. Plot twist: nobody knows what they're doing.",
-      "😅 {prompt}. Confidence is 10% ability and 90% not knowing how hard it actually is."
-    ]
-  };
-  
-  const templates = draftTemplates[tone] || draftTemplates['motivational'];
-  const numDrafts = Math.floor(Math.random() * 2) + 2; // 2-3 drafts
-  
-  return templates.slice(0, numDrafts).map((template, index) => {
-    const text = template.replace('{prompt}', prompt);
-    return {
-      id: `draft-${Date.now()}-${index}`,
-      text,
-      tone,
-      length: text.length
-    };
-  });
+export function parseAIVariations(text: string): string[] {
+  return text
+    .split(/\n\s*-\s/)        // split by newlines starting with "-"
+    .map(v => v.trim())        // trim extra whitespace
+    .filter(v => v.length > 0) // remove empty entries
+    .map(v => (v.startsWith("-") ? v.slice(1).trim() : v)); // remove leading dash if present
 }
+

@@ -1,118 +1,160 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+"use client";
+
+import { MessageContent } from "@/lib/copilot";
+import { useEffect, useState, useCallback } from "react";
 
 export type ChatMessage = {
   id?: string;
   role: "user" | "assistant";
-  content: string;
+  content: MessageContent;
   timestamp?: Date;
-  status?: "pending" | "done" | "error";
+  status?: "pending" | "done" | "error" | "failed"; // For UI state only
 };
 
 export function useChat(conversationId: string) {
+  // === STATE ===
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [connected, setConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const [connected, setConnected] = useState(true);
 
-  // Connect WebSocket for real-time updates
+  // === UTILITY FUNCTIONS ===
+  const mergeMessages = useCallback(
+    (incoming: ChatMessage[]) =>
+      setMessages((prev: ChatMessage[]) => {
+        const updated = [...prev];
+        for (const msg of incoming) {
+          const idx = updated.findIndex((x) => x.id === msg.id);
+          if (idx >= 0) updated[idx] = { ...updated[idx], ...msg };
+          else
+            updated.push({
+              ...msg,
+              timestamp: new Date(msg.timestamp || Date.now()),
+            });
+        }
+        return updated.sort(
+          (a, b) =>
+            new Date(a.timestamp || 0).getTime() -
+            new Date(b.timestamp || 0).getTime()
+        );
+      }),
+    []
+  );
+
+  const processAIMessage = useCallback(
+    async (messageId: string) => {
+      try {
+        console.log("🤖 Processing AI message:", messageId);
+        const resp = await fetch("/api/messages/process", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationId, messageId }),
+        });
+        
+        if (resp.ok) {
+          const data = await resp.json();
+          mergeMessages([data]);
+        } else {
+          console.error("❌ Failed to process AI message");
+          // Mark message as error
+          mergeMessages([{
+            id: messageId,
+            role: "assistant",
+            content: { text: "Failed to generate message." },
+            status: "error"
+          }]);
+        }
+      } catch (err) {
+        console.error("❌ Error processing AI message:", err);
+        // Mark message as error
+        mergeMessages([{
+          id: messageId,
+          role: "assistant",
+          content: { text: "Failed to generate message." },
+          status: "error"
+        }]);
+      }
+    },
+    [conversationId, mergeMessages]
+  );
+
+
+  // === CONNECTION MANAGEMENT ===
+  useEffect(() => {
+    if (!conversationId) return;
+    
+    // Set connected to true since we're using direct API calls
+    setConnected(true);
+  }, [conversationId]);
+
+  // === CONVERSATION RECOVERY ===
+  const checkAndResendIncomplete = useCallback(
+    async (messages: ChatMessage[]) => {
+      if (messages.length === 0) return;
+
+      const lastMessage = messages[messages.length - 1];
+
+      switch (lastMessage.role) {
+        case "assistant":
+          if (lastMessage.status === "pending" && lastMessage.id) {
+            console.log("🔄 Resending pending AI response");
+            processAIMessage(lastMessage.id);
+          }
+          break;
+
+        case "user":
+          console.log("🔄 Creating pending AI response for user message");
+          try {
+            const resp = await fetch("/api/messages/resend", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ conversationId }),
+            });
+
+            if (resp.ok) {
+              const data = await resp.json();
+              mergeMessages(data.messages);
+              const pending = data.messages.find((m: ChatMessage) => m.status === "pending");
+              if (pending?.id) processAIMessage(pending.id);
+            }
+          } catch (err) {
+            console.error("❌ Failed to create pending AI response:", err);
+          }
+          break;
+      }
+    },
+    [conversationId, mergeMessages, processAIMessage]
+  );
+
+  // === DATA LOADING ===
   useEffect(() => {
     if (!conversationId) return;
 
-    const connect = () => {
-      const ws = new WebSocket(
-        `wss://axbuqwnm4f.execute-api.us-east-1.amazonaws.com/prod?conversationId=${conversationId}`
-      );
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log("✅ WS Connected");
-        setConnected(true);
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.conversationId !== conversationId) return;
-
-          setMessages((prev) => {
-            const updated = [...prev];
-            (data.messages || []).forEach((m: ChatMessage) => {
-              const idx = updated.findIndex((x) => x.id === m.id);
-              if (idx >= 0) updated[idx] = { ...updated[idx], ...m };
-              else updated.push({
-                ...m,
-                timestamp: new Date(m.timestamp || Date.now()),
-              });
-            });
-
-            return updated.sort(
-              (a, b) =>
-                new Date(a.timestamp || 0).getTime() -
-                new Date(b.timestamp || 0).getTime()
-            );
-          });
-        } catch (err) {
-          console.warn("WS parse error:", event.data);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log("❌ WS Disconnected — retrying...");
-        setConnected(false);
-        reconnectTimer.current = setTimeout(connect, 2000);
-      };
-
-      ws.onerror = (err) => {
-        console.error("⚠️ WS error", err);
-        ws.close();
-      };
-    };
-
-    connect();
-    return () => {
-      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
-      wsRef.current?.close();
-    };
-  }, [conversationId]);
-
-  // Load conversation history on mount
-  useEffect(() => {
-    const load = async () => {
+    const loadHistory = async () => {
       try {
         const resp = await fetch(`/api/conversations/${conversationId}`);
         if (!resp.ok) return;
+        
         const data = await resp.json();
-
-        const formatted = (data.messages || []).map((msg: any) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.createdAt),
-          status: msg.status,
+        const formatted: ChatMessage[] = (data.messages || []).map((m: any) => ({
+          id: m.id,
+          role: m.role,
+          content: typeof m.content === 'string' 
+            ? { text: m.content }
+            : m.content,
+          timestamp: new Date(m.createdAt),
+          status: m.status,
         }));
-
+        
         setMessages(formatted);
+        await checkAndResendIncomplete(formatted);
       } catch (err) {
         console.error("❌ Failed to load conversation:", err);
       }
     };
-    load();
-  }, [conversationId]);
 
-   // Send a new message
-   const sendWSMessage = (messageId: string) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(
-        JSON.stringify({ 
-          action: "sendMessage", 
-          conversationId,
-          messageId: messageId,
-        })
-      );
-    } 
-  };
+    loadHistory();
+  }, [conversationId, checkAndResendIncomplete]);
 
-  // Send user message -> call API instead of WS
+  // === API FUNCTIONS ===
   const sendMessage = useCallback(
     async (content: string) => {
       try {
@@ -121,37 +163,23 @@ export function useChat(conversationId: string) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ conversationId, content }),
         });
-
-        if (!resp.ok) {
-          throw new Error("Failed to send message");
-        }
+        if (!resp.ok) throw new Error("Failed to send message");
 
         const data = await resp.json();
+        mergeMessages(data.messages);
 
-        // API returns the inserted user + assistant (pending) messages
-        setMessages((prev) => {
-          const updated = [...prev, ...data.messages];
-          return updated.sort(
-            (a, b) =>
-              new Date(a.timestamp || 0).getTime() -
-              new Date(b.timestamp || 0).getTime()
-          );
-        });
-        // should only be 2 per call the user message and the pending assistant message
-        const pendingMessage = data.messages.find((m: ChatMessage) => m.status === "pending");
-
-        sendWSMessage(pendingMessage.id);
+        const pending = data.messages.find((m: ChatMessage) => m.status === "pending");
+        if (pending?.id) processAIMessage(pending.id);
       } catch (err) {
         console.error("❌ sendMessage failed", err);
       }
     },
-    [conversationId]
+    [conversationId, mergeMessages, processAIMessage]
   );
 
-  // Retry assistant message
   const retryMessage = useCallback(
-    async (failedMessage: ChatMessage) => {
-      if (!failedMessage.id || failedMessage.role !== "assistant") return;
+    async (failed: ChatMessage) => {
+      if (!failed.id || failed.role !== "assistant") return;
 
       try {
         const resp = await fetch("/api/messages", {
@@ -160,19 +188,23 @@ export function useChat(conversationId: string) {
           body: JSON.stringify({
             conversationId,
             retry: true,
-            messageId: failedMessage.id,
+            messageId: failed.id,
           }),
         });
-
         if (!resp.ok) throw new Error("Retry failed");
 
-        sendWSMessage(failedMessage.id);
+        processAIMessage(failed.id);
       } catch (err) {
         console.error("❌ retryMessage failed", err);
       }
     },
-    [conversationId]
+    [conversationId, processAIMessage]
   );
 
-  return { messages, sendMessage, retryMessage, connected };
+  return { 
+    messages, 
+    sendMessage, 
+    retryMessage, 
+    connected
+  };
 }

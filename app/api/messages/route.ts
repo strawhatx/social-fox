@@ -65,8 +65,9 @@ export async function POST(request: NextRequest) {
       data: {
         conversationId,
         role: 'user',
-        content: content.trim(),
-        metadata: {},
+        content: {
+          text: content.trim()
+        },
         status: 'done',
         createdAt: now,
         updatedAt: now
@@ -76,9 +77,9 @@ export async function POST(request: NextRequest) {
     messages.push({
       id: userMessage.id,
       role: userMessage.role,
-      content: userMessage.content,
+      content: userMessage.content as any,
       timestamp: userMessage.createdAt,
-      status: 'done'
+      status: userMessage.status
     });
 
     // Create pending assistant message
@@ -86,8 +87,8 @@ export async function POST(request: NextRequest) {
       data: {
         conversationId,
         role: 'assistant',
-        content: '', // Will be filled by the AI service
-        metadata: { status: 'pending' },
+        content: {},
+        status: 'pending',
         createdAt: new Date(now.getTime() + 1), // Ensure ordering
         updatedAt: new Date(now.getTime() + 1)
       }
@@ -96,16 +97,10 @@ export async function POST(request: NextRequest) {
     messages.push({
       id: assistantMessage.id,
       role: assistantMessage.role,
-      content: assistantMessage.content,
+      content: assistantMessage.content as any,
       timestamp: assistantMessage.createdAt,
-      status: 'pending'
+      status: assistantMessage.status
     });
-
-    // TODO: Trigger assistant response generation
-    // This would typically involve:
-    // 1. Calling your AI service (OpenAI, Anthropic, etc.)
-    // 2. Updating the assistant message with the response
-    // 3. Broadcasting via WebSocket for real-time updates
 
     return NextResponse.json({ messages });
 
@@ -150,12 +145,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'asc' }
     });
 
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = messages.map((msg: any) => ({
       id: msg.id,
       role: msg.role,
       content: msg.content,
       timestamp: msg.createdAt,
-      status: (msg.metadata as any)?.status || 'done'
+      status: 'done' // Default status for UI
     }));
 
     return NextResponse.json({ messages: formattedMessages });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../../../components/ui/button";
 import { Textarea } from "../../../components/ui/textarea";
 import { ScrollArea } from "../../../components/ui/scroll-area";
@@ -12,26 +12,34 @@ import TweetEditor from "@/components/editor/tweet-editor";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
 import SidebarLayout from "@/components/sidebar-layout";
 import { ChatMessage, useChat } from "@/hooks/use-chat";
-import { useConversationContext } from "@/hooks/use-conversation-context";
 
 export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
-  const { initialMessage, clearInitialMessage } = useConversationContext();
+  const searchParams = useSearchParams();
 
   const conversationId = params.id as string;
+  const initialMessage = searchParams.get('message');
 
-  const { messages, sendMessage, retryMessage, connected, canSend } = useChat(conversationId, initialMessage || undefined);
+  const { messages, sendMessage, retryMessage, connected } = useChat(conversationId);
 
   const [prompt, setPrompt] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
-  // Clear initial message after it's been used
+  // Send initial message when component mounts and WebSocket is connected
   useEffect(() => {
-    if (initialMessage) {
-      clearInitialMessage();
+    if (initialMessage && initialMessage.trim() && connected) {
+      sendMessage(initialMessage.trim());
+
+      // Clear the message from URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('message');
+      const newUrl = newSearchParams.toString()
+        ? `${window.location.pathname}?${newSearchParams.toString()}`
+        : window.location.pathname;
+      router.replace(newUrl);
     }
-  }, [initialMessage, clearInitialMessage]);
+  }, [initialMessage, sendMessage, connected, searchParams, router]);
 
   // Auto-scroll when new messages arrive
   useEffect(() => {
@@ -46,7 +54,7 @@ export default function EditorPage() {
   }, [messages]);
 
   const handleSend = () => {
-    if (!prompt.trim() || !canSend) return;
+    if (!prompt.trim()) return;
     sendMessage(prompt.trim());
     setPrompt("");
   };
@@ -100,13 +108,12 @@ export default function EditorPage() {
               <div className="max-w-4xl mx-auto px-6 py-6 space-y-8">
                 {messages.map((message: ChatMessage) => (
                   <div key={message.id || Math.random()} className="space-y-4">
-                    <div className="flex items-start gap-4">
+                    <div className={`flex items-start gap-4 ${message.role === "user" ? "flex-row-reverse" : ""}`}>
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          message.role === "user"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === "user"
                             ? "bg-muted"
                             : "bg-gradient-to-br from-purple-500 to-pink-500"
-                        }`}
+                          }`}
                       >
                         {message.role === "user" ? (
                           <User className="h-4 w-4" />
@@ -115,34 +122,33 @@ export default function EditorPage() {
                         )}
                       </div>
 
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
+                      <div className={`space-y-2 ${message.role === "user" ? "text-right" : ""}`}>
+                        <div className={`flex items-center gap-2 ${message.role === "user" ? "justify-end" : ""}`}>
                           <span className="text-sm font-medium">
                             {message.role === "user" ? "You" : "Social Fox"}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {message.timestamp
                               ? new Date(message.timestamp).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
                               : ""}
                           </span>
                         </div>
 
                         <div
-                          className={`${
-                            message.role === "user"
-                              ? "bg-muted/50 rounded-2xl p-4"
+                          className={`${message.role === "user"
+                              ? "bg-orange-100 rounded-2xl p-4 ml-auto max-w-[80%]"
                               : message.status === "pending"
-                              ? "bg-muted/20 rounded-2xl p-4 italic text-gray-400"
-                              : message.status === "error"
-                              ? "bg-red-100 rounded-2xl p-4"
-                              : ""
-                          }`}
+                                ? "bg-muted/20 rounded-2xl p-4 italic text-gray-400 max-w-[80%]"
+                                : message.status === "error"
+                                  ? "bg-red-100 rounded-2xl p-4 max-w-[80%]"
+                                  : "bg-white rounded-2xl p-4 max-w-[80%]"
+                            }`}
                         >
                           <p className="leading-relaxed whitespace-pre-wrap">
-                            {message.status === "pending" ? "Generating..." : message.content}
+                            {message.status === "pending" ? "Generating..." : message.content.text}
                           </p>
 
                           {message.status === "error" && message.id && (
@@ -155,24 +161,24 @@ export default function EditorPage() {
                               Retry
                             </Button>
                           )}
+
+                          {message.content?.drafts && (
+                            <div className={`flex flex-col gap-4 mt-4 ${message.role === "user" ? "ml-0" : "ml-0"}`}>
+                              {message.content?.drafts.map((draft: Draft, index: number) => (
+                                <DraftCard
+                                  key={`draft-${index}`}
+                                  draft={draft}
+                                  onEditInChat={() =>
+                                    setPrompt(`Edit this post: "${draft.text}"`)
+                                  }
+                                  onSendToEditor={() => console.log("Send to editor", draft)}
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-
-                    {message?.drafts && (
-                      <div className="ml-12 space-y-3">
-                        {message?.drafts.map((draft: Draft) => (
-                          <DraftCard
-                            key={draft.id}
-                            draft={draft}
-                            onEditInChat={() =>
-                              setPrompt(`Edit this post: "${draft.text}"`)
-                            }
-                            onSendToEditor={() => console.log("Send to editor", draft)}
-                          />
-                        ))}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -186,12 +192,12 @@ export default function EditorPage() {
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Type a message..."
-                  disabled={!canSend}
+                  //disabled={!canSend}
                   className="min-h-[52px] pr-12 resize-none rounded-2xl border-border bg-orange-50 focus:bg-orange-50 focus:outline-orange-200"
                 />
                 <Button
                   onClick={handleSend}
-                  disabled={!prompt.trim() || !canSend}
+                  disabled={!prompt.trim()}
                   size="icon"
                   className="absolute right-2 bottom-2 h-8 w-8 rounded-full bg-orange-500 hover:bg-orange-600"
                 >

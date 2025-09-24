@@ -24,6 +24,7 @@ export default function EditorPage() {
   const { messages, sendMessage, retryMessage, connected } = useChat(conversationId);
 
   const [prompt, setPrompt] = useState("");
+  const [contentToLoad, setContentToLoad] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   // Send initial message when component mounts and WebSocket is connected
@@ -171,7 +172,7 @@ export default function EditorPage() {
                                   onEditInChat={() =>
                                     setPrompt(`Edit this post: "${draft.text}"`)
                                   }
-                                  onSendToEditor={() => console.log("Send to editor", draft)}
+                                  onSendToEditor={(draft) => setContentToLoad(draft.text)}
                                 />
                               ))}
                             </div>
@@ -209,7 +210,7 @@ export default function EditorPage() {
 
           {/* Right Panel */}
           <div className="w-1/3 max-w-full p-4 text-sm overflow-hidden">
-            <TweetEditor />
+            <TweetEditor contentToLoad={contentToLoad} />
           </div>
         </div>
       </SubscriptionGuard>

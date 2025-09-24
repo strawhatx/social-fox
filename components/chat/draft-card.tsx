@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { RotateCcw, Edit, Send, Copy, Check } from 'lucide-react';
 import { Draft } from '@/lib/copilot';
+import { AiRewritePopover } from '../editor/ai-rewrite-popover';
 
 interface DraftCardProps {
   draft: Draft;
@@ -15,11 +16,24 @@ interface DraftCardProps {
 
 export function DraftCard({ draft, onEditInChat, onSendToEditor }: DraftCardProps) {
   const [copied, setCopied] = useState(false);
+  const [showAiRewrite, setShowAiRewrite] = useState(false);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(draft.text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleAiRewriteApply = (instructionText: string) => {
+    // Create a new draft with the instruction prepended to the original text
+    const enhancedDraft: Draft = {
+      ...draft,
+      text: `${instructionText} "${draft.text}"`
+    };
+    
+    // Call the onEditInChat callback with the enhanced draft
+    onEditInChat(enhancedDraft);
+    setShowAiRewrite(false);
   };
 
   const getToneColor = (tone: string) => {
@@ -54,7 +68,7 @@ export function DraftCard({ draft, onEditInChat, onSendToEditor }: DraftCardProp
           
           <div className="flex items-center justify-between pt-2 border-t border-border/50">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className={`text-xs ${getToneColor(draft.tone)}`}>
                 {draft.tone}
               </Badge>
               <span className="text-xs text-muted-foreground">
@@ -63,15 +77,13 @@ export function DraftCard({ draft, onEditInChat, onSendToEditor }: DraftCardProp
             </div>
             
             <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onEditInChat(draft)}
-                className="h-8 px-3 text-xs"
-              >
-                <Edit className="h-3 w-3 mr-1" />
-                Edit
-              </Button>
+              <div className="relative">
+                <AiRewritePopover
+                  open={showAiRewrite}
+                  onOpenChange={setShowAiRewrite}
+                  onApply={handleAiRewriteApply}
+                />
+              </div>
               
               <Button
                 size="sm"

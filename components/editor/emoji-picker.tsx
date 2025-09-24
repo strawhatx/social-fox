@@ -23,9 +23,8 @@ export default function EmojiPicker({ onInsert }: EmojiPickerProps) {
           <Smile className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-[320px] bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15} 
-      alignOffset={100}
-      align="end">
+      <PopoverContent className="p-0 bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200 emoji-picker-container" sideOffset={15}
+        align="end">
         <Picker
           data={data}
           onEmojiSelect={(e: any) => {
@@ -36,6 +35,8 @@ export default function EmojiPicker({ onInsert }: EmojiPickerProps) {
           theme="light"
           previewPosition="none"
           searchPosition="top"
+          perLine={10}      // number of emojis per row
+          maxFrequentRows={2}
         />
       </PopoverContent>
     </Popover>

@@ -9,18 +9,31 @@ import { toast } from '@/hooks/use-toast';
 import { TweetComposer } from './tweet-composer';
 import HashtagPicker from '@/components/editor/hashtag-picker';
 import EmojiPicker from '@/components/editor/emoji-picker';
+import GiphyPicker from '@/components/editor/giphy-picker';
 import ImageUploader from '@/components/editor/image-uploader';
 import SchedulePicker from '@/components/editor/schedule-picker';
 import { Input } from '@/components/ui/input';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
-export default function TweetEditor() {
+interface TweetEditorProps {
+    contentToLoad?: string;
+}
+
+export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
     const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
     const [editedTweet, setEditedTweet] = useState('');
     const [isScheduled, setIsScheduled] = useState(false);
-    const [attachments, setAttachments] = useState<{ url: string; file: File }[]>([]);
+    const [attachments, setAttachments] = useState<{ url: string; file: File | null }[]>([]);
     const [communityUrl, setCommunityUrl] = useState('');
-    
+
+    // Handle content to load from chat
+    useEffect(() => {
+        if (contentToLoad) {
+            setEditedTweet(contentToLoad);
+            setActiveComposerTab('compose');
+        }
+    }, [contentToLoad]);
+
     // Real data state
     const [drafts, setDrafts] = useState<any[]>([]);
     const [scheduled, setScheduled] = useState<any[]>([]);
@@ -68,75 +81,6 @@ export default function TweetEditor() {
         }
     }, [activeComposerTab]);
 
-    const handlePostNow = async () => {
-        if (!editedTweet.trim()) return;
-
-        try {
-            const response = await fetch('/api/post-tweet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: editedTweet.trim(),
-                    platform: 'x',
-                    images: attachments.map(att => att.url),
-                    communityUrl: communityUrl || null
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                if (response.status === 402 && data.error === 'quota_exhausted') {
-                    toast({
-                        title: "Quota Exhausted",
-                        description: `You've reached your monthly limit of ${data.quota?.monthly_limit || 'posts'}. Your quota resets on ${data.quota?.reset_date ? new Date(data.quota.reset_date).toLocaleDateString() : 'the next billing cycle'}.`,
-                        variant: "destructive"
-                    });
-                }
-
-                else if (data.error === 'twitter_not_connected') {
-                    toast({
-                        title: "Twitter Not Connected",
-                        description: data.message || "Please connect your Twitter account to post tweets.",
-                        variant: "destructive"
-                    });
-                }
-
-                else if (data.error === 'twitter_post_failed') {
-                    toast({
-                        title: "Failed to Post to Twitter",
-                        description: data.message || "There was an error posting to Twitter. Please try again.",
-                        variant: "destructive"
-                    });
-                }
-
-                else {
-                    throw new Error(data.error || 'Failed to post tweet');
-                }
-                return;
-            }
-
-            toast({
-                title: "Tweet posted!",
-                description: data.twitterTweetId
-                    ? `Your tweet has been published successfully. Tweet ID: ${data.twitterTweetId}`
-                    : "Your tweet has been published successfully."
-            });
-            setEditedTweet("");
-            setAttachments([]);
-            setCommunityUrl("");
-        } catch (error) {
-            console.error('Error posting tweet:', error);
-            toast({
-                title: "Error",
-                description: "Failed to post tweet. Please try again.",
-                variant: "destructive"
-            });
-        }
-    };
-
     const handleScheduleConfirm = async (date: Date) => {
         if (!editedTweet.trim()) return;
 
@@ -150,7 +94,9 @@ export default function TweetEditor() {
                     content: editedTweet.trim(),
                     platform: 'x',
                     scheduled_at: date.toISOString(),
-                    status: 'scheduled'
+                    status: 'scheduled',
+                    images: attachments.map(att => att.url),
+                    communityUrl: communityUrl || null
                 }),
             });
 
@@ -159,9 +105,9 @@ export default function TweetEditor() {
             }
 
             setIsScheduled(true);
-            toast({ 
-                title: 'Scheduled', 
-                description: `Will post ${date.toLocaleString()}` 
+            toast({
+                title: 'Scheduled',
+                description: `Will post ${date.toLocaleString()}`
             });
             setEditedTweet("");
             // Refresh scheduled if we're on the scheduled tab
@@ -225,13 +171,31 @@ export default function TweetEditor() {
     const loadDraft = (draft: any) => {
         setEditedTweet(draft.content);
         setActiveComposerTab('compose');
-        // TODO: Load attachments and community URL from draft metadata if available
+        
+        // Load attachments and community URL from draft metadata
+        const metadata = draft.metadata || {};
+        const images = metadata.images || [];
+        const communityUrl = metadata.community_url;
+        
+        // Convert image URLs back to attachment format
+        const attachments = images.map((url: string) => ({ url, file: null }));
+        setAttachments(attachments);
+        setCommunityUrl(communityUrl || '');
     };
 
     const loadScheduled = (scheduled: any) => {
         setEditedTweet(scheduled.content);
         setActiveComposerTab('compose');
-        // TODO: Load attachments and community URL from scheduled metadata if available
+        
+        // Load attachments and community URL from scheduled metadata
+        const metadata = scheduled.metadata || {};
+        const images = metadata.images || [];
+        const communityUrl = metadata.community_url;
+        
+        // Convert image URLs back to attachment format
+        const attachments = images.map((url: string) => ({ url, file: null }));
+        setAttachments(attachments);
+        setCommunityUrl(communityUrl || '');
     };
 
     const handleInsertHashtag = (tag: string) => {
@@ -274,19 +238,6 @@ export default function TweetEditor() {
             </TabsList>
 
             <TabsContent value="compose" className="space-y-3 mt-4">
-                {/* Your content status */}
-                <div className="flex items-end gap-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-auto text-xs"
-                        disabled={!editedTweet.trim()}
-                        onClick={handleSaveDraft}>
-                        <Plus className="h-3 w-3 mr-1" />
-                        New draft
-                    </Button>
-                </div>
-
                 {/* Main Composer */}
                 <div className="bg-muted/20 border-border shadow-sm">
                     <div className="flex flex-col gap-2 w-full mb-4">
@@ -342,6 +293,12 @@ export default function TweetEditor() {
                                 multiple
                             />
 
+                            <GiphyPicker onSelect={(gifUrl) => {
+                                // Add GIF as attachment (similar to image uploader)
+                                const gifAttachment = { url: gifUrl, file: null }; // GIFs don't have File objects
+                                setAttachments((prev) => [...prev, gifAttachment]);
+                            }} />
+
                             <HashtagPicker
                                 content={editedTweet || ""}
                                 onInsert={handleInsertHashtag}
@@ -357,6 +314,8 @@ export default function TweetEditor() {
                                     if (next.length <= 280) setEditedTweet(next);
                                 }
                             }} />
+
+
                         </div>
                     </div>
 
@@ -367,11 +326,15 @@ export default function TweetEditor() {
                     <div className="grid grid-cols-3 gap-2">
                         {attachments.map((att, idx) => (
                             <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
-                                {att.file.type.startsWith('image/') ? (
+                                {att.file && att.file.type.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
-                                ) : (
+                                ) : att.file && att.file.type.startsWith('video/') ? (
                                     <video src={att.url} className="w-full h-24 object-cover" muted />
+                                ) : (
+                                    // GIF from Giphy (no file object)
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={att.url} alt="GIF" className="w-full h-24 object-cover" />
                                 )}
                                 <button
                                     type="button"
@@ -387,15 +350,18 @@ export default function TweetEditor() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
-                    <Button
-                        variant="ghost"
-                        disabled={!editedTweet.trim()}
-                        onClick={handlePostNow}
-                        className="text-sm"
-                        size="sm"
-                    >
-                        Tweet now
-                    </Button>
+                    {/* Your content status */}
+                    <div className="flex items-end gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-auto text-xs"
+                            disabled={!editedTweet.trim()}
+                            onClick={handleSaveDraft}>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Save draft
+                        </Button>
+                    </div>
                     <SchedulePicker
                         disabled={!editedTweet.trim()}
                         scheduledAt={isScheduled ? new Date() : undefined}
@@ -419,7 +385,7 @@ export default function TweetEditor() {
                             <CardContent className="p-2">
                                 <p className="text-xs">{draft.content}</p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    Created: {new Date(draft.created_at).toLocaleDateString()}
+                                    Created: {new Date(draft.createdAt).toLocaleDateString()}
                                 </p>
                             </CardContent>
                         </Card>
@@ -442,7 +408,7 @@ export default function TweetEditor() {
                             <CardContent className="p-2">
                                 <p className="text-xs">{item.content}</p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    Scheduled: {new Date(item.scheduled_at).toLocaleString()}
+                                    Scheduled: {new Date(item.scheduledAt).toLocaleString()}
                                 </p>
                             </CardContent>
                         </Card>

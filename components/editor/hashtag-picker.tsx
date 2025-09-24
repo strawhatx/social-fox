@@ -66,8 +66,7 @@ export function HashtagPicker({ content, onInsert, onAddManual, notify }: Hashta
           <Hash className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3 bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15} 
-      alignOffset={100}
+      <PopoverContent className="w-80 p-3 bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15} 
       align="end">
         <div className="space-y-2">
           <div className="text-xs text-orange-600">Related hashtags</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageContent } from "@/lib/copilot";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export type ChatMessage = {
   id?: string;
@@ -15,6 +15,7 @@ export function useChat(conversationId: string) {
   // === STATE ===
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(true);
+  const hasRun = useRef(false);
 
   // === UTILITY FUNCTIONS ===
   const mergeMessages = useCallback(
@@ -76,7 +77,6 @@ export function useChat(conversationId: string) {
     [conversationId, mergeMessages]
   );
 
-
   // === CONNECTION MANAGEMENT ===
   useEffect(() => {
     if (!conversationId) return;
@@ -101,22 +101,27 @@ export function useChat(conversationId: string) {
           break;
 
         case "user":
-          console.log("🔄 Creating pending AI response for user message");
-          try {
-            const resp = await fetch("/api/messages/resend", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ conversationId }),
-            });
+          // Check if there's already a pending assistant message
+          const hasPendingAssistant = messages.some(m => m.role === "assistant" && m.status === "pending");
+          
+          if (!hasPendingAssistant) {
+            console.log("🔄 Creating pending AI response for user message");
+            try {
+              const resp = await fetch("/api/messages/resend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ conversationId }),
+              });
 
-            if (resp.ok) {
-              const data = await resp.json();
-              mergeMessages(data.messages);
-              const pending = data.messages.find((m: ChatMessage) => m.status === "pending");
-              if (pending?.id) processAIMessage(pending.id);
+              if (resp.ok) {
+                const data = await resp.json();
+                mergeMessages(data.messages);
+                const pending = data.messages.find((m: ChatMessage) => m.status === "pending");
+                if (pending?.id) processAIMessage(pending.id);
+              }
+            } catch (err) {
+              console.error("❌ Failed to create pending AI response:", err);
             }
-          } catch (err) {
-            console.error("❌ Failed to create pending AI response:", err);
           }
           break;
       }
@@ -125,8 +130,8 @@ export function useChat(conversationId: string) {
   );
 
   // === DATA LOADING ===
-  useEffect(() => {
-    if (!conversationId) return;
+  useEffect(() => { 
+    if (hasRun.current) return;
 
     const loadHistory = async () => {
       try {
@@ -145,14 +150,15 @@ export function useChat(conversationId: string) {
         }));
         
         setMessages(formatted);
+        hasRun.current = true;
         await checkAndResendIncomplete(formatted);
       } catch (err) {
         console.error("❌ Failed to load conversation:", err);
       }
     };
-
-    loadHistory();
-  }, [conversationId, checkAndResendIncomplete]);
+    
+    if (conversationId && !hasRun.current) loadHistory();
+  }, [conversationId]);
 
   // === API FUNCTIONS ===
   const sendMessage = useCallback(

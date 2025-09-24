@@ -70,11 +70,20 @@ export async function POST(request: NextRequest) {
 
     console.log('AI response:', aiResponse);
 
-    // 4️⃣ Update assistant message with AI response
+    // 4️⃣ Parse AI response and update assistant message
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(aiResponse);
+    } catch (error) {
+      console.error('Failed to parse AI response as JSON:', error);
+      // Fallback to plain text if JSON parsing fails
+      parsedContent = { text: aiResponse };
+    }
+
     await prisma.message.update({
       where: { id: messageId },
       data: { 
-        content: JSON.parse(aiResponse),
+        content: parsedContent,
         status: 'done',
         updatedAt: new Date()
       }
@@ -84,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       id: messageId,
       role: 'assistant',
-      content: { text: aiResponse },
+      content: parsedContent,
       status: 'done'
     });
 

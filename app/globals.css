@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Giphy picker styles to prevent default link behavior */
+.giphy-picker-container a {
+  pointer-events: none !important;
+}
+
+.giphy-picker-container img {
+  cursor: pointer !important;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -106,4 +115,46 @@
 
 .owl-bounce {
   animation: bounce 2s infinite;
+}
+
+/* Emoji picker custom styles */
+.emoji-picker-container em-emoji-picker {
+  width: 100% !important;
+  height: 250px !important;
+}
+
+.emoji-picker-container em-emoji-picker .emoji-mart {
+  width: 100% !important;
+}
+
+.emoji-picker-container .emoji-mart-emoji {
+  font-size: 18px !important;
+  width: 24px !important;
+  height: 32px !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.emoji-picker-container .emoji-mart-category-label {
+  font-size: 11px !important;
+}
+
+.emoji-picker-container .emoji-mart-search {
+  margin: 8px !important;
+}
+
+.emoji-picker-container .emoji-mart-search input {
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  height: 36px !important;
+  border-radius: 6px !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.emoji-picker-container .emoji-mart-search input:focus {
+  outline: none !important;
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1) !important;
 }

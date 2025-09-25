@@ -1,0 +1,342 @@
+import React, { useState, useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
+
+interface TweetEditorState {
+  activeComposerTab: 'compose' | 'drafts' | 'scheduled' | 'sent';
+  editedTweet: string;
+  isScheduled: boolean;
+  attachments: { url: string; file: File | null }[];
+  communityUrl: string;
+  editingPostId: string | null;
+  currentPostStatus: string | null;
+  drafts: any[];
+  scheduled: any[];
+  loadingDrafts: boolean;
+  loadingScheduled: boolean;
+}
+
+interface TweetEditorActions {
+  setActiveComposerTab: (tab: 'compose' | 'drafts' | 'scheduled' | 'sent') => void;
+  setEditedTweet: (tweet: string) => void;
+  setAttachments: React.Dispatch<React.SetStateAction<{ url: string; file: File | null }[]>>;
+  setCommunityUrl: (url: string) => void;
+  handleScheduleConfirm: (date: Date) => Promise<void>;
+  handleSaveDraft: () => Promise<void>;
+  loadDraft: (draft: any) => void;
+  loadScheduled: (scheduled: any) => void;
+  handleInsertHashtag: (tag: string) => void;
+  addHashtag: () => void;
+  fetchDrafts: () => Promise<void>;
+  fetchScheduled: () => Promise<void>;
+}
+
+export function useTweetEditor(contentToLoad?: string): TweetEditorState & TweetEditorActions {
+  // State
+  const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
+  const [editedTweet, setEditedTweet] = useState('');
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [attachments, setAttachments] = useState<{ url: string; file: File | null }[]>([]);
+  const [communityUrl, setCommunityUrl] = useState('');
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [currentPostStatus, setCurrentPostStatus] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [scheduled, setScheduled] = useState<any[]>([]);
+  const [loadingDrafts, setLoadingDrafts] = useState(false);
+  const [loadingScheduled, setLoadingScheduled] = useState(false);
+
+  // Handle content to load from chat
+  useEffect(() => {
+    if (contentToLoad) {
+      setEditedTweet(contentToLoad);
+      setActiveComposerTab('compose');
+      setEditingPostId(null);
+      setCurrentPostStatus(null);
+    }
+  }, [contentToLoad]);
+
+  // Fetch drafts from API
+  const fetchDrafts = async () => {
+    setLoadingDrafts(true);
+    try {
+      const response = await fetch('/api/content-posts?status=draft');
+      if (response.ok) {
+        const data = await response.json();
+        setDrafts(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching drafts:', error);
+    } finally {
+      setLoadingDrafts(false);
+    }
+  };
+
+  // Fetch scheduled posts from API
+  const fetchScheduled = async () => {
+    setLoadingScheduled(true);
+    try {
+      const response = await fetch('/api/content-posts?status=scheduled');
+      if (response.ok) {
+        const data = await response.json();
+        setScheduled(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching scheduled posts:', error);
+    } finally {
+      setLoadingScheduled(false);
+    }
+  };
+
+  // Fetch data when component mounts or when tabs change
+  useEffect(() => {
+    if (activeComposerTab === 'drafts') {
+      fetchDrafts();
+    } else if (activeComposerTab === 'scheduled') {
+      fetchScheduled();
+    }
+  }, [activeComposerTab]);
+
+  // Helper function to save/update posts
+  const savePost = async (status: 'draft' | 'scheduled', scheduledAt?: Date) => {
+    if (!editedTweet.trim()) return;
+
+    const isUpdate = !!editingPostId;
+    
+    // Handle posted content - create a copy as draft instead of updating
+    if (isUpdate && currentPostStatus === 'posted') {
+      if (status === 'draft') {
+        // Create a new draft copy of the posted content
+        const response = await fetch('/api/content-posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: editedTweet.trim(),
+            platform: 'twitter',
+            status: 'draft',
+            images: attachments.map(att => att.url),
+            communityUrl: communityUrl || null
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create draft copy');
+        }
+
+        // Clear form state
+        setEditedTweet("");
+        setEditingPostId(null);
+        setCurrentPostStatus(null);
+        setAttachments([]);
+        setCommunityUrl('');
+        
+        // Refresh relevant tabs
+        if (activeComposerTab === 'drafts') fetchDrafts();
+        if (activeComposerTab === 'scheduled') fetchScheduled();
+
+        return { isUpdate: false, scheduledAt };
+      } else {
+        throw new Error('Cannot schedule posted content - create a draft copy first');
+      }
+    }
+
+    const url = isUpdate 
+      ? `/api/content-posts/${encodeURIComponent(editingPostId!)}`
+      : '/api/content-posts';
+    
+    const method = isUpdate ? 'PATCH' : 'POST';
+    
+    // Build payload with special logic for scheduled to draft conversion
+    const payload: any = {
+      content: editedTweet.trim(),
+      status,
+    };
+
+    // Handle metadata structure differently for POST vs PATCH
+    if (isUpdate) {
+      // PATCH expects metadata object
+      payload.metadata = {
+        images: attachments.map(att => att.url),
+        community_url: communityUrl || null,
+      };
+    } else {
+      // POST expects flat fields
+      payload.images = attachments.map(att => att.url);
+      payload.communityUrl = communityUrl || null;
+    }
+
+    // Handle scheduled to draft conversion - clear scheduled date
+    if (isUpdate && currentPostStatus === 'scheduled' && status === 'draft') {
+      payload.scheduledAt = null; // Clear the scheduled date
+    } else if (!isUpdate) {
+      // New posts
+      payload.platform = status === 'draft' ? 'twitter' : 'x';
+      if (scheduledAt) {
+        payload.scheduled_at = scheduledAt.toISOString();
+      }
+    } else if (isUpdate && scheduledAt) {
+      // Updating with new scheduled time
+      payload.scheduled_at = scheduledAt.toISOString();
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to ${isUpdate ? 'update' : 'save'} ${status === 'draft' ? 'draft' : 'tweet'}`);
+    }
+
+    // Clear form state
+    setEditedTweet("");
+    setEditingPostId(null);
+    setCurrentPostStatus(null);
+    setAttachments([]);
+    setCommunityUrl('');
+    
+    // Refresh relevant tabs
+    if (activeComposerTab === 'drafts') fetchDrafts();
+    if (activeComposerTab === 'scheduled') fetchScheduled();
+
+    return { isUpdate, scheduledAt };
+  };
+
+  const handleScheduleConfirm = async (date: Date) => {
+    try {
+      const result = await savePost('scheduled', date);
+      if (!result) return;
+      
+      const { isUpdate } = result;
+      
+      toast({
+        title: isUpdate ? 'Updated' : 'Scheduled',
+        description: isUpdate 
+          ? `Post updated and scheduled for ${date.toLocaleString()}`
+          : `Will post ${date.toLocaleString()}`
+      });
+
+      setIsScheduled(true);
+    } catch (error) {
+      console.error('Error scheduling tweet:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to schedule tweet. Please try again.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      const result = await savePost('draft');
+      if (!result) return;
+      
+      const { isUpdate } = result;
+      
+      // Special message for posted content copied to draft
+      if (currentPostStatus === 'posted') {
+        toast({
+          title: "Draft copy created!",
+          description: "A draft copy of the posted content has been created."
+        });
+      } else {
+        toast({
+          title: isUpdate ? "Draft updated!" : "Draft saved!",
+          description: isUpdate 
+            ? "Your tweet draft has been updated."
+            : "Your tweet has been saved as a draft."
+        });
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to save draft. Please try again.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const loadDraft = (draft: any) => {
+    setEditedTweet(draft.content);
+    setActiveComposerTab('compose');
+    setEditingPostId(draft.id);
+    setCurrentPostStatus(draft.status);
+    
+    // Load attachments and community URL from draft metadata
+    const metadata = draft.metadata || {};
+    const images = metadata.images || [];
+    const communityUrl = metadata.community_url;
+    
+    // Convert image URLs back to attachment format
+    const attachments = images.map((url: string) => ({ url, file: null }));
+    setAttachments(attachments);
+    setCommunityUrl(communityUrl || '');
+  };
+
+  const loadScheduled = (scheduled: any) => {
+    setEditedTweet(scheduled.content);
+    setActiveComposerTab('compose');
+    setEditingPostId(scheduled.id);
+    setCurrentPostStatus(scheduled.status);
+    
+    // Load attachments and community URL from scheduled metadata
+    const metadata = scheduled.metadata || {};
+    const images = metadata.images || [];
+    const communityUrl = metadata.community_url;
+    
+    // Convert image URLs back to attachment format
+    const attachments = images.map((url: string) => ({ url, file: null }));
+    setAttachments(attachments);
+    setCommunityUrl(communityUrl || '');
+  };
+
+  const handleInsertHashtag = (tag: string) => {
+    const cleanTag = tag.startsWith('#') ? tag : `#${tag}`;
+    const addition = (editedTweet.endsWith(' ') || editedTweet.length === 0) ? cleanTag : ` ${cleanTag}`;
+    const next = editedTweet + addition;
+    if (next.length > 280) {
+      toast({
+        title: "Too long",
+        description: "Adding this hashtag would exceed 280 characters.",
+      });
+      return;
+    }
+    setEditedTweet(next);
+  };
+
+  const addHashtag = () => {
+    setEditedTweet(prev => prev + " #");
+  };
+
+  return {
+    // State
+    activeComposerTab,
+    editedTweet,
+    isScheduled,
+    attachments,
+    communityUrl,
+    editingPostId,
+    currentPostStatus,
+    drafts,
+    scheduled,
+    loadingDrafts,
+    loadingScheduled,
+    
+    // Actions
+    setActiveComposerTab,
+    setEditedTweet,
+    setAttachments,
+    setCommunityUrl,
+    handleScheduleConfirm,
+    handleSaveDraft,
+    loadDraft,
+    loadScheduled,
+    handleInsertHashtag,
+    addHashtag,
+    fetchDrafts,
+    fetchScheduled,
+  };
+}

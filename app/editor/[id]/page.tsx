@@ -169,8 +169,8 @@ export default function EditorPage() {
                                 <DraftCard
                                   key={`draft-${index}`}
                                   draft={draft}
-                                  onEditInChat={() =>
-                                    setPrompt(`Edit this post: "${draft.text}"`)
+                                  onEditInChat={(d: Draft) =>
+                                    setPrompt(d.text)
                                   }
                                   onSendToEditor={(draft) => setContentToLoad(draft.text)}
                                 />

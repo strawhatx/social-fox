@@ -5,16 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Calendar,
-  Clock,
-  Edit3,
-  Trash2,
-  Twitter,
-  Linkedin
-} from "lucide-react";
+import { Calendar, Clock, Edit3, Trash2, Twitter, Linkedin } from "lucide-react";
 import { useSchedulerPosts, type SchedulerItem } from '@/hooks/use-scheduler-posts';
-import EditPost from '@/components/editor/edit-post';
+import SchedulerTweetEditor from '@/components/editor/scheduler-tweet-editor';
 import SidebarLayout from '@/components/sidebar-layout';
 import SubscriptionGuard from '@/components/subscription/subscription-guard';
 
@@ -105,8 +98,6 @@ export default function Scheduler() {
   const handleDelete = async (id: string) => {
     await remove(id);
   };
-
-  
 
   const openEdit = (item: SchedulerItem) => {
     setEditing(item);
@@ -286,13 +277,14 @@ export default function Scheduler() {
       )}
         </div>
         {editing && (
-          <EditPost
+          <SchedulerTweetEditor
             open={editOpen}
             onOpenChange={(o) => setEditOpen(o)}
             postId={editing.id}
             initialContent={editing.content}
             initialScheduledAt={editing.scheduledTime}
             status={editing.status as any}
+            initialMetadata={editing.metadata}
             onSave={handleSaveEdit}
           />
         )}

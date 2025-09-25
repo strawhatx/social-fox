@@ -5,8 +5,8 @@ type ContentPost = {
   content: string;
   platform: string;
   status: 'draft' | 'scheduled' | 'posted' | 'archived';
-  scheduled_at: string | null;
-  posted_at: string | null;
+  scheduledAt: string | null;
+  postedAt: string | null;
   engagement: any | null;
   metadata: any | null;
 };
@@ -19,6 +19,7 @@ export type SchedulerItem = {
   scheduledTime: string | null;
   engagement: { likes?: number; shares?: number; comments?: number; retweets?: number; replies?: number } | null;
   source?: 'commit' | 'ai' | 'conversation' | string;
+  metadata?: any;
 };
 
 export function useSchedulerPosts() {
@@ -46,9 +47,10 @@ export function useSchedulerPosts() {
       content: p.content,
       platform: (p.platform || 'twitter') as any,
       status: (p.status as any) || 'draft',
-      scheduledTime: p.scheduled_at,
+      scheduledTime: p.scheduledAt,
       engagement: (p.engagement as any) || { likes: 0, shares: 0, comments: 0, retweets: 0, replies: 0 },
       source: (p.metadata as any)?.source || undefined,
+      metadata: p.metadata,
     }));
   }, [posts]);
 

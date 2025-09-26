@@ -6,7 +6,7 @@ import Testimonials from '@/components/landing/Testimonials';
 import Footer from '@/components/landing/Footer';
 
 import Results from '@/components/landing/Results';
-import PainPoint from '@/components/landing/PainPoint';
+import Demo from '@/components/landing/Demo';
 import FAQ from '@/components/landing/FAQ';
 import SEOHead from '@/components/SEOHead';
 import MicroSurvey from '@/components/landing/MicroSurvey';
@@ -17,7 +17,7 @@ const Landing = () => {
       <SEOHead pageKey="home" />
       <Hero />
       <Results />
-      <PainPoint />
+      <Demo />
       <Features />
       <Pricing />
       <Testimonials />

@@ -4,9 +4,9 @@ const Demo: React.FC = () => {
   return (
     <section id="demo" className="py-20 bg-white scroll-mt-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">See How It Works</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Watch Social Fox in Action</h2>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Watch a quick walkthrough of Social Fox turning GitHub activity into ready-to-post content.
+          See how user input transforms into polished, engaging posts ready to schedule in seconds.
         </p>
         <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 group cursor-pointer">
           <iframe
@@ -23,6 +23,12 @@ const Demo: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+        
+        <div className="text-center mt-8">
+          <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+            Start Your Free Beta
+          </button>
         </div>
       </div>
     </section>

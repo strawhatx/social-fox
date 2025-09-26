@@ -60,16 +60,17 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-4">
-            <span className="block">Stay consistent</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6">
+            <span className="block">Turn your 💡 ideas into</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
-              &amp; grow — while you code
+              your brand voice X posts
             </span>
           </h1>
 
-          <p className="text-xl sm:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
-            Turn every GitHub commit into posts for X &amp; LinkedIn.<br />
-            <span className="inline-block mt-2 text-orange-600">👉 Next up: Get inspiration, timing guidance, and insights to make your content more effective.</span>
+          <p className="text-xl sm:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto font-medium">
+            Stop wasting hours crafting posts. Get low engagement fixed.
+            <br />
+            <span className="text-gray-900 font-semibold">Generate authentic, algorithm-friendly content in seconds.</span>
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -85,8 +86,8 @@ const Hero: React.FC = () => {
               to="/auth"
               state={{ openTab: 'signup', returnTo: '/dashboard' }}
             >
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                Join the Beta
+              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl font-bold text-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                Start Crafting Now
               </button>
             </Link>
             <a href="#examples" className="border-2 border-gray-300 text-gray-700 px-5 py-3 rounded-lg font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">See examples</a>
@@ -102,15 +103,36 @@ const Hero: React.FC = () => {
             <span>Trusted by early indie builders • Featured on Product Hunt</span>
           </div>
 
-          {/* Inline Video */}
-          <div className="relative aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200 mb-8">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/QyJgtkmr9yg"
-              title="Social Fox Demo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
+          {/* Visual Mockup */}
+          <div className="relative max-w-4xl mx-auto mb-8">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                  <Twitter className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-semibold">Your Brand</div>
+                  <div className="text-sm text-gray-500">@yourbrand</div>
+                </div>
+              </div>
+              <div className="text-lg leading-relaxed mb-4">
+                Just shipped a game-changing feature! 🚀<br />
+                Our new AI-powered analytics dashboard reduces data processing time by 80%. 
+                Building in public has taught me that small wins lead to big breakthroughs.<br />
+                <span className="text-blue-500">#BuildInPublic #SaaS #ProductUpdate</span>
+              </div>
+              <div className="flex items-center gap-6 text-gray-500 text-sm">
+                <div className="flex items-center gap-1">
+                  <span>💬</span> <span className="text-green-600 font-semibold">47</span> <span className="text-xs">↗️ +200%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>🔄</span> <span className="text-green-600 font-semibold">23</span> <span className="text-xs">↗️ +150%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>❤️</span> <span className="text-green-600 font-semibold">156</span> <span className="text-xs">↗️ +180%</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-center items-center space-x-8 mb-6">

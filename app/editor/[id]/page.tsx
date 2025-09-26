@@ -113,7 +113,7 @@ export default function EditorPage() {
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === "user"
                             ? "bg-muted"
-                            : "bg-gradient-to-br from-purple-500 to-pink-500"
+                            : "bg-gradient-to-br from-orange-500 to-red-500"
                           }`}
                       >
                         {message.role === "user" ? (
@@ -140,7 +140,7 @@ export default function EditorPage() {
 
                         <div
                           className={`${message.role === "user"
-                              ? "bg-orange-100 rounded-2xl p-4 ml-auto max-w-[80%]"
+                              ? "bg-gray-200 rounded-2xl p-4 ml-auto max-w-[80%]"
                               : message.status === "pending"
                                 ? "bg-muted/20 rounded-2xl p-4 italic text-gray-400 max-w-[80%]"
                                 : message.status === "error"
@@ -194,7 +194,7 @@ export default function EditorPage() {
                   onKeyDown={handleKeyPress}
                   placeholder="Type a message..."
                   //disabled={!canSend}
-                  className="min-h-[52px] pr-12 resize-none rounded-2xl border-border bg-orange-50 focus:bg-orange-50 focus:outline-orange-200"
+                  className="min-h-[52px] pr-12 resize-none rounded-2xl "
                 />
                 <Button
                   onClick={handleSend}

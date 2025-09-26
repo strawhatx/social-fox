@@ -88,7 +88,7 @@ export function DraftCard({ draft, onEditInChat, onSendToEditor }: DraftCardProp
               <Button
                 size="sm"
                 onClick={() => onSendToEditor(draft)}
-                className="h-8 px-3 text-xs"
+                className="h-8 px-3 text-xs bg-orange-400 hover:bg-orange-500"
               >
                 <Send className="h-3 w-3 mr-1" />
                 Use

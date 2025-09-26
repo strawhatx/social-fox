@@ -422,7 +422,7 @@ export default function LibraryPage() {
                               variant="outline"
                               onClick={() => sendToCopilot(template.text)}
                               title="Send to AI copilot"
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+                              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
                             >
                               <Bot className="h-3 w-3" />
                             </Button>

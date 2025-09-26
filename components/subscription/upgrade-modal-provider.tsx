@@ -1,0 +1,159 @@
+"use client";
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Check, Crown } from 'lucide-react';
+import { product_url_ids as products } from '@/lib/utils';
+import { useUser } from '@clerk/nextjs';
+
+interface UpgradeModalContextValue {
+  showUpgrade: (reason?: string) => void;
+  hideUpgrade: () => void;
+}
+
+const UpgradeModalContext = createContext<UpgradeModalContextValue | null>(null);
+
+export function useUpgradeModal(): UpgradeModalContextValue {
+  const ctx = useContext(UpgradeModalContext);
+  if (!ctx) {
+    throw new Error('useUpgradeModal must be used within UpgradeModalProvider');
+  }
+  return ctx;
+}
+
+export default function UpgradeModalProvider({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState<string | undefined>(undefined);
+  const { user } = useUser();
+
+  // Only attach once
+  const installedRef = useRef(false);
+
+  const showUpgrade = useCallback((why?: string) => {
+    setReason(why);
+    setOpen(true);
+  }, []);
+
+  const hideUpgrade = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (installedRef.current) return;
+    installedRef.current = true;
+
+    const originalFetch = window.fetch.bind(window);
+
+    async function wrappedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+      const response = await originalFetch(input, init);
+
+      try {
+        // Server signals upgrade required in either status 402 or header
+        const upgradeHeader = response.headers.get('x-upgrade-required');
+        if (response.status === 402 || upgradeHeader === 'true') {
+          let why: string | undefined = undefined;
+          try {
+            const cloned = response.clone();
+            const data = await cloned.json().catch(() => null);
+            if (data && (data.error || data.reason)) {
+              why = data.error || data.reason;
+            }
+          } catch {}
+          showUpgrade(why);
+        }
+      } catch {}
+
+      return response;
+    }
+
+    // assignable at runtime
+    window.fetch = wrappedFetch;
+
+    return () => {
+      // restore on unmount
+      window.fetch = originalFetch;
+    };
+  }, [showUpgrade]);
+
+  const handleUpgrade = useCallback((planId: 'explore' | 'creator') => {
+    const productId = planId === 'explore' ? products.explore : products.creative;
+    if (!productId) return;
+    const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
+    window.open(checkoutUrl, '_blank');
+  }, [user?.id]);
+
+  const value = useMemo(() => ({ showUpgrade, hideUpgrade }), [showUpgrade, hideUpgrade]);
+
+  return (
+    <UpgradeModalContext.Provider value={value}>
+      {children}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-700">
+              <Crown className="h-5 w-5" />
+              Upgrade to continue
+            </DialogTitle>
+            {reason && (
+              <DialogDescription className="text-orange-600">
+                {reason}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="border-orange-200">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Explore</span>
+                  <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
+                </CardTitle>
+                <CardDescription>
+                  <span className="text-2xl font-bold text-orange-600">$5</span>
+                  <span className="text-orange-500">/month</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />20 Content Copilot drafts</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />10 scheduled posts per month</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Starter Library</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Basic support</li>
+                </ul>
+                <Button onClick={() => handleUpgrade('explore')} className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">Choose Explore</Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-300 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Creative</span>
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">Best Value</Badge>
+                </CardTitle>
+                <CardDescription>
+                  <span className="text-2xl font-bold text-orange-600">$29</span>
+                  <span className="text-orange-500">/month</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Everything in Explore</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />150 Content Copilot drafts per month</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />100 scheduled posts per month</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Custom Library</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Priority support</li>
+                </ul>
+                <Button onClick={() => handleUpgrade('creator')} className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">Choose Creative</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </UpgradeModalContext.Provider>
+  );
+}
+
+

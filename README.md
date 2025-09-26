@@ -48,8 +48,7 @@ AI-powered social media content creation platform with intelligent conversation-
 │   └── subscription/     # Payment/subscription UI
 ├── lib/                  # Core utilities
 │   ├── features.ts       # Feature definitions
-│   ├── usage-tracking.ts # Usage management
-│   └── subscriptions.ts  # Payment integration
+│   └── subscriptions.ts  # Subscription + usage management
 └── db/                   # Database migrations
 ```
 
@@ -270,10 +269,10 @@ export const POST = withQuotaCheck('copilotDrafts', async (request, context, use
 ### Manual Usage Checking
 
 ```typescript
-import { canUseFeature, incrementFeatureUsage } from '@/lib/usage-tracking';
+import { canUseFeatureDetailed, incrementFeatureQuota } from '@/lib/subscriptions';
 
 // Check if user can use a feature
-const access = await canUseFeature(userId, 'copilotDrafts');
+const access = await canUseFeatureDetailed(userId, 'copilotDrafts');
 if (!access.canUse) {
   return NextResponse.json({ 
     error: access.reason,
@@ -282,13 +281,13 @@ if (!access.canUse) {
 }
 
 // Increment usage after successful action
-const result = await incrementFeatureUsage(userId, 'copilotDrafts');
+const ok = await incrementFeatureQuota(userId, 'copilotDrafts');
 ```
 
 ### Getting Usage Data
 
 ```typescript
-import { getAllUserUsage, getUserUsage } from '@/lib/usage-tracking';
+import { getAllUserUsage, getUserUsage } from '@/lib/subscriptions';
 
 // Get all user usage
 const allUsage = await getAllUserUsage(userId);

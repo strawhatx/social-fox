@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
-import { canUseFeature, incrementFeatureUsage } from './usage-tracking';
+import { canUseFeatureDetailed, incrementFeatureQuota } from './subscriptions';
 
 export interface QuotaCheckResult {
   canProceed: boolean;
@@ -40,7 +40,7 @@ export async function checkQuota(
     }
 
     // Check if user can use the feature
-    const access = await canUseFeature(user.id, feature);
+    const access = await canUseFeatureDetailed(user.id, feature);
     
     if (!access.canUse) {
       return {
@@ -71,8 +71,8 @@ export async function incrementUsage(
   feature: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const result = await incrementFeatureUsage(userId, feature);
-    return result;
+    const ok = await incrementFeatureQuota(userId, feature);
+    return ok ? { success: true } : { success: false, error: 'Failed to update usage' };
   } catch (error) {
     console.error('Error incrementing usage:', error);
     return { success: false, error: 'Failed to update usage' };
@@ -110,7 +110,7 @@ export function withQuotaCheck(
       
       // If the response is successful (2xx), increment usage
       if (response.status >= 200 && response.status < 300) {
-        await incrementUsage(user!.id, feature);
+        await incrementFeatureQuota(user!.clerkUserId, feature);
       }
       
       return response;
@@ -130,14 +130,16 @@ export function createQuotaErrorResponse(
   usage?: any, 
   statusCode: number = 402
 ): NextResponse {
-  return NextResponse.json(
-    { 
+  const res = NextResponse.json(
+    {
       error: message,
       usage,
-      upgradeRequired: true
-    }, 
+      upgradeRequired: true,
+    },
     { status: statusCode }
   );
+  res.headers.set('x-upgrade-required', 'true');
+  return res;
 }
 
 // Utility function to get user from request

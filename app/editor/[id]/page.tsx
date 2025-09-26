@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../../../components/ui/button";
 import { Textarea } from "../../../components/ui/textarea";
 import { ScrollArea } from "../../../components/ui/scroll-area";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { DraftCard } from "../../../components/chat/draft-card";
 import { Draft } from "@/lib/copilot";
 import { Loader2, Send, Sparkles, User, ArrowLeft } from "lucide-react";
@@ -25,6 +26,7 @@ export default function EditorPage() {
 
   const [prompt, setPrompt] = useState("");
   const [contentToLoad, setContentToLoad] = useState("");
+  const [editorOpen, setEditorOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   // Send initial message when component mounts and WebSocket is connected
@@ -54,6 +56,14 @@ export default function EditorPage() {
     }
   }, [messages]);
 
+  // Auto-open mobile editor drawer when content is sent to editor
+  useEffect(() => {
+    if (!contentToLoad) return;
+    if (typeof window === "undefined") return;
+    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+    if (isMobile) setEditorOpen(true);
+  }, [contentToLoad]);
+
   const handleSend = () => {
     if (!prompt.trim()) return;
     sendMessage(prompt.trim());
@@ -80,7 +90,7 @@ export default function EditorPage() {
       <SubscriptionGuard>
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 to-orange-50 overflow-hidden">
           {/* Left Panel - Chat */}
-          <div className="w-2/3 border-r border-border flex flex-col">
+          <div className="w-full lg:w-2/3 border-r border-border flex flex-col">
             {/* Header */}
             <header className="border-b bg-background px-6 py-2 flex-shrink-0">
               <div className="flex items-center gap-3">
@@ -101,6 +111,11 @@ export default function EditorPage() {
                 <span className={`ml-4 text-sm ${connected ? "text-green-600" : "text-yellow-600"}`}>
                   {connected ? "Connected" : "Connecting..."}
                 </span>
+                <div className="ml-auto lg:hidden">
+                  <Button size="sm" onClick={() => setEditorOpen(true)} className="bg-orange-500 hover:bg-orange-600">
+                    Open Editor
+                  </Button>
+                </div>
               </div>
             </header>
 
@@ -209,10 +224,24 @@ export default function EditorPage() {
           </div>
 
           {/* Right Panel */}
-          <div className="w-1/3 max-w-full p-4 text-sm overflow-hidden">
+          <div className="hidden lg:block w-1/3 max-w-full p-4 text-sm overflow-hidden">
             <TweetEditor contentToLoad={contentToLoad} />
           </div>
         </div>
+
+        {/* Mobile Editor Drawer */}
+        <Drawer open={editorOpen} onOpenChange={setEditorOpen}>
+          <DrawerContent className="max-h-[90vh]">
+            <div className="max-w-md mx-auto w-full">
+              <DrawerHeader>
+                <DrawerTitle className="text-base">Editor</DrawerTitle>
+              </DrawerHeader>
+              <div className="px-4 pb-4 overflow-y-auto">
+                <TweetEditor contentToLoad={contentToLoad} persistKey={`editor-${conversationId}`} />
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </SubscriptionGuard>
     </SidebarLayout>
   );

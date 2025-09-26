@@ -5,32 +5,24 @@ import { Bot, Settings, Clock, CheckCircle, Twitter, Linkedin } from 'lucide-rea
 const Features = () => {
   const features = [
     {
-      icon: <Bot className="w-8 h-8 text-orange-500" />,
-      title: "Auto-generates platform-specific posts",
-      description: "Smart AI analyzes your commits, PRs, and releases to create engaging posts tailored for each platform."
-    },
-    {
-      icon: <div className="flex space-x-1">
-        <Twitter className="w-6 h-6 text-blue-400" />
-        <Linkedin className="w-6 h-6 text-blue-600" />
-      </div>,
-      title: "Optimized for Twitter/X and LinkedIn",
-      description: "Each post is crafted with platform-specific best practices, hashtags, and formatting for maximum engagement."
+      icon: <Twitter className="w-6 h-6 text-blue-400" />,
+      title: "Built for X",
+      description: "Platform‑aware formatting, hashtags, and structure for higher engagement where you share."
     },
     {
       icon: <Settings className="w-8 h-8 text-orange-500" />,
-      title: "Customizable tone and format",
-      description: "Choose your voice — professional, casual, or technical. Customize templates to match your personal brand."
+      title: "Conversation‑based editing",
+      description: "Guide the AI with natural prompts. Tweak tone, length, and structure without starting from scratch."
     },
     {
       icon: <Clock className="w-8 h-8 text-orange-500" />,
-      title: "Post on your schedule",
-      description: "Get ready-to-post content generated from your commits. Post immediately or save for later — you control when and what goes live."
+      title: "Scheduling built‑in",
+      description: "Queue content to post when you want, or save drafts for later — you stay in control."
     },
     {
       icon: <CheckCircle className="w-8 h-8 text-orange-500" />,
-      title: "One-click approval workflow",
-      description: "Review and approve posts before they go live. Make quick edits or post instantly with confidence."
+      title: "Templates librabry",
+      description: "Start fast with templates to get started."
     }
   ];
 
@@ -39,10 +31,10 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Build in public, effortlessly
+            More Than Just Drafts.
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Focus on building great products while Social Fox keeps your audience engaged with your progress.
+            Template Library, Scheduler, and quick sharing with your team—stay consistent without context switching.
           </p>
         </div>
 
@@ -65,20 +57,10 @@ const Features = () => {
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-8 md:p-12 text-center text-white">
-          <h3 className="text-3xl font-bold mb-4">
-            Perfect for indie hackers and busy founders
-          </h3>
-          <p className="text-xl opacity-90 mb-8 max-w-3xl mx-auto">
-            Stop choosing between building your product and building your audience. 
-            With Social Fox, your code commits become ready-to-share content that you can post whenever you want.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm font-medium">
-            <span className="bg-white/20 px-4 py-2 rounded-full">SaaS Developers</span>
-            <span className="bg-white/20 px-4 py-2 rounded-full">Solo Founders</span>
-            <span className="bg-white/20 px-4 py-2 rounded-full">Open Source Maintainers</span>
-            <span className="bg-white/20 px-4 py-2 rounded-full">Technical Writers</span>
-          </div>
+        <div className="bg-gradient-to-r from-orange-500 to red-500 rounded-3xl p-8 md:p-12 text-center text-white">
+          <a href="/sign-up" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-white bg-white/10 hover:bg-white/20 font-semibold hover:shadow-lg transform hover:scale-105 transition-all">
+            Explore Templates Now
+          </a>
         </div>
       </div>
     </section>

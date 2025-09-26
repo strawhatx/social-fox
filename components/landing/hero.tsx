@@ -62,23 +62,22 @@ const Hero = () => {
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-4">
-            <span className="block">Stay consistent</span>
+            <span className="block">Turn your 💡 ideas</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
-              &amp; grow — while you code
+              into on-brand X posts
             </span>
           </h1>
 
           <p className="text-xl sm:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
-            Turn every GitHub commit into posts for X &amp; LinkedIn.<br />
-            <span className="inline-block mt-2 text-orange-600">👉 Next up: Get inspiration, timing guidance, and insights to make your content more effective.</span>
+            Stop wasting hours writing threads that flop. Social Fox turns your rough thoughts into authentic, scroll‑stopping posts—fast, in your voice, and algorithm‑friendly.
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-6">
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">No writer's block</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Generate posts</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Top-performing inspiration (BETA)</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Amplification guidance (BETA)</span>
-
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">AI copilot</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Conversation editing</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Scheduling</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Templates</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Usage analytics</span>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
@@ -87,7 +86,7 @@ const Hero = () => {
               as={`/sign-up?openTab=signup&returnTo=/editor`}
             >
               <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                Join the Beta
+                Start Crafting Now
               </button>
             </Link>
             <a href="#examples" className="border-2 border-gray-300 text-gray-700 px-5 py-3 rounded-lg font-semibold text-lg hover:border-orange-400 hover:text-orange-600 transition-all duration-200">See examples</a>
@@ -95,7 +94,7 @@ const Hero = () => {
 
           <div className="mt-6">
             <p className="text-sm text-gray-600 font-medium">
-              ✅ Free beta • No card • 15 credits to start
+              ✅ Explore $5/mo • Cancel anytime • No lock‑in
             </p>
           </div>
 
@@ -103,50 +102,9 @@ const Hero = () => {
             <span>Trusted by early indie builders • Featured on Product Hunt</span>
           </div>
 
-          {/* Inline Video */}
-          <div className="relative aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200 mb-8">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/QyJgtkmr9yg"
-              title="Social Fox Demo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          </div>
 
-          <div className="flex justify-center items-center space-x-8 mb-6">
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Github className="w-6 h-6" />
-              <span className="text-sm font-medium">GitHub Activity</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-8 h-0.5 bg-gradient-to-r from-orange-400 to-blue-400"></div>
-              <Zap className="w-5 h-5 text-orange-500 mx-2" />
-              <div className="w-8 h-0.5 bg-gradient-to-r from-orange-400 to-blue-400"></div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Twitter className="w-6 h-6 text-brand-orange" />
-                <span className="text-sm font-medium">Twitter/X</span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Linkedin className="w-6 h-6" />
-                <span className="text-sm font-medium">LinkedIn</span>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-8 flex justify-center space-x-6 text-sm">
-            <a href="#features" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
-              Features
-            </a>
-            <a href="#pricing" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
-              Pricing
-            </a>
-            <a href="#faq" className="text-gray-600 hover:text-orange-500 transition-colors duration-200">
-              FAQ
-            </a>
-          </div>
+
         </div>
       </div>
     </section>

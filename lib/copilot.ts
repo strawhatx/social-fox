@@ -45,28 +45,40 @@ export type ToneType = typeof TONE_PRESETS[number]['id'];
 
 export const QUICK_TEMPLATES = [
   {
+    id: 'hot-take',
+    label: 'Hot Take',
+    prompt: 'Write me a bold take about [topic] that will stir debate but stay witty',
+    category: 'Engagement'
+  },
+  {
+    id: 'relatable-funny',
+    label: 'Relatable/Funny',
+    prompt: 'Turn this [situation] into a short, funny post people on X will instantly relate to',
+    category: 'Engagement'
+  },
+  {
     id: 'build-in-public',
     label: 'Build in Public',
-    prompt: 'Share an update about building in public',
+    prompt: 'Help me share my latest [feature/progress] in a way that feels authentic, not salesy',
     category: 'Growth'
   },
   {
-    id: 'lesson-learned',
-    label: 'Lesson Learned',
-    prompt: 'Share a key lesson you learned recently',
+    id: 'audience-question',
+    label: 'Audience Question',
+    prompt: 'Draft a post asking my followers about [topic] that makes them want to reply',
+    category: 'Engagement'
+  },
+  {
+    id: 'quick-tip',
+    label: 'Quick Tip',
+    prompt: 'Turn this idea about [tool/skill] into a punchy, no-fluff tip post',
     category: 'Education'
   },
   {
-    id: 'weekend-project',
-    label: 'Weekend Project',
-    prompt: 'Talk about a side project you worked on',
-    category: 'Building'
-  },
-  {
-    id: 'hot-take',
-    label: 'Hot Take',
-    prompt: 'Share a controversial opinion about tech/business',
-    category: 'Opinion'
+    id: 'personal-story',
+    label: 'Personal Story',
+    prompt: 'Help me tell a short story about when I [struggled/succeeded] at [topic] that ends with a lesson',
+    category: 'Storytelling'
   }
 ];
 

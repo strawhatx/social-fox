@@ -157,6 +157,63 @@ async function getCurrentUsage(userId: string, feature: string): Promise<number>
   }
 }
 
+// Public helper to get current billing period
+export function getCurrentBillingPeriod(): { start: Date; end: Date } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  return { start, end };
+}
+
+// Return usage details for a single feature
+export async function getUserUsage(userId: string, feature: string): Promise<{ userId: string; feature: string; used: number; limit: number; period: { start: Date; end: Date } } | null> {
+  const subscription = await getUserSubscription(userId);
+  if (!subscription) return null;
+
+  const period = getCurrentBillingPeriod();
+  const limitConfig = subscription.planDetails.limits[feature];
+  const limit = typeof limitConfig === 'number' ? limitConfig : (limitConfig ? 1 : 0);
+  const used = await getCurrentUsage(userId, feature);
+  return { userId, feature, used, limit, period };
+}
+
+// Return usage for all quota features
+export async function getAllUserUsage(userId: string): Promise<Array<{ userId: string; feature: string; used: number; limit: number; period: { start: Date; end: Date } }> | null> {
+  const subscription = await getUserSubscription(userId);
+  if (!subscription) return null;
+
+  const period = getCurrentBillingPeriod();
+  const features = Object.keys(QUOTA_FEATURES);
+  const usageResults: Array<{ userId: string; feature: string; used: number; limit: number; period: { start: Date; end: Date } }> = [];
+  for (const feature of features) {
+    const limit = subscription.planDetails.limits[feature] as number | boolean;
+    const numericLimit = typeof limit === 'number' ? limit : (limit ? 1 : 0);
+    const used = await getCurrentUsage(userId, feature);
+    usageResults.push({ userId, feature, used, limit: numericLimit, period });
+  }
+  return usageResults;
+}
+
+// Detailed feature access helper compatible with previous API
+export async function canUseFeatureDetailed(userId: string, feature: string): Promise<{ canUse: boolean; reason?: string; usage?: { userId: string; feature: string; used: number; limit: number; period: { start: Date; end: Date } } }> {
+  const subscription = await getUserSubscription(userId);
+  if (!subscription) {
+    return { canUse: false, reason: 'Unable to check usage' };
+  }
+  if (subscription.status !== 'active') {
+    return { canUse: false, reason: 'Subscription inactive' };
+  }
+  const status = await getFeatureQuotaStatus(userId, feature);
+  if (!status) {
+    return { canUse: false, reason: 'Feature not found' };
+  }
+  const usage = await getUserUsage(userId, feature);
+  if (!status.allowed) {
+    return { canUse: false, reason: 'Usage limit reached for this billing period', usage: usage || undefined };
+  }
+  return { canUse: true, usage: usage || undefined };
+}
+
 export async function initializeUserQuotas(userId: string, plan: string): Promise<boolean> {
   try {
     const appUserId = await resolveUserUuid(userId);

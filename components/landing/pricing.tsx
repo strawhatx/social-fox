@@ -12,31 +12,33 @@ const Pricing = () => {
   
   const plans = [
     {
-      name: "Free",
-      price: "$0",
-      period: "forever",
-      credits: "15 credits",
+      name: "Explore",
+      price: "$5",
+      period: "per month",
+      credits: "20 AI drafts + 10 scheduled posts",
       features: [
-        "15 monthly credits",
-        "1 project",
-        "Email support"
+        "AI-powered social media posts",
+        "Basic scheduling",
+        "Template library access",
+        "20 AI drafts / 10 scheduled posts"
       ],
-      buttonText: user ? "Go to Dashboard" : "Get Started",
+      buttonText: user ? "Go to Dashboard" : "Start Explore",
       popular: false,
-      action: "signup"
+      action: "subscribe"
     },
     {
-      name: "Pro",
-      price: "$9",
+      name: "Creator",
+      price: "$15",
       period: "per month",
-      credits: "50 credits",
+      credits: "150 AI drafts + 100 scheduled posts",
       features: [
-        "50 monthly credits",
-        "3 projects",
-        "Priority support",
-        "Advanced scheduling (coming soon)"
+        "Everything in Explore",
+        "Advanced AI features",
+        "Custom template creation",
+        "150 drafts / 100 scheduled posts",
+        "Priority support"
       ],
-      buttonText: user ? "Upgrade to Pro" : "Start Pro",
+      buttonText: user ? "Upgrade to Creator" : "Start Creator",
       popular: true,
       action: "subscribe"
     }

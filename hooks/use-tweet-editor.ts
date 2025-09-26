@@ -30,7 +30,7 @@ interface TweetEditorActions {
   fetchScheduled: () => Promise<void>;
 }
 
-export function useTweetEditor(contentToLoad?: string): TweetEditorState & TweetEditorActions {
+export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: string }): TweetEditorState & TweetEditorActions {
   // State
   const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
   const [editedTweet, setEditedTweet] = useState('');
@@ -44,6 +44,27 @@ export function useTweetEditor(contentToLoad?: string): TweetEditorState & Tweet
   const [loadingDrafts, setLoadingDrafts] = useState(false);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
 
+  const persistKey = options?.persistKey;
+
+  // Load persisted state on mount (per-page session)
+  useEffect(() => {
+    if (!persistKey) return;
+    try {
+      const raw = sessionStorage.getItem(persistKey);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (typeof data?.editedTweet === 'string') setEditedTweet(data.editedTweet);
+      if (Array.isArray(data?.attachments)) setAttachments(data.attachments);
+      if (typeof data?.communityUrl === 'string') setCommunityUrl(data.communityUrl);
+      if (data?.activeComposerTab === 'compose' || data?.activeComposerTab === 'drafts' || data?.activeComposerTab === 'scheduled' || data?.activeComposerTab === 'sent') {
+        setActiveComposerTab(data.activeComposerTab);
+      }
+    } catch (_e) {
+      // ignore malformed storage
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Handle content to load from chat
   useEffect(() => {
     if (contentToLoad) {
@@ -53,6 +74,22 @@ export function useTweetEditor(contentToLoad?: string): TweetEditorState & Tweet
       setCurrentPostStatus(null);
     }
   }, [contentToLoad]);
+
+  // Persist state when it changes
+  useEffect(() => {
+    if (!persistKey) return;
+    try {
+      const payload = {
+        editedTweet,
+        attachments,
+        communityUrl,
+        activeComposerTab,
+      };
+      sessionStorage.setItem(persistKey, JSON.stringify(payload));
+    } catch (_e) {
+      // ignore storage errors
+    }
+  }, [persistKey, editedTweet, attachments, communityUrl, activeComposerTab]);
 
   // Fetch drafts from API
   const fetchDrafts = async () => {
@@ -193,6 +230,10 @@ export function useTweetEditor(contentToLoad?: string): TweetEditorState & Tweet
     setCurrentPostStatus(null);
     setAttachments([]);
     setCommunityUrl('');
+    // Clear persisted state
+    if (persistKey) {
+      try { sessionStorage.removeItem(persistKey); } catch (_e) {}
+    }
     
     // Refresh relevant tabs
     if (activeComposerTab === 'drafts') fetchDrafts();

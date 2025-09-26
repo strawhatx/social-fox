@@ -17,9 +17,10 @@ import { useTweetEditor } from '@/hooks/use-tweet-editor';
 
 interface TweetEditorProps {
     contentToLoad?: string;
+    persistKey?: string;
 }
 
-export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
+export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorProps) {
     const {
         activeComposerTab,
         editedTweet,
@@ -41,28 +42,28 @@ export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
         loadScheduled,
         handleInsertHashtag,
         addHashtag,
-    } = useTweetEditor(contentToLoad);
+    } = useTweetEditor(contentToLoad, { persistKey });
 
     return (
         <Tabs
             value={activeComposerTab}
             onValueChange={(value) => setActiveComposerTab(value as 'compose' | 'drafts' | 'scheduled' | 'sent')} className="space-y-3">
-            <TabsList className="grid w-full grid-cols-4 bg-background border-b border-border rounded-none p-0 h-auto">
+            <TabsList className="w-full bg-background border-b border-border rounded-none p-0 h-auto justify-center">
                 <TabsTrigger
                     value="compose"
-                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-xs"
+                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-[10px] sm:text-xs"
                 >
                     Compose
                 </TabsTrigger>
                 <TabsTrigger
                     value="drafts"
-                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-xs"
+                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-[10px] sm:text-xs"
                 >
                     Drafts
                 </TabsTrigger>
                 <TabsTrigger
                     value="scheduled"
-                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-xs"
+                    className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent rounded-none pb-2 text-[10px] sm:text-xs"
                 >
                     Scheduled
                 </TabsTrigger>
@@ -107,8 +108,8 @@ export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
 
 
                     {/* Media and options */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 order-2 sm:order-1">
                             <span className={`text-xs ${editedTweet.length > 250 ? 'text-red-500' : 'text-muted-foreground'}`}>
                                 {editedTweet.length} / 280
                             </span>
@@ -119,7 +120,7 @@ export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 order-1 sm:order-2 flex-wrap">
                             <ImageUploader
                                 onSelect={(urls, files) => {
                                     const next = urls.map((u, i) => ({ url: u, file: files[i] })).filter(Boolean);
@@ -158,7 +159,7 @@ export default function TweetEditor({ contentToLoad }: TweetEditorProps) {
 
                 {/* Attachments preview */}
                 {attachments.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {attachments.map((att, idx) => (
                             <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
                                 {att.file && att.file.type.startsWith('image/') ? (

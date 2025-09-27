@@ -18,7 +18,7 @@ type ImageCardProps = {
 const ImageCard: React.FC<ImageCardProps> = ({ platform, src, alt }) => {
   const isTwitter = platform === 'twitter';
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50/50 border-2 border-gray-100 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
+    <div className="bg-gradient-to-br from-white to-gray-50/50 border-2 border-gray-100 rounded-3xl overflow-hidden group">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100/70 bg-gradient-to-r from-gray-50 to-white">
         <div className={`p-2 rounded-full ${isTwitter ? 'bg-blue-50' : 'bg-blue-50'}`}>
           {isTwitter ? (
@@ -33,7 +33,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ platform, src, alt }) => {
         <img
           src={src}
           alt={alt}
-          className="w-full h-auto block rounded-2xl group-hover:scale-[1.02] transition-transform duration-300"
+          className="w-full h-auto block rounded-2xl"
           loading="lazy"
         />
       </div>
@@ -122,7 +122,7 @@ const Results: React.FC = () => {
             <CarouselContent className="-ml-6">
               {posts.map((post, index) => (
                 <CarouselItem key={index} className="pl-6 basis-full sm:basis-1/2 lg:basis-1/3 select-none">
-                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 h-full">
+                  <div className="bg-white rounded-2xl border border-gray-200 p-6 h-full">
                     <div className="flex items-center gap-3 mb-4">
                       {post.platform === 'twitter' ? (
                         <Twitter className="w-6 h-6 text-blue-400" />
@@ -174,7 +174,7 @@ const Results: React.FC = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="mx-auto bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:shadow-lg"
+            className="mx-auto bg-gradient-to-r from-orange-500 to-red-500 text-white border-0"
           >
             Try It Free
           </Button>

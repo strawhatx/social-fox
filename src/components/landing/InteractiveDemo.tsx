@@ -104,7 +104,7 @@ const InteractiveDemo = () => {
                   {libraryItems.map((item, index) => (
                     <div
                       key={index}
-                      className={`p-4 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${
+                      className={`p-4 cursor-pointer ${
                         selectedLibraryItem === index ? 'bg-primary/5 border-l-4 border-primary' : ''
                       }`}
                       onClick={() => setSelectedLibraryItem(index)}
@@ -120,7 +120,7 @@ const InteractiveDemo = () => {
                       </div>
                       
                       {selectedLibraryItem === index && (
-                        <div className="mt-4 space-y-3 animate-fade-in">
+                        <div className="mt-4 space-y-3">
                           <div className="bg-background rounded-lg p-3 border">
                             <p className="text-sm leading-relaxed">{item.content}</p>
                           </div>
@@ -174,7 +174,7 @@ const InteractiveDemo = () => {
                   {calendarPosts.map((post, index) => (
                     <div
                       key={index}
-                      className={`p-4 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${
+                      className={`p-4 cursor-pointer ${
                         selectedCalendarDay === index ? 'bg-secondary/5 border-l-4 border-secondary' : ''
                       }`}
                       onClick={() => setSelectedCalendarDay(index)}
@@ -201,7 +201,7 @@ const InteractiveDemo = () => {
                       </div>
                       
                       {selectedCalendarDay === index && (
-                        <div className="mt-4 space-y-3 animate-fade-in">
+                        <div className="mt-4 space-y-3">
                           <div className="bg-background rounded-lg p-3 border">
                             <p className="text-sm leading-relaxed">{post.content}</p>
                           </div>

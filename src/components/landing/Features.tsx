@@ -60,9 +60,9 @@ const Features: React.FC = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-2xl shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
+              className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-2xl border border-orange-100 cursor-pointer group"
             >
-              <div className="mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="mb-6">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -85,7 +85,7 @@ const Features: React.FC = () => {
           <p className="text-xl opacity-90 mb-8 max-w-3xl mx-auto">
             Join hundreds of founders who've transformed their content strategy. Start with proven templates or let AI learn your unique voice.
           </p>
-          <button className="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-200">
+          <button className="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg">
             Explore Templates Now
           </button>
         </div>

@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clerkUserId        String           @unique @map("clerk_user_id")
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  plan               String?
+  subscriptionStatus String           @default("inactive") @map("subscription_status")
+  subscriptionId     String?          @map("subscription_id")
+  subscriptionExpiry DateTime?        @map("subscription_expiry") @db.Timestamptz(6)
+  aiTemplates        AiTemplate[]
+  contentPosts       ContentPost[]
+  conversations      Conversation[]
+  library            Library[]
+  twitterAccounts    TwitterAccount[]
+  userQuota          UserQuota?
+  userUsage          UserUsage[]
+
+  @@map("users")
+}
+
+model TwitterAccount {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  twitterUserId       String    @unique @map("twitter_user_id")
+  handle              String
+  followersCount      Int       @default(0) @map("followers_count")
+  followingCount      Int       @default(0) @map("following_count")
+  tweetCount          Int       @default(0) @map("tweet_count")
+  listedCount         Int       @default(0) @map("listed_count")
+  lastSyncedAt        DateTime? @map("last_synced_at") @db.Timestamptz(6)
+  profileImageUrl     String?   @map("profile_image_url")
+  backfillStatus      String    @default("pending") @map("backfill_status")
+  name                String?
+  description         String?
+  backfillCompletedAt DateTime? @map("backfill_completed_at")
+  backfillStartedAt   DateTime? @map("backfill_started_at")
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twitter_accounts")
+}
+
+model ContentPost {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content     String
+  platform    String
+  status      String    @default("draft") // draft, scheduled, posted, archived, failed
+  scheduledAt DateTime? @map("scheduled_at") @db.Timestamptz(6)
+  postedAt    DateTime? @map("posted_at") @db.Timestamptz(6)
+  engagement  Json      @default("{}")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  userId      String    @map("user_id") @db.Uuid
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("content_posts")
+}
+
+model UserQuota {
+  id              Int      @id @default(autoincrement())
+  userId          String   @unique @map("user_id") @db.Uuid
+  postsUsed       Int      @default(0) @map("posts_used")
+  postsLimit      Int      @default(0) @map("posts_limit")
+  aiPostsUsed     Int      @default(0) @map("ai_posts_used")
+  aiPostsLimit    Int      @default(0) @map("ai_posts_limit")
+  aiRewritesUsed  Int      @default(0) @map("ai_rewrites_used")
+  aiRewritesLimit Int      @default(0) @map("ai_rewrites_limit")
+  resetDate       DateTime @map("reset_date") @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_quotas")
+}
+
+model Library {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String?  @map("user_id") @db.Uuid
+  text           String
+  category       String
+  hashtags       String[] @default([])
+  isViralReady   Boolean  @default(false) @map("is_viral_ready")
+  characterCount Int?     @map("character_count")
+  isStarter      Boolean  @default(false) @map("is_starter")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("library")
+}
+
+model AiTemplate {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  text       String
+  createdAt  DateTime @map("created_at") @db.Timestamptz(6)
+  insertedAt DateTime @default(now()) @map("inserted_at") @db.Timestamptz(6)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_templates")
+}
+
+model AiTrainingTweet {
+  id           Int       @id @default(autoincrement())
+  authorName   String?   @map("author_name")
+  authorHandle String?   @map("author_handle")
+  tweetText    String?   @map("tweet_text")
+  datePosted   DateTime? @map("date_posted")
+  type         String?
+
+  @@map("ai_training_tweets")
+}
+
+model Conversation {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  title     String
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  status    String    @default("active")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  role           String
+  content        Json         @default("{}")
+  createdAt      DateTime     @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  status         String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model UserUsage {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  feature     String
+  used        Int      @default(0)
+  periodStart DateTime @map("period_start") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  periodEnd   DateTime @map("period_end") @db.Timestamptz(6)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, feature, periodStart, periodEnd])
+  @@map("user_usage")
+}

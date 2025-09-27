@@ -13,6 +13,9 @@ const isPublicRoute = createRouteMatcher([
   
   // Webhook endpoints (no auth required)
   '/api/lemonsqueezy/webhook',
+
+  // Scheduler endpoints (authenticated via header secret)
+  '/api/scheduler(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

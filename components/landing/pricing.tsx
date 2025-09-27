@@ -14,17 +14,17 @@ const Pricing = () => {
     {
       name: "Explore",
       price: "$5",
-      period: "per month",
-      credits: "20 AI drafts + 10 scheduled posts",
+      period: "one-time trial",
+      credits: "30 AI drafts + 10 scheduled posts",
       features: [
         "AI-powered social media posts",
         "Basic scheduling",
         "Template library access",
-        "20 AI drafts / 10 scheduled posts"
+        "One-time: 30 AI drafts / 10 scheduled posts"
       ],
-      buttonText: user ? "Go to Dashboard" : "Start Explore",
+      buttonText: user ? "Go to Dashboard" : "Start Free Trial",
       popular: false,
-      action: "subscribe"
+      action: "start_trial"
     },
     {
       name: "Creator",
@@ -68,11 +68,11 @@ const Pricing = () => {
           {plans.map((plan, index) => (
             <Card 
               key={index} 
-              className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}
+              className={`relative ${plan.popular ? 'border-orange-500 shadow-lg scale-105' : ''}`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
                   </span>
                 </div>
@@ -84,8 +84,8 @@ const Pricing = () => {
                   <span className="text-4xl font-bold">{plan.price}</span>
                   <span className="text-muted-foreground ml-1">/{plan.period}</span>
                 </div>
-                <CardDescription className="text-lg font-medium text-primary mt-2">
-                  <Zap className="inline w-4 h-4 mr-1" />
+                <CardDescription className="text-lg font-medium text-orange-600 mt-2">
+                  <Zap className="inline w-4 h-4 mr-1 text-orange-500" />
                   {plan.credits}
                 </CardDescription>
               </CardHeader>
@@ -94,14 +94,14 @@ const Pricing = () => {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center">
-                      <Check className="w-4 h-4 text-primary mr-3 flex-shrink-0" />
+                      <Check className="w-4 h-4 text-orange-500 mr-3 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Button 
-                  className="w-full" 
+                  className={`w-full ${plan.popular ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'border-orange-500 text-orange-600 hover:bg-orange-50'}`}
                   variant={plan.popular ? "default" : "outline"}
                   onClick={() => handlePlanAction(plan.action)}
                 >

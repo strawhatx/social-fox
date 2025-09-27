@@ -1,30 +1,31 @@
 'use client';
 
-import { Bot, Settings, Clock, CheckCircle, Twitter, Linkedin } from 'lucide-react';
+import { Bot, Settings, Clock, CheckCircle, Linkedin } from 'lucide-react';
 
 const Features = () => {
   const features = [
     {
-      icon: <Twitter className="w-6 h-6 text-blue-400" />,
-      title: "Built for X",
+      icon: <span className="text-2xl text-blue-400">𝕏</span>,
+      title: "Built for 𝕏",
       description: "Platform‑aware formatting, hashtags, and structure for higher engagement where you share."
     },
     {
-      icon: <Settings className="w-8 h-8 text-orange-500" />,
+      icon: <span className="text-2xl text-blue-400">💬</span>,
       title: "Conversation‑based editing",
       description: "Guide the AI with natural prompts. Tweak tone, length, and structure without starting from scratch."
     },
     {
-      icon: <Clock className="w-8 h-8 text-orange-500" />,
+      icon: <span className="text-2xl text-orange-500">⏰</span>,
       title: "Scheduling built‑in",
       description: "Queue content to post when you want, or save drafts for later — you stay in control."
     },
     {
-      icon: <CheckCircle className="w-8 h-8 text-orange-500" />,
-      title: "Templates librabry",
-      description: "Start fast with templates to get started."
+      icon: <span className="text-2xl text-orange-500">📝</span>,
+      title: "Templates library",
+      description: "Start fast with ready-made templates to get going immediately."
     }
   ];
+  
 
   return (
     <section id="features" className="py-20 bg-white">
@@ -38,7 +39,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {features.map((feature, index) => (
             <div
               key={index}

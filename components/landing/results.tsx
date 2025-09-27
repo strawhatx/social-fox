@@ -76,7 +76,7 @@ const Results: React.FC = () => {
                 <CarouselItem key={index} className="pl-6 basis-full sm:basis-1/2 lg:basis-1/3 select-none">
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <Twitter className="w-6 h-6 text-blue-400" />
+                      <span className="w-6 h-6 text-blue-400">𝕏</span>
 
                       <span className="font-semibold capitalize">Twitter/X</span>
                     </div>

@@ -22,11 +22,11 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       'AI-powered social media posts',
       'Basic scheduling',
       'Template library access',
-      '20 AI drafts per month',
+      'One-time 30 AI drafts',
       '10 scheduled posts per month'
     ],
     limits: {
-      copilotDrafts: 20,
+      copilotDrafts: 30,
       scheduledPosts: 10,
       starterTemplates: true,
       customTemplates: false

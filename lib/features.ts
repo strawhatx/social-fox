@@ -30,7 +30,7 @@ export const QUOTA_FEATURES: Record<string, QuotaFeature> = {
     name: 'Copilot Drafts',
     description: 'Generate AI-powered social media posts with Copilot',
     limits: {
-      explore: 20,
+      explore: 30,
       creator: 150
     }
   },

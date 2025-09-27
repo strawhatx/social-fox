@@ -10,6 +10,7 @@ import Demo from '@/components/landing/Demo';
 import FAQ from '@/components/landing/FAQ';
 import SEOHead from '@/components/SEOHead';
 import MicroSurvey from '@/components/landing/MicroSurvey';
+import InteractiveDemo from '@/components/landing/InteractiveDemo';
 
 const Landing = () => {
   return (
@@ -19,6 +20,7 @@ const Landing = () => {
       <Results />
       <Demo />
       <Features />
+      <InteractiveDemo />
       <Pricing />
       <Testimonials />
       <FAQ />

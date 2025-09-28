@@ -16,6 +16,7 @@ model User {
   subscriptionStatus String           @default("inactive") @map("subscription_status")
   subscriptionId     String?          @map("subscription_id")
   subscriptionExpiry DateTime?        @map("subscription_expiry") @db.Timestamptz(6)
+  customerId         String?          @unique @map("customer_id")
   aiTemplates        AiTemplate[]
   contentPosts       ContentPost[]
   conversations      Conversation[]

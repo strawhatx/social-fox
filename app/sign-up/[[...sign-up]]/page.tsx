@@ -1,3 +1,5 @@
+'use client';
+
 import { SignUp } from '@clerk/nextjs';
 
 export default function Page() {
@@ -6,10 +8,4 @@ export default function Page() {
       <SignUp afterSignUpUrl="/auth/complete?event=signup" />
     </div>
   );
-}
-
-export function generateStaticParams() {
-  return [
-    { 'sign-up': [] },
-  ];
 }

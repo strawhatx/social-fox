@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getUserSubscription, getCustomerPortalUrl } from '@/lib/subscriptions';
+import { getUserSubscription } from '@/lib/subscriptions';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

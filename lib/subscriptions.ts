@@ -1,12 +1,12 @@
-import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
-import { QUOTA_FEATURES, BINARY_FEATURES, PLANS } from '@/lib/features';
+import { QUOTA_FEATURES } from '@/lib/features';
 
 export interface SubscriptionPlan {
   id: string;
   name: string;
   price: number;
+  popular: boolean;
   interval: 'month' | 'year';
   features: string[];
   limits: Record<string, number | boolean>;
@@ -16,7 +16,8 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   explore: {
     id: 'explore',
     name: 'Explore',
-    price: 5,
+    price: 9,
+    popular: false,
     interval: 'month',
     features: [
       'AI-powered social media posts',
@@ -35,7 +36,8 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   creator: {
     id: 'creator',
     name: 'Creator',
-    price: 15,
+    price: 29,
+    popular: true,
     interval: 'month',
     features: [
       'Everything in Explore',
@@ -330,38 +332,3 @@ export async function getFeatureQuotaStatus(userId: string, feature: string): Pr
   }
 }
 
-export function getCheckoutUrl(productId: string, customerId?: string): string {
-  const baseUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}`;
-  
-  if (customerId) {
-    return `${baseUrl}?checkout[custom][customer_id]=${customerId}`;
-  }
-  
-  return baseUrl;
-}
-
-export async function getCustomerPortalUrl(customerId: string): Promise<string | null> {
-  try {
-    const response = await fetch('https://api.lemonsqueezy.com/v1/customers/portal', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.LEMON_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        customer_id: customerId,
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create customer portal');
-    }
-
-    const data = await response.json();
-    return data.data.attributes.url;
-  } catch (error) {
-    console.error('Error creating customer portal:', error);
-    return null;
-  }
-}

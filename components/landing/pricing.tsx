@@ -5,44 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { getPriceId } from "@/lib/utils";
+import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions";
 
 const Pricing = () => {
   const { user, isSignedIn } = useUser();
   const router = useRouter();
-  
-  const plans = [
-    {
-      name: "Explore",
-      price: "$5",
-      period: "one-time trial",
-      credits: "30 AI drafts + 10 scheduled posts",
-      features: [
-        "AI-powered social media posts",
-        "Basic scheduling",
-        "Template library access",
-        "One-time: 30 AI drafts / 10 scheduled posts"
-      ],
-      buttonText: user ? "Go to Dashboard" : "Start Free Trial",
-      popular: false,
-      action: "start_trial"
-    },
-    {
-      name: "Creator",
-      price: "$15",
-      period: "per month",
-      credits: "150 AI drafts + 100 scheduled posts",
-      features: [
-        "Everything in Explore",
-        "Advanced AI features",
-        "Custom template creation",
-        "150 drafts / 100 scheduled posts",
-        "Priority support"
-      ],
-      buttonText: user ? "Upgrade to Creator" : "Start Creator",
-      popular: true,
-      action: "subscribe"
-    }
-  ];
+  const plans = [SUBSCRIPTION_PLANS.explore, SUBSCRIPTION_PLANS.creator];
 
   const handlePlanAction = (action: string) => {
     if (!isSignedIn) {
@@ -50,7 +19,26 @@ const Pricing = () => {
       return;
     }
 
-    router.push('/settings');
+    const priceId = getPriceId(action as 'explore' | 'creator');
+    if (!priceId) {
+      router.push('/dashboard');
+      return;
+    }
+
+    // Create Stripe checkout session
+    fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId }),
+    })
+    .then(response => response.json())
+    .then(({ url }) => {
+      if (url) window.location.href = url;
+    })
+    .catch(error => {
+      console.error('Error creating checkout session:', error);
+      router.push('/dashboard');
+    });
   };
   return (
     <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/20">

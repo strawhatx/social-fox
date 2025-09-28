@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Crown } from 'lucide-react';
-import { product_url_ids as products } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
 
 interface UpgradeModalContextValue {
@@ -79,10 +78,27 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
   }, [showUpgrade]);
 
   const handleUpgrade = useCallback((planId: 'explore' | 'creator') => {
-    const productId = planId === 'explore' ? products.explore : products.creative;
-    if (!productId) return;
-    const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
-    window.open(checkoutUrl, '_blank');
+    const priceIds: Record<string, string> = {
+      explore: 'price_explore_monthly', // Replace with your actual Stripe price ID
+      creator: 'price_creator_monthly', // Replace with your actual Stripe price ID
+    };
+
+    const priceId = priceIds[planId];
+    if (!priceId) return;
+
+    // Create Stripe checkout session
+    fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId }),
+    })
+    .then(response => response.json())
+    .then(({ url }) => {
+      if (url) window.location.href = url;
+    })
+    .catch(error => {
+      console.error('Error creating checkout session:', error);
+    });
   }, [user?.id]);
 
   const value = useMemo(() => ({ showUpgrade, hideUpgrade }), [showUpgrade, hideUpgrade]);

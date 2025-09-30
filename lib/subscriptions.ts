@@ -1,60 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
 import { QUOTA_FEATURES } from '@/lib/features';
+import { SUBSCRIPTION_PLANS, SubscriptionPlan } from '@/lib/subscription-plans';
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  popular: boolean;
-  interval: 'month' | 'year';
-  features: string[];
-  limits: Record<string, number | boolean>;
-}
-
-export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
-  explore: {
-    id: 'explore',
-    name: 'Explore',
-    price: 9,
-    popular: false,
-    interval: 'month',
-    features: [
-      'AI-powered social media posts',
-      'Basic scheduling',
-      'Template library access',
-      'One-time 30 AI drafts',
-      '10 scheduled posts per month'
-    ],
-    limits: {
-      copilotDrafts: 30,
-      scheduledPosts: 10,
-      starterTemplates: true,
-      customTemplates: false
-    }
-  },
-  creator: {
-    id: 'creator',
-    name: 'Creator',
-    price: 29,
-    popular: true,
-    interval: 'month',
-    features: [
-      'Everything in Explore',
-      'Advanced AI features',
-      'Custom template creation',
-      '150 AI drafts per month',
-      '100 scheduled posts per month',
-      'Priority support'
-    ],
-    limits: {
-      copilotDrafts: 150,
-      scheduledPosts: 100,
-      starterTemplates: true,
-      customTemplates: true
-    }
-  }
-};
+export { SUBSCRIPTION_PLANS };
 
 export async function getUserSubscription(userId: string) {
   try {

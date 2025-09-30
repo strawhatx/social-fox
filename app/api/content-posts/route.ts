@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     if (!appUserId) return json({ error: 'User not found' }, { status: 404 });
 
     const body = await req.json();
-    const { content, platform = 'twitter', scheduled_at, status = 'draft', images = [], communityUrl } = body;
+    const { content, platform = 'twitter', scheduled_at, status = 'draft', attachments, communityUrl } = body;
 
     if (!content || !content.trim()) {
       return json({ error: 'Content is required' }, { status: 400 });
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         status: finalStatus,
         scheduledAt: scheduled_at ? new Date(scheduled_at) : null,
         metadata: {
-          images: images,
+          attachments: attachments || [],
           community_url: communityUrl
         }
       }

@@ -35,7 +35,7 @@ export default function SchedulerTweetEditor({
     onSave
 }: SchedulerTweetEditorProps) {
     const [editedTweet, setEditedTweet] = useState(initialContent);
-    const [attachments, setAttachments] = useState<Array<{ url: string; file: File | null }>>([]);
+    const [attachments, setAttachments] = useState<Array<{ url: string; type: string }>>([]);
     const [communityUrl, setCommunityUrl] = useState("");
     const [saving, setSaving] = useState(false);
 
@@ -45,8 +45,8 @@ export default function SchedulerTweetEditor({
             setEditedTweet(initialContent);
             
             // Load attachments from metadata
-            const images = initialMetadata?.images || [];
-            const loadedAttachments = images.map((url: string) => ({ url, file: null }));
+            const images = initialMetadata?.attachments || [];
+            const loadedAttachments = images.map((url: string) => ({ url, type: 'gif' }));
             setAttachments(loadedAttachments);
             
             // Load community URL from metadata
@@ -64,7 +64,7 @@ export default function SchedulerTweetEditor({
         try {
             const metadata = {
                 ...initialMetadata,
-                images: attachments.map(att => att.url),
+                attachments: attachments,
                 community_url: communityUrl || null
             };
             await onSave(postId, { 
@@ -84,7 +84,7 @@ export default function SchedulerTweetEditor({
         try {
             const metadata = {
                 ...initialMetadata,
-                images: attachments.map(att => att.url),
+                attachments: attachments,
                 community_url: communityUrl || null
             };
             await onSave(postId, {

@@ -123,7 +123,7 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                         <div className="flex items-center gap-1 order-1 sm:order-2 flex-wrap">
                             <ImageUploader
                                 onSelect={(urls, files) => {
-                                    const next = urls.map((u, i) => ({ url: u, file: files[i] })).filter(Boolean);
+                                    const next = urls.map((u, i) => ({ url: u, file: files[i], type: null })).filter(Boolean);
                                     setAttachments((prev) => [...prev, ...next]);
                                 }}
                                 multiple
@@ -131,7 +131,7 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
 
                             <GiphyPicker onSelect={(gifUrl) => {
                                 // Add GIF as attachment (similar to image uploader)
-                                const gifAttachment = { url: gifUrl, file: null }; // GIFs don't have File objects
+                                const gifAttachment = { url: gifUrl, file: null, type: 'gif' }; // GIFs don't have File objects
                                 setAttachments((prev) => [...prev, gifAttachment]);
                             }} />
 
@@ -162,10 +162,10 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {attachments.map((att, idx) => (
                             <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
-                                {att.file && att.file.type.startsWith('image/') ? (
+                                {att.file && att.file.type?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
-                                ) : att.file && att.file.type.startsWith('video/') ? (
+                                ) : att.file && att.file.type?.startsWith('video/') ? (
                                     <video src={att.url} className="w-full h-24 object-cover" muted />
                                 ) : (
                                     // GIF from Giphy (no file object)

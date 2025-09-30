@@ -5,7 +5,7 @@ interface TweetEditorState {
   activeComposerTab: 'compose' | 'drafts' | 'scheduled' | 'sent';
   editedTweet: string;
   isScheduled: boolean;
-  attachments: { url: string; file: File | null }[];
+  attachments: { url: string; file: File | null, type: string | null;}[] ;
   communityUrl: string;
   editingPostId: string | null;
   currentPostStatus: string | null;
@@ -18,7 +18,7 @@ interface TweetEditorState {
 interface TweetEditorActions {
   setActiveComposerTab: (tab: 'compose' | 'drafts' | 'scheduled' | 'sent') => void;
   setEditedTweet: (tweet: string) => void;
-  setAttachments: React.Dispatch<React.SetStateAction<{ url: string; file: File | null }[]>>;
+  setAttachments: React.Dispatch<React.SetStateAction<{ url: string; file: File | null, type: string | null;}[]>>;
   setCommunityUrl: (url: string) => void;
   handleScheduleConfirm: (date: Date) => Promise<void>;
   handleSaveDraft: () => Promise<void>;
@@ -35,7 +35,7 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
   const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
   const [editedTweet, setEditedTweet] = useState('');
   const [isScheduled, setIsScheduled] = useState(false);
-  const [attachments, setAttachments] = useState<{ url: string; file: File | null }[]>([]);
+  const [attachments, setAttachments] = useState<{ url: string; file: File | null, type: string | null;}[]>([]);
   const [communityUrl, setCommunityUrl] = useState('');
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [currentPostStatus, setCurrentPostStatus] = useState<string | null>(null);
@@ -149,7 +149,7 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
             content: editedTweet.trim(),
             platform: 'twitter',
             status: 'draft',
-            images: attachments.map(att => att.url),
+            attachments: attachments,
             communityUrl: communityUrl || null
           }),
         });
@@ -191,12 +191,12 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
     if (isUpdate) {
       // PATCH expects metadata object
       payload.metadata = {
-        images: attachments.map(att => att.url),
+        attachments: attachments,
         community_url: communityUrl || null,
       };
     } else {
       // POST expects flat fields
-      payload.images = attachments.map(att => att.url);
+      payload.attachments = attachments;
       payload.communityUrl = communityUrl || null;
     }
 
@@ -308,11 +308,10 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
     
     // Load attachments and community URL from draft metadata
     const metadata = draft.metadata || {};
-    const images = metadata.images || [];
+    const attachments = metadata.attachments || [];
     const communityUrl = metadata.community_url;
-    
+  
     // Convert image URLs back to attachment format
-    const attachments = images.map((url: string) => ({ url, file: null }));
     setAttachments(attachments);
     setCommunityUrl(communityUrl || '');
   };

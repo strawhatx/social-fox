@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTweetEditor } from '@/hooks/use-tweet-editor';
+import { toast } from '@/hooks/use-toast';
 
 interface TweetEditorProps {
     contentToLoad?: string;
@@ -123,15 +124,55 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                         <div className="flex items-center gap-1 order-1 sm:order-2 flex-wrap">
                             <ImageUploader
                                 onSelect={(urls, files) => {
-                                    const next = urls.map((u, i) => ({ url: u, file: files[i], type: null })).filter(Boolean);
-                                    setAttachments((prev) => [...prev, ...next]);
+                                    // Normalize new items with types
+                                    const incoming = urls.map((u, i) => ({ url: u, file: files[i], type: files[i]?.type || null })).filter(Boolean);
+
+                                    // Existing counts
+                                    const hasGif = attachments.some(a => a.type === 'image/gif');
+                                    const hasVideo = attachments.some(a => (a.type || '').startsWith('video/'));
+                                    const imageCount = attachments.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif').length;
+
+                                    // If GIF or video already present, do not add anything else
+                                    if (hasGif) {
+                                        toast({ title: 'Limit reached', description: 'Cannot add images or videos when a GIF is attached.' });
+                                        return;
+                                    }
+                                    if (hasVideo) {
+                                        toast({ title: 'Limit reached', description: 'Cannot add images or GIFs when a video is attached.' });
+                                        return;
+                                    }
+
+                                    // If user is trying to add a video now, require empty list and pick only the first video
+                                    const incomingVideo = incoming.find(a => (a.type || '').startsWith('video/'));
+                                    if (incomingVideo) {
+                                        if (attachments.length > 0) {
+                                            toast({ title: 'Only one video allowed', description: 'Remove other attachments before adding a video.' });
+                                            return;
+                                        }
+                                        setAttachments((prev) => [...prev, incomingVideo]);
+                                        return;
+                                    }
+
+                                    // Only images allowed: cap at 4 total
+                                    const incomingImages = incoming.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif');
+                                    const remaining = Math.max(0, 4 - imageCount);
+                                    const allowed = incomingImages.slice(0, remaining);
+                                    if (allowed.length < incomingImages.length) {
+                                        toast({ title: 'Image limit', description: 'You can attach up to 4 images.' });
+                                    }
+                                    if (!allowed.length) return;
+                                    setAttachments((prev) => [...prev, ...allowed]);
                                 }}
                                 multiple
                             />
 
                             <GiphyPicker onSelect={(gifUrl) => {
-                                // Add GIF as attachment (similar to image uploader)
-                                const gifAttachment = { url: gifUrl, file: null, type: 'gif' }; // GIFs don't have File objects
+                                const hasAny = attachments.length > 0;
+                                if (hasAny) {
+                                    toast({ title: 'Only one GIF allowed', description: 'Remove other attachments before adding a GIF.' });
+                                    return;
+                                }
+                                const gifAttachment = { url: gifUrl, file: null, type: 'image/gif' };
                                 setAttachments((prev) => [...prev, gifAttachment]);
                             }} />
 
@@ -162,10 +203,10 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {attachments.map((att, idx) => (
                             <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
-                                {att.file && att.file.type?.startsWith('image/') ? (
+                                {att.type && att.type?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
-                                ) : att.file && att.file.type?.startsWith('video/') ? (
+                                ) : att.type && att.type?.startsWith('video/') ? (
                                     <video src={att.url} className="w-full h-24 object-cover" muted />
                                 ) : (
                                     // GIF from Giphy (no file object)

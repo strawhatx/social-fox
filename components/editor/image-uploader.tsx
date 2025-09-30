@@ -21,24 +21,7 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Upload files to backend S3 API
-  async function uploadFilesToS3(files: File[]): Promise<string[]> {
-    const formData = new FormData();
-    files.forEach((file) => formData.append('files', file));
-
-    const res = await fetch('/api/uploads', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      console.error('Failed to upload files to S3');
-      return [];
-    }
-
-    const data = await res.json();
-    return data.urls as string[];
-  }
+  // No immediate upload; return blob URLs for preview and keep File objects for save
 
   return (
     <>
@@ -54,11 +37,9 @@ export default function ImageUploader({
 
           if (!mediaFiles.length) return;
 
-          // Upload to S3
-          const uploadedUrls = await uploadFilesToS3(mediaFiles);
-
-          // Return S3 URLs and the original files
-          onSelect(uploadedUrls, mediaFiles);
+          // Create local object URLs for preview; actual upload happens on save
+          const blobUrls = mediaFiles.map((f) => URL.createObjectURL(f));
+          onSelect(blobUrls, mediaFiles);
 
           // Reset input so user can re-select same files
           if (inputRef.current) inputRef.current.value = '';

@@ -22,16 +22,19 @@ export default function EditorPage() {
   const conversationId = params.id as string;
   const initialMessage = searchParams.get('message');
 
-  const { messages, sendMessage, retryMessage, connected } = useChat(conversationId);
+  const { messages, sendMessage, retryMessage, connected, conversationTitle } = useChat(conversationId);
 
   const [prompt, setPrompt] = useState("");
   const [contentToLoad, setContentToLoad] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const hasSentInitialMessageRef = useRef(false);
 
   // Send initial message when component mounts and WebSocket is connected
   useEffect(() => {
+    if (hasSentInitialMessageRef.current) return;
     if (initialMessage && initialMessage.trim() && connected) {
+      hasSentInitialMessageRef.current = true;
       sendMessage(initialMessage.trim());
 
       // Clear the message from URL
@@ -42,7 +45,7 @@ export default function EditorPage() {
         : window.location.pathname;
       router.replace(newUrl);
     }
-  }, [initialMessage, sendMessage, connected, searchParams, router]);
+  }, [initialMessage, connected, router]);
 
   // Auto-scroll when new messages arrive
   useEffect(() => {
@@ -106,7 +109,7 @@ export default function EditorPage() {
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 <h1 className="text-md text-foreground">
-                  Conversation {conversationId}
+                  {conversationTitle || `Conversation ${conversationId}`}
                 </h1>
                 <span className={`ml-4 text-sm ${connected ? "text-green-600" : "text-yellow-600"}`}>
                   {connected ? "Connected" : "Connecting..."}

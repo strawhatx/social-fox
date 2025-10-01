@@ -128,10 +128,11 @@ export default function LibraryPage() {
 
   const sendToCopilot = async (templateText: string) => {
     try {
-      // Create new empty conversation
+      // Create new conversation and pass initial message for title
       const conversationResponse = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initialMessage: `Rewrite this tweet: ${templateText}` })
       });
 
       if (!conversationResponse.ok) throw new Error('Failed to create conversation');

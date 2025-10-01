@@ -73,7 +73,7 @@ const InteractiveDemo = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            You're ready to go after your first prompt! 🚀
+            You&apos;re ready to go after your first prompt! 🚀
           </h2>
         </div>
 

@@ -127,10 +127,11 @@ export default function TweetBuilder() {
     setIsGenerating(true);
 
     try {
-      // Create new empty conversation
+      // Create new conversation and pass initial message for title
       const conversationResponse = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initialMessage: prompt.trim() })
       });
 
       if (!conversationResponse.ok) throw new Error('Failed to create conversation');
@@ -334,8 +335,8 @@ export default function TweetBuilder() {
                   Hi, I am your Social Media AI Assistant
                 </h1>
                 <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                  I'm here to help you create engaging social media posts for X.
-                  From viral threads to professional updates, let's craft content that resonates with your audience.
+                  I&apos;m here to help you create engaging social media posts for X.
+                  From viral threads to professional updates, let&apos;s craft content that resonates with your audience.
                 </p>
               </div>
 

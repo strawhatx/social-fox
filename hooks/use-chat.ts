@@ -16,6 +16,7 @@ export function useChat(conversationId: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(true);
   const hasRun = useRef(false);
+  const [conversationTitle, setConversationTitle] = useState<string>("");
 
   // === UTILITY FUNCTIONS ===
   const mergeMessages = useCallback(
@@ -139,6 +140,7 @@ export function useChat(conversationId: string) {
         if (!resp.ok) return;
         
         const data = await resp.json();
+        if (data?.title) setConversationTitle(data.title);
         const formatted: ChatMessage[] = (data.messages || []).map((m: any) => ({
           id: m.id,
           role: m.role,
@@ -211,6 +213,7 @@ export function useChat(conversationId: string) {
     messages, 
     sendMessage, 
     retryMessage, 
-    connected
+    connected,
+    conversationTitle
   };
 }

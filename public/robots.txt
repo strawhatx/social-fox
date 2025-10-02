@@ -2,27 +2,35 @@ User-agent: *
 Allow: /
 
 # Block private/sensitive areas
-Disallow: /dashboard/
-Disallow: /settings/
-Disallow: /project/
-Disallow: /create-project/
+Disallow: /api/
+Disallow: /editor/
+Disallow: /library/
+Disallow: /scheduler/
+Disallow: /sign-in/
+Disallow: /sign-up/
 Disallow: /auth/
 Disallow: /*/callback/
 
 # Allow social media crawlers for public pages
 User-agent: Twitterbot
 Allow: /
-Disallow: /dashboard/
-Disallow: /settings/
-Disallow: /project/
-Disallow: /create-project/
+Disallow: /api/
+Disallow: /editor/
+Disallow: /library/
+Disallow: /scheduler/
+Disallow: /sign-in/
+Disallow: /sign-up/
+Disallow: /auth/
 
 User-agent: facebookexternalhit
 Allow: /
-Disallow: /dashboard/
-Disallow: /settings/
-Disallow: /project/
-Disallow: /create-project/
+Disallow: /api/
+Disallow: /editor/
+Disallow: /library/
+Disallow: /scheduler/
+Disallow: /sign-in/
+Disallow: /sign-up/
+Disallow: /auth/
 
 # Sitemap
 Sitemap: https://socialfox.dev/sitemap.xml

@@ -109,7 +109,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
                   </CardTitle>
                   <CardDescription>
-                    <span className="text-2xl font-bold text-orange-600">$5</span>
+                    <span className="text-2xl font-bold text-orange-600">$9</span>
                     <span className="text-orange-500">/month</span>
                   </CardDescription>
                 </CardHeader>
@@ -117,7 +117,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      20 Content Copilot drafts
+                      30 Content Copilot drafts
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
@@ -161,11 +161,11 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      150 Content Copilot drafts per month
+                      120 Content Copilot drafts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      100 scheduled posts per month
+                      75 scheduled posts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />

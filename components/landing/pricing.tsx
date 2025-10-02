@@ -21,7 +21,7 @@ const Pricing = () => {
 
     const priceId = getPriceId(action as 'explore' | 'creator');
     if (!priceId) {
-      router.push('/dashboard');
+      router.push('/editor');
       return;
     }
 
@@ -37,7 +37,7 @@ const Pricing = () => {
       })
       .catch(error => {
         console.error('Error creating checkout session:', error);
-        router.push('/dashboard');
+        router.push('/editor');
       });
   };
   return (

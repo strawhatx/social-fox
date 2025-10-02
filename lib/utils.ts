@@ -6,16 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const priceIds: Record<string, string> = {
-  explore: 'prod_T8QWP0nCsr4qME', // Replace with your actual Stripe price ID
-  creator: 'prod_T8RWejfEUXJAlg', // Replace with your actual Stripe price ID
+  explore: 'price_1SC9fNGdcsiay3y1SYYDoU8U', // Replace with your actual Stripe price ID
+  creator: 'price_1SCAdOGdcsiay3y1T80aDVR1', // Replace with your actual Stripe price ID
 };
 
 const planNames: Record<string, string> = {
-  prod_T8QWP0nCsr4qME: 'explore',
-  prod_T8RWejfEUXJAlg: 'creator',
+  price_1SC9fNGdcsiay3y1SYYDoU8U: 'explore',
+  price_1SCAdOGdcsiay3y1T80aDVR1: 'creator',
 };
 
-export function getPlanName(priceId: 'prod_T8QWP0nCsr4qME'|'prod_T8QWP0nCsr4qME') {
+export function getPlanName(priceId: 'price_1SC9fNGdcsiay3y1SYYDoU8U'|'price_1SCAdOGdcsiay3y1T80aDVR1') {
   return priceIds[priceId];
 }
 

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Create billing portal session
     const session = await createBillingPortalSession(
       user.customerId,
-      `${process.env.SITE_URL}/dashboard`
+      `${process.env.SITE_URL}/editor`
     );
 
     return NextResponse.json({ url: session.url });

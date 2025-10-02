@@ -127,10 +127,10 @@ export default function SubscriptionManager() {
             <div className="border rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Explore</h3>
-                <span className="text-lg font-bold">$5/month</span>
+                <span className="text-lg font-bold">$9/month</span>
               </div>
               <ul className="text-sm space-y-1">
-                <li>• 20 Content Copilot drafts</li>
+                <li>• 30 drafts(10 ideas x 3  variations)</li>
                 <li>• 10 scheduled posts per month</li>
                 <li>• Starter Library</li>
                 <li>• Basic support</li>
@@ -151,8 +151,8 @@ export default function SubscriptionManager() {
               </div>
               <ul className="text-sm space-y-1">
                 <li>• Everything in Explore</li>
-                <li>• 150 Content Copilot drafts per month</li>
-                <li>• 100 scheduled posts per month</li>
+                <li>• 120 drafts(40 ideas x 3 variations)</li>
+                <li>• 75 scheduled posts</li>
                 <li>• Custom Library</li>
                 <li>• Priority support</li>
 

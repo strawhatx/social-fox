@@ -13,7 +13,6 @@ export default function Home() {
       <Demo />
       <Features />
       <Pricing />
-
       <Footer />
     </main>
   );

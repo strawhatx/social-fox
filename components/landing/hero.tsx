@@ -58,11 +58,10 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-6">
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">AI copilot</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">AI Copilot for X</span>
             <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Conversation editing</span>
             <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Scheduling</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Templates</span>
-            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Usage analytics</span>
+            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Thread templates</span>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">

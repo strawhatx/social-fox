@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Lock, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { product_url_ids as products } from '@/lib/utils';
-import { useUser } from '@clerk/nextjs';
+import useSubscription from '@/hooks/use-subscription';
 
 interface SubscriptionData {
   plan: string;
@@ -35,100 +34,21 @@ interface SubscriptionGuardProps {
 }
 
 export default function SubscriptionGuard({ children, fallback }: SubscriptionGuardProps) {
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { subscription, loading, upgrade, openBillingPortal } = useSubscription();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const { user } = useUser();
 
   useEffect(() => {
-    checkSubscription();
-  }, []);
-
-  const checkSubscription = async () => {
-    try {
-      const response = await fetch('/api/subscription');
-      if (response.ok) {
-        const data = await response.json();
-        setSubscription(data.data);
-        
-        // Show payment modal if subscription is not active
-        if (data.data.status !== 'active') {
-          setShowPaymentModal(true);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
+    if (subscription && subscription.status !== 'active') {
       setShowPaymentModal(true);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [subscription]);
 
   const handleUpgrade = async (planId: string) => {
-    // Check if user already has an active subscription
-    if (subscription && subscription.status === 'active') {
-      if (planId === subscription.plan) {
-        toast({
-          title: 'Already Subscribed',
-          description: `You already have an active ${subscription.plan} subscription.`,
-          variant: 'destructive'
-        });
-        return;
-      }
-      
-      if (planId === 'explore' && subscription.plan === 'creator') {
-        toast({
-          title: 'Cannot Downgrade',
-          description: 'You cannot purchase explore when you already have a creator subscription.',
-          variant: 'destructive'
-        });
-        return;
-      }
-    }
-    
-    // You'll need to replace these with your actual Lemon Squeezy product IDs
-    const productIds: Record<string, string> = {
-      explore: products.explore,
-      creator: products.creative
-    };
-
-    const productId = productIds[planId];
-    if (!productId) {
-      toast({
-        title: 'Error',
-        description: 'Product not found. Please contact support.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    // Open Lemon Squeezy checkout
-    const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
-
-    window.open(checkoutUrl, '_blank');
+    await upgrade(planId as 'explore' | 'creator');
   };
 
   const handleManageSubscription = async () => {
-    if (!subscription?.subscriptionId) return;
-
-    try {
-      const response = await fetch('/api/subscription/portal', {
-        method: 'POST'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        throw new Error('Failed to create customer portal');
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to open customer portal. Please try again.',
-        variant: 'destructive'
-      });
-    }
+    await openBillingPortal();
   };
 
   if (loading) {
@@ -189,7 +109,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
                   </CardTitle>
                   <CardDescription>
-                    <span className="text-2xl font-bold text-orange-600">$5</span>
+                    <span className="text-2xl font-bold text-orange-600">$9</span>
                     <span className="text-orange-500">/month</span>
                   </CardDescription>
                 </CardHeader>
@@ -197,7 +117,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      20 Content Copilot drafts
+                      30 Content Copilot drafts
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
@@ -241,11 +161,11 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      150 Content Copilot drafts per month
+                      120 Content Copilot drafts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
-                      100 scheduled posts per month
+                      75 scheduled posts per month
                     </li>
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500" />
@@ -257,7 +177,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
                     </li>
                   </ul>
                   <Button 
-                    onClick={() => handleUpgrade('creative')}
+                    onClick={() => handleUpgrade('creator')}
                     className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
                     Choose Creative

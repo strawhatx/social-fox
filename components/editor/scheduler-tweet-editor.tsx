@@ -8,6 +8,7 @@ import HashtagPicker from '@/components/editor/hashtag-picker';
 import EmojiPicker from '@/components/editor/emoji-picker';
 import GiphyPicker from '@/components/editor/giphy-picker';
 import ImageUploader from '@/components/editor/image-uploader';
+import { toast } from '@/hooks/use-toast';
 import SchedulePicker from '@/components/editor/schedule-picker';
 import { Input } from '@/components/ui/input';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
@@ -35,7 +36,7 @@ export default function SchedulerTweetEditor({
     onSave
 }: SchedulerTweetEditorProps) {
     const [editedTweet, setEditedTweet] = useState(initialContent);
-    const [attachments, setAttachments] = useState<Array<{ url: string; file: File | null }>>([]);
+    const [attachments, setAttachments] = useState<Array<{ url: string; type: string }>>([]);
     const [communityUrl, setCommunityUrl] = useState("");
     const [saving, setSaving] = useState(false);
 
@@ -45,8 +46,8 @@ export default function SchedulerTweetEditor({
             setEditedTweet(initialContent);
             
             // Load attachments from metadata
-            const images = initialMetadata?.images || [];
-            const loadedAttachments = images.map((url: string) => ({ url, file: null }));
+            const images = initialMetadata?.attachments || [];
+            const loadedAttachments = images.map((url: string) => ({ url, type: 'gif' }));
             setAttachments(loadedAttachments);
             
             // Load community URL from metadata
@@ -64,7 +65,7 @@ export default function SchedulerTweetEditor({
         try {
             const metadata = {
                 ...initialMetadata,
-                images: attachments.map(att => att.url),
+                attachments: attachments,
                 community_url: communityUrl || null
             };
             await onSave(postId, { 
@@ -84,7 +85,7 @@ export default function SchedulerTweetEditor({
         try {
             const metadata = {
                 ...initialMetadata,
-                images: attachments.map(att => att.url),
+                attachments: attachments,
                 community_url: communityUrl || null
             };
             await onSave(postId, {
@@ -176,14 +177,50 @@ export default function SchedulerTweetEditor({
                                 <div className="flex items-center gap-1">
                                     <ImageUploader
                                         onSelect={(urls, files) => {
-                                            const next = urls.map((u, i) => ({ url: u, file: files[i] })).filter(Boolean);
-                                            setAttachments((prev) => [...prev, ...next]);
+                                            const incoming = urls.map((u, i) => ({ url: u, type: files[i]?.type || 'application/octet-stream' })).filter(Boolean);
+
+                                            const hasGif = attachments.some(a => a.type === 'image/gif');
+                                            const hasVideo = attachments.some(a => (a.type || '').startsWith('video/'));
+                                            const imageCount = attachments.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif').length;
+
+                                            if (hasGif) {
+                                                toast({ title: 'Limit reached', description: 'Cannot add images or videos when a GIF is attached.' });
+                                                return;
+                                            }
+                                            if (hasVideo) {
+                                                toast({ title: 'Limit reached', description: 'Cannot add images or GIFs when a video is attached.' });
+                                                return;
+                                            }
+
+                                            const incomingVideo = incoming.find(a => (a.type || '').startsWith('video/'));
+                                            if (incomingVideo) {
+                                                if (attachments.length > 0) {
+                                                    toast({ title: 'Only one video allowed', description: 'Remove other attachments before adding a video.' });
+                                                    return;
+                                                }
+                                                setAttachments((prev) => [...prev, incomingVideo]);
+                                                return;
+                                            }
+
+                                            const incomingImages = incoming.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif');
+                                            const remaining = Math.max(0, 4 - imageCount);
+                                            const allowed = incomingImages.slice(0, remaining);
+                                            if (allowed.length < incomingImages.length) {
+                                                toast({ title: 'Image limit', description: 'You can attach up to 4 images.' });
+                                            }
+                                            if (!allowed.length) return;
+                                            setAttachments((prev) => [...prev, ...allowed]);
                                         }}
                                         multiple
                                     />
 
                                     <GiphyPicker onSelect={(gifUrl) => {
-                                        const gifAttachment = { url: gifUrl, file: null };
+                                        const hasAny = attachments.length > 0;
+                                        if (hasAny) {
+                                            toast({ title: 'Only one GIF allowed', description: 'Remove other attachments before adding a GIF.' });
+                                            return;
+                                        }
+                                        const gifAttachment = { url: gifUrl, type: 'image/gif' };
                                         setAttachments((prev) => [...prev, gifAttachment]);
                                     }} />
 
@@ -213,10 +250,10 @@ export default function SchedulerTweetEditor({
                                 <div className="grid grid-cols-2 gap-2">
                                     {attachments.map((att, idx) => (
                                         <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
-                                            {att.file && att.file.type.startsWith('image/') ? (
+                                            {att.type && att.type.startsWith('image/') ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img src={att.url} alt="attachment" className="w-full h-20 object-cover" />
-                                            ) : att.file && att.file.type.startsWith('video/') ? (
+                                            ) : att.type && att.type.startsWith('video/') ? (
                                                 <video src={att.url} className="w-full h-20 object-cover" muted />
                                             ) : (
                                                 // GIF from Giphy (no file object)

@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
+interface AttachmentItem {
+  url: string;
+  type: string | null;
+  file?: File | null;
+  key?: string;
+}
+
 interface TweetEditorState {
   activeComposerTab: 'compose' | 'drafts' | 'scheduled' | 'sent';
   editedTweet: string;
   isScheduled: boolean;
-  attachments: { url: string; file: File | null }[];
+  attachments: AttachmentItem[] ;
   communityUrl: string;
   editingPostId: string | null;
   currentPostStatus: string | null;
@@ -18,7 +25,7 @@ interface TweetEditorState {
 interface TweetEditorActions {
   setActiveComposerTab: (tab: 'compose' | 'drafts' | 'scheduled' | 'sent') => void;
   setEditedTweet: (tweet: string) => void;
-  setAttachments: React.Dispatch<React.SetStateAction<{ url: string; file: File | null }[]>>;
+  setAttachments: React.Dispatch<React.SetStateAction<AttachmentItem[]>>;
   setCommunityUrl: (url: string) => void;
   handleScheduleConfirm: (date: Date) => Promise<void>;
   handleSaveDraft: () => Promise<void>;
@@ -35,7 +42,7 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
   const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
   const [editedTweet, setEditedTweet] = useState('');
   const [isScheduled, setIsScheduled] = useState(false);
-  const [attachments, setAttachments] = useState<{ url: string; file: File | null }[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [communityUrl, setCommunityUrl] = useState('');
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [currentPostStatus, setCurrentPostStatus] = useState<string | null>(null);
@@ -149,7 +156,7 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
             content: editedTweet.trim(),
             platform: 'twitter',
             status: 'draft',
-            images: attachments.map(att => att.url),
+            attachments: attachments,
             communityUrl: communityUrl || null
           }),
         });
@@ -175,50 +182,28 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
       }
     }
 
-    const url = isUpdate 
-      ? `/api/content-posts/${encodeURIComponent(editingPostId!)}`
-      : '/api/content-posts';
-    
+    const url = isUpdate ? `/api/content-posts/${encodeURIComponent(editingPostId!)}` : '/api/content-posts';
     const method = isUpdate ? 'PATCH' : 'POST';
-    
-    // Build payload with special logic for scheduled to draft conversion
-    const payload: any = {
-      content: editedTweet.trim(),
-      status,
-    };
+    const form = new FormData();
+    form.append('content', editedTweet.trim());
+    form.append('status', status);
+    form.append('platform', 'x');
+    if (scheduledAt) form.append('scheduled_at', scheduledAt.toISOString());
+    if (communityUrl) form.append('communityUrl', communityUrl);
 
-    // Handle metadata structure differently for POST vs PATCH
-    if (isUpdate) {
-      // PATCH expects metadata object
-      payload.metadata = {
-        images: attachments.map(att => att.url),
-        community_url: communityUrl || null,
-      };
-    } else {
-      // POST expects flat fields
-      payload.images = attachments.map(att => att.url);
-      payload.communityUrl = communityUrl || null;
+    // Desired attachments list (kept by the user): non-blob items with url/type/key
+    const desired = attachments
+      .filter(a => !a.url.startsWith('blob:'))
+      .map(a => ({ url: a.url, type: a.type || '', key: a.key }));
+    form.append('attachments', JSON.stringify(desired));
+
+    // New files to upload: blob attachments with File present
+    const newFiles = attachments.filter(a => a.url.startsWith('blob:') && a.file);
+    for (const a of newFiles) {
+      form.append('files', a.file as File, (a.file as File).name);
     }
 
-    // Handle scheduled to draft conversion - clear scheduled date
-    if (isUpdate && currentPostStatus === 'scheduled' && status === 'draft') {
-      payload.scheduledAt = null; // Clear the scheduled date
-    } else if (!isUpdate) {
-      // New posts
-      payload.platform = status === 'draft' ? 'twitter' : 'x';
-      if (scheduledAt) {
-        payload.scheduled_at = scheduledAt.toISOString();
-      }
-    } else if (isUpdate && scheduledAt) {
-      // Updating with new scheduled time
-      payload.scheduled_at = scheduledAt.toISOString();
-    }
-
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(url, { method, body: form });
 
     if (!response.ok) {
       throw new Error(`Failed to ${isUpdate ? 'update' : 'save'} ${status === 'draft' ? 'draft' : 'tweet'}`);
@@ -308,12 +293,11 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
     
     // Load attachments and community URL from draft metadata
     const metadata = draft.metadata || {};
-    const images = metadata.images || [];
+    const att = (metadata.attachments || []).map((a: any) => ({ url: a.url, type: a.type || null, key: a.key }));
     const communityUrl = metadata.community_url;
-    
+  
     // Convert image URLs back to attachment format
-    const attachments = images.map((url: string) => ({ url, file: null }));
-    setAttachments(attachments);
+    setAttachments(att);
     setCommunityUrl(communityUrl || '');
   };
 
@@ -325,12 +309,12 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
     
     // Load attachments and community URL from scheduled metadata
     const metadata = scheduled.metadata || {};
-    const images = metadata.images || [];
+    const att = (metadata.attachments || metadata.images || []).map((a: any) => {
+      if (typeof a === 'string') return { url: a, type: null } as AttachmentItem;
+      return { url: a.url, type: a.type || null, key: a.key } as AttachmentItem;
+    });
     const communityUrl = metadata.community_url;
-    
-    // Convert image URLs back to attachment format
-    const attachments = images.map((url: string) => ({ url, file: null }));
-    setAttachments(attachments);
+    setAttachments(att);
     setCommunityUrl(communityUrl || '');
   };
 

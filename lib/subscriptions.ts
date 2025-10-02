@@ -1,58 +1,9 @@
-import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { resolveUserUuid } from '@/lib/db';
-import { QUOTA_FEATURES, BINARY_FEATURES, PLANS } from '@/lib/features';
+import { QUOTA_FEATURES } from '@/lib/features';
+import { SUBSCRIPTION_PLANS, SubscriptionPlan } from '@/lib/subscription-plans';
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  interval: 'month' | 'year';
-  features: string[];
-  limits: Record<string, number | boolean>;
-}
-
-export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
-  explore: {
-    id: 'explore',
-    name: 'Explore',
-    price: 5,
-    interval: 'month',
-    features: [
-      'AI-powered social media posts',
-      'Basic scheduling',
-      'Template library access',
-      'One-time 30 AI drafts',
-      '10 scheduled posts per month'
-    ],
-    limits: {
-      copilotDrafts: 30,
-      scheduledPosts: 10,
-      starterTemplates: true,
-      customTemplates: false
-    }
-  },
-  creator: {
-    id: 'creator',
-    name: 'Creator',
-    price: 15,
-    interval: 'month',
-    features: [
-      'Everything in Explore',
-      'Advanced AI features',
-      'Custom template creation',
-      '150 AI drafts per month',
-      '100 scheduled posts per month',
-      'Priority support'
-    ],
-    limits: {
-      copilotDrafts: 150,
-      scheduledPosts: 100,
-      starterTemplates: true,
-      customTemplates: true
-    }
-  }
-};
+export { SUBSCRIPTION_PLANS };
 
 export async function getUserSubscription(userId: string) {
   try {
@@ -330,38 +281,3 @@ export async function getFeatureQuotaStatus(userId: string, feature: string): Pr
   }
 }
 
-export function getCheckoutUrl(productId: string, customerId?: string): string {
-  const baseUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}`;
-  
-  if (customerId) {
-    return `${baseUrl}?checkout[custom][customer_id]=${customerId}`;
-  }
-  
-  return baseUrl;
-}
-
-export async function getCustomerPortalUrl(customerId: string): Promise<string | null> {
-  try {
-    const response = await fetch('https://api.lemonsqueezy.com/v1/customers/portal', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.LEMON_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        customer_id: customerId,
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create customer portal');
-    }
-
-    const data = await response.json();
-    return data.data.attributes.url;
-  } catch (error) {
-    console.error('Error creating customer portal:', error);
-    return null;
-  }
-}

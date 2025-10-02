@@ -1,129 +1,20 @@
 "use client";
 
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Zap } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { product_url_ids as products } from '@/lib/utils';
-import { useUser } from '@clerk/nextjs';
-
-interface SubscriptionData {
-  plan: string;
-  status: string;
-  subscriptionId?: string;
-  expiry?: string;
-  planDetails: {
-    id: string;
-    name: string;
-    price: number;
-    interval: string;
-    features: string[];
-    limits: {
-      monthlyPosts: number;
-      aiRewrites: number;
-      scheduledPosts: number;
-    };
-  };
-}
+import useSubscription from '@/hooks/use-subscription';
 
 export default function SubscriptionManager() {
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { user } = useUser();
+  const { subscription, loading, upgrade, openBillingPortal } = useSubscription();
 
-  useEffect(() => {
-    fetchSubscription();
-  }, []);
-
-  const fetchSubscription = async () => {
-    try {
-      const response = await fetch('/api/subscription');
-      if (response.ok) {
-        const data = await response.json();
-        setSubscription(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching subscription:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpgrade = async (planId: string) => {
-    try {
-      // Check if user already has an active subscription
-      if (subscription && subscription.status === 'active') {
-        if (planId === subscription.plan) {
-          toast({
-            title: 'Already Subscribed',
-            description: `You already have an active ${subscription.plan} subscription.`,
-            variant: 'destructive'
-          });
-          return;
-        }
-        
-        if (planId === 'explore' && subscription.plan === 'creator') {
-          toast({
-            title: 'Cannot Downgrade',
-            description: 'You cannot purchase explore when you already have a creator subscription.',
-            variant: 'destructive'
-          });
-          return;
-        }
-      }
-
-      // You'll need to replace these with your actual Lemon Squeezy product IDs
-      const productIds: Record<string, string> = {
-        explore: products.explore,
-        creator: products.creative
-      };
-
-      const productId = productIds[planId];
-      if (!productId) {
-        toast({
-          title: 'Error',
-          description: 'Product not found. Please contact support.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      const checkoutUrl = `https://socialfox.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][clerk_user_id]=${user?.id}`;
-
-      window.open(checkoutUrl, '_blank');
-    } 
-    
-    catch (error) {
-      console.error('Error creating checkout:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create checkout. Please try again.',
-        variant: 'destructive'
-      });
-    }
+  const handleUpgrade = async (action: string) => {
+    await upgrade(action as 'explore' | 'creator');
   }
 
   const handleManageSubscription = async () => {
-    try {
-      const response = await fetch('/api/subscription/portal', {
-        method: 'POST'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        throw new Error('Failed to create customer portal');
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to open customer portal. Please try again.',
-        variant: 'destructive'
-      });
-    }
+    await openBillingPortal();
   };
 
   if (loading) {
@@ -137,7 +28,9 @@ export default function SubscriptionManager() {
         </CardHeader>
         <CardContent>
           <div className="text-center py-4">
-            <p className="text-sm text-muted-foreground">Loading subscription details...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading subscription details...
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -234,10 +127,10 @@ export default function SubscriptionManager() {
             <div className="border rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Explore</h3>
-                <span className="text-lg font-bold">$5/month</span>
+                <span className="text-lg font-bold">$9/month</span>
               </div>
               <ul className="text-sm space-y-1">
-                <li>• 20 Content Copilot drafts</li>
+                <li>• 30 drafts(10 ideas x 3  variations)</li>
                 <li>• 10 scheduled posts per month</li>
                 <li>• Starter Library</li>
                 <li>• Basic support</li>
@@ -258,8 +151,8 @@ export default function SubscriptionManager() {
               </div>
               <ul className="text-sm space-y-1">
                 <li>• Everything in Explore</li>
-                <li>• 150 Content Copilot drafts per month</li>
-                <li>• 100 scheduled posts per month</li>
+                <li>• 120 drafts(40 ideas x 3 variations)</li>
+                <li>• 75 scheduled posts</li>
                 <li>• Custom Library</li>
                 <li>• Priority support</li>
 

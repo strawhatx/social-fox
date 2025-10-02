@@ -1,9 +1,9 @@
 "use client";
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 
-export default function AuthCompletePage() {
+function AuthCompleteInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoaded } = useUser();
@@ -36,6 +36,14 @@ export default function AuthCompletePage() {
     <div className="min-h-screen flex items-center justify-center p-6">
       <p className="text-muted-foreground">Finalizing authentication…</p>
     </div>
+  );
+}
+
+export default function AuthCompletePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center p-6"><p className="text-muted-foreground">Loading…</p></div>}>
+      <AuthCompleteInner />
+    </Suspense>
   );
 }
 

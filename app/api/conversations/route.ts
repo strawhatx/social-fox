@@ -40,11 +40,20 @@ export async function GET() {
 
 export const POST = withQuotaCheck('copilotDrafts', async (request, context, user, usage) => {
   try {
-    // Create new empty conversation
+    const body = await request.json().catch(() => ({}));
+    const initialMessage: string | undefined = typeof body?.initialMessage === 'string' ? body.initialMessage : undefined;
+
+    const titleFromMessage = (text: string) => {
+      const words = text.trim().split(/\s+/).slice(0, 10);
+      const title = words.join(' ');
+      return title.length > 0 ? `${title}...` : 'New Conversation';
+    };
+
+    // Create new conversation with derived title when provided
     const conversation = await prisma.conversation.create({
       data: {
         userId: user.id,
-        title: 'New Conversation', // Default title, can be updated later
+        title: initialMessage ? titleFromMessage(initialMessage) : 'New Conversation',
         status: 'draft'
       }
     });

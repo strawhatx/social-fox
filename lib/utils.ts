@@ -5,12 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const product_url_ids = {
-  explore: '572df4b0-4138-4139-87bc-e040a8016baf',
-  creative: 'bd038d2c-e971-42c7-bb26-e567b3f86c62'
+const priceIds: Record<string, string> = {
+  explore: 'price_1SC9fNGdcsiay3y1SYYDoU8U', // Replace with your actual Stripe price ID
+  creator: 'price_1SCAdOGdcsiay3y1T80aDVR1', // Replace with your actual Stripe price ID
+};
+
+const planNames: Record<string, string> = {
+  price_1SC9fNGdcsiay3y1SYYDoU8U: 'explore',
+  price_1SCAdOGdcsiay3y1T80aDVR1: 'creator',
+};
+
+export function getPlanName(priceId: 'price_1SC9fNGdcsiay3y1SYYDoU8U'|'price_1SCAdOGdcsiay3y1T80aDVR1') {
+  return priceIds[priceId];
 }
 
-export const product_ids = {
-  explore: '631823',
-  creative: '631761'
+export function getPriceId(plan: 'explore' | 'creator') {
+  return priceIds[plan];
 }

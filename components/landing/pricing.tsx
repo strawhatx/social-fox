@@ -50,6 +50,11 @@ const Pricing = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             One account per user - help us polish this for founders who 🚢
           </p>
+          <div className="mt-4 text-sm">
+            <a href="/ai-copilot-for-tweets" className="text-orange-600 hover:text-orange-700 font-medium mr-4">AI copilot for tweets</a>
+            <a href="/ai-thread-writer" className="text-orange-600 hover:text-orange-700 font-medium mr-4">AI thread writer</a>
+            <a href="/chatgpt-for-twitter" className="text-orange-600 hover:text-orange-700 font-medium">ChatGPT for Twitter</a>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">

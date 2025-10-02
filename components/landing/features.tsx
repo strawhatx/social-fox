@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Bot, Settings, Clock, CheckCircle, Linkedin } from 'lucide-react';
 
 const Features = () => {
@@ -54,13 +55,27 @@ const Features = () => {
               <p className="text-gray-600 leading-relaxed">
                 {feature.description}
               </p>
+              {index === 0 && (
+                <div className="mt-4">
+                  <Link href="/ai-copilot-for-tweets" className="text-orange-600 hover:text-orange-700 font-medium">
+                    Learn about our AI copilot for tweets →
+                  </Link>
+                </div>
+              )}
+              {index === 2 && (
+                <div className="mt-4">
+                  <Link href="/ai-thread-writer" className="text-orange-600 hover:text-orange-700 font-medium">
+                    See how the AI thread writer works →
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <div className="bg-gradient-to-r from-orange-500 to red-500 rounded-3xl p-8 md:p-12 text-center text-white">
-          <a href="/sign-up" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-white bg-white/10 hover:bg-white/20 font-semibold hover:shadow-lg transform hover:scale-105 transition-all">
-            Explore Templates Now
+          <a href="/chatgpt-for-twitter" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-white bg-white/10 hover:bg-white/20 font-semibold hover:shadow-lg transform hover:scale-105 transition-all">
+            ChatGPT for Twitter: Learn more
           </a>
         </div>
       </div>

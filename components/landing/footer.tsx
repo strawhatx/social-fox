@@ -1,6 +1,7 @@
 'use client';
 
 
+import Link from 'next/link';
 import { Twitter, Mail, Linkedin } from 'lucide-react';
 
 const Footer = () => {
@@ -45,6 +46,11 @@ const Footer = () => {
 
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 text-sm text-gray-600">
             <p>&copy; 2025 Social Fox. All rights reserved.</p>
+            <div className="flex items-center space-x-4">
+              <Link href="/chatgpt-for-twitter" className="hover:text-orange-600">ChatGPT for Twitter</Link>
+              <Link href="/ai-copilot-for-tweets" className="hover:text-orange-600">AI Copilot for Tweets</Link>
+              <Link href="/ai-thread-writer" className="hover:text-orange-600">AI Thread Writer</Link>
+            </div>
           </div>
         </div>
       </div>

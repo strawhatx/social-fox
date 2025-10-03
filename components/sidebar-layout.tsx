@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
         `}
       >
         <Link href="/" className="w-11 h-11 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-8 cursor-pointer">
-          <img src="/fox-logo.png" alt="Fox Logo" className="w-4 h-4" />
+          <Image src="/fox-logo.png" alt="Fox Logo" width={16} height={16} />
         </Link>
 
         <nav className="flex flex-col gap-4 flex-1 w-full px-2">

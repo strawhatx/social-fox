@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Crown } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
+import { getPriceId } from '@/lib/utils';
 
 interface UpgradeModalContextValue {
   showUpgrade: (reason?: string) => void;
@@ -78,12 +79,9 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
   }, [showUpgrade]);
 
   const handleUpgrade = useCallback((planId: 'explore' | 'creator') => {
-    const priceIds: Record<string, string> = {
-      explore: 'price_explore_monthly', // Replace with your actual Stripe price ID
-      creator: 'price_creator_monthly', // Replace with your actual Stripe price ID
-    };
 
-    const priceId = priceIds[planId];
+
+    const priceId = getPriceId(planId);
     if (!priceId) return;
 
     // Create Stripe checkout session
@@ -99,7 +97,7 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
     .catch(error => {
       console.error('Error creating checkout session:', error);
     });
-  }, [user?.id]);
+  }, []);
 
   const value = useMemo(() => ({ showUpgrade, hideUpgrade }), [showUpgrade, hideUpgrade]);
 

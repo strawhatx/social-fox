@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Github, Linkedin, Zap, User, Twitter, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ const Hero = () => {
           <div className="flex justify-center items-center mb-8">
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-3">
-                <img src="/fox-logo.png" alt="Fox Logo" className="w-10 h-10" />
+                <Image src="/fox-logo.png" alt="Fox Logo" width={40} height={40} />
               </div>
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
@@ -79,12 +80,11 @@ const Hero = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img
+                <Image
                   src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009418&theme=light&t=1756165331728"
                   alt="Socialfox — Build in public effortlessly - Turn your GitHub commits into content for X and LinkedIn. | Product Hunt"
-                  className="w-[200px] h-[40px]"
-                  width="200"
-                  height="30"
+                  width={200}
+                  height={40}
                 />
               </a>
             </div>

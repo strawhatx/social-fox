@@ -1,22 +1,25 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+const explorePriceId = process.env.STRIPE_PRICE_ID_EXPLORE || '';
+const creatorPriceId = process.env.STRIPE_PRICE_ID_CREATOR || '';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 const priceIds: Record<string, string> = {
-  explore: 'price_1SC9fNGdcsiay3y1SYYDoU8U', // Replace with your actual Stripe price ID
-  creator: 'price_1SCAdOGdcsiay3y1T80aDVR1', // Replace with your actual Stripe price ID
+  explore: explorePriceId, // Replace with your actual Stripe price ID
+  creator: creatorPriceId, // Replace with your actual Stripe price ID
 };
 
-const planNames: Record<string, string> = {
-  price_1SC9fNGdcsiay3y1SYYDoU8U: 'explore',
-  price_1SCAdOGdcsiay3y1T80aDVR1: 'creator',
+const priceNames: Record<string, string> = {
+  [explorePriceId]: 'explore',
+  [creatorPriceId]: 'creator',
 };
 
-export function getPlanName(priceId: 'price_1SC9fNGdcsiay3y1SYYDoU8U'|'price_1SCAdOGdcsiay3y1T80aDVR1') {
-  return priceIds[priceId];
+export function getPlanName(priceId: string) {
+  return priceNames[priceId];
 }
 
 export function getPriceId(plan: 'explore' | 'creator') {

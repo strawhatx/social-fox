@@ -45,7 +45,7 @@ export default function EditorPage() {
         : window.location.pathname;
       router.replace(newUrl);
     }
-  }, [initialMessage, connected, router]);
+  }, [initialMessage, connected, router, sendMessage, searchParams]);
 
   // Auto-scroll when new messages arrive
   useEffect(() => {

@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { Twitter, Mail, Linkedin } from 'lucide-react';
+import Image from 'next/image';
 
 const Footer = () => {
   return (
@@ -11,7 +12,7 @@ const Footer = () => {
         <div className="flex flex-col items-center">
           <div className="flex items-center mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-md transform -rotate-3 mr-3">
-            <img src="/fox-logo.png" alt="Fox Logo" className="w-4 h-4" />
+              <Image src="/fox-logo.png" alt="Fox Logo" width={16} height={16} />
             </div>
             <h3 className="text-2xl font-bold text-gray-900">Social Fox</h3>
           </div>

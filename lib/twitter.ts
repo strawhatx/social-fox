@@ -53,10 +53,6 @@ export async function getUserTwitterBearerToken(userId: string): Promise<string 
   }
 }
 
-export function getAppTwitterBearerToken(): string | null {
-  return process.env.TWITTER_APP_ACCESS_TOKEN || null;
-}
-
 export async function fetchTwitterUserByUsername(username: string, bearer: string | null): Promise<any | null> {
   if (!bearer) return null;
   try {

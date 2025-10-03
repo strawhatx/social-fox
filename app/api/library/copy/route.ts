@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, resolveUserUuid } from '@/lib/db';
+import { resolveUserUuid } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 
 export async function POST(request: NextRequest) {
@@ -22,36 +23,53 @@ export async function POST(request: NextRequest) {
     }
 
     // First, get the starter template
-    const templateResult = await sql`
-      SELECT text, category, hashtags, is_viral_ready
-      FROM public.library 
-      WHERE id = ${templateId} AND is_starter = true
-    `;
+    const template = await prisma.library.findFirst({
+      where: { id: templateId, isStarter: true },
+      select: {
+        text: true,
+        category: true,
+        hashtags: true,
+        isViralReady: true,
+      },
+    });
 
-    if ((templateResult as any[]).length === 0) {
+    if (!template) {
       return NextResponse.json({ error: 'Starter template not found' }, { status: 404 });
     }
 
-    const template = (templateResult as any[])[0];
-
     // Check if user already has this template
-    const existingResult = await sql`
-      SELECT id FROM public.library 
-      WHERE user_id = ${appUserId} AND text = ${template.text} AND is_starter = false
-    `;
+    const existing = await prisma.library.findFirst({
+      where: { userId: appUserId, text: template.text, isStarter: false },
+      select: { id: true },
+    });
 
-    if ((existingResult as any[]).length > 0) {
+    if (existing) {
       return NextResponse.json({ error: 'Template already exists in your library' }, { status: 409 });
     }
 
     // Copy the template to user's library
-    const result = await sql`
-      INSERT INTO public.library (user_id, text, category, hashtags, is_viral_ready, is_starter)
-      VALUES (${appUserId}, ${template.text}, ${template.category}, ${template.hashtags}, ${template.is_viral_ready}, false)
-      RETURNING id, text, category, hashtags, is_viral_ready, is_starter, created_at, updated_at
-    `;
+    const created = await prisma.library.create({
+      data: {
+        userId: appUserId,
+        text: template.text,
+        category: template.category,
+        hashtags: template.hashtags,
+        isViralReady: template.isViralReady,
+        isStarter: false,
+      },
+      select: {
+        id: true,
+        text: true,
+        category: true,
+        hashtags: true,
+        isViralReady: true,
+        isStarter: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-    return NextResponse.json({ template: (result as any[])[0] }, { status: 201 });
+    return NextResponse.json({ template: created }, { status: 201 });
   } catch (error) {
     console.error('Error copying template to library:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

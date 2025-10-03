@@ -36,6 +36,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           NEXT_PUBLIC_GIPHY_API_KEY: ${{ secrets.NEXT_PUBLIC_GIPHY_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

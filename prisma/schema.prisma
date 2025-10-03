@@ -17,12 +17,10 @@ model User {
   subscriptionId     String?          @map("subscription_id")
   subscriptionExpiry DateTime?        @map("subscription_expiry") @db.Timestamptz(6)
   customerId         String?          @unique @map("customer_id")
-  aiTemplates        AiTemplate[]
   contentPosts       ContentPost[]
   conversations      Conversation[]
   library            Library[]
   twitterAccounts    TwitterAccount[]
-  userQuota          UserQuota?
   userUsage          UserUsage[]
 
   @@map("users")
@@ -66,22 +64,6 @@ model ContentPost {
   @@map("content_posts")
 }
 
-model UserQuota {
-  id              Int      @id @default(autoincrement())
-  userId          String   @unique @map("user_id") @db.Uuid
-  postsUsed       Int      @default(0) @map("posts_used")
-  postsLimit      Int      @default(0) @map("posts_limit")
-  aiPostsUsed     Int      @default(0) @map("ai_posts_used")
-  aiPostsLimit    Int      @default(0) @map("ai_posts_limit")
-  aiRewritesUsed  Int      @default(0) @map("ai_rewrites_used")
-  aiRewritesLimit Int      @default(0) @map("ai_rewrites_limit")
-  resetDate       DateTime @map("reset_date") @db.Timestamptz(6)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_quotas")
-}
 
 model Library {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -97,28 +79,6 @@ model Library {
   user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("library")
-}
-
-model AiTemplate {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  text       String
-  createdAt  DateTime @map("created_at") @db.Timestamptz(6)
-  insertedAt DateTime @default(now()) @map("inserted_at") @db.Timestamptz(6)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("ai_templates")
-}
-
-model AiTrainingTweet {
-  id           Int       @id @default(autoincrement())
-  authorName   String?   @map("author_name")
-  authorHandle String?   @map("author_handle")
-  tweetText    String?   @map("tweet_text")
-  datePosted   DateTime? @map("date_posted")
-  type         String?
-
-  @@map("ai_training_tweets")
 }
 
 model Conversation {
@@ -161,3 +121,4 @@ model UserUsage {
   @@unique([userId, feature, periodStart, periodEnd])
   @@map("user_usage")
 }
+

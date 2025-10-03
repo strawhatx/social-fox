@@ -12,8 +12,8 @@ AI-powered social media content creation platform with intelligent conversation-
 - **Usage Analytics**: Track engagement and performance metrics
 
 ### Subscription Plans
-- **Explore Plan** ($5/month): 20 AI drafts, 10 scheduled posts, template access
-- **Creator Plan** ($15/month): 150 AI drafts, 100 scheduled posts, custom templates
+- **Explore Plan** ($9/month): 30 drafts (10 ideas × 3 variations), 10 scheduled posts, template access
+- **Creator Plan** ($29/month): 120 drafts (40 ideas × 3 variations), 75 scheduled posts, template access, priority support
 
 ## 🏗️ Architecture
 
@@ -22,15 +22,17 @@ AI-powered social media content creation platform with intelligent conversation-
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL with Neon
 - **Authentication**: Clerk
-- **Payments**: Lemon Squeezy
+- **Payments**: Stripe
 - **AI**: OpenAI GPT models
-- **Deployment**: Vercel
+- **Deployment**: Netlify
+ - **Infrastructure**: AWS Lambda (webhooks & scheduler), Amazon S3 (media uploads)
 
 ### Key Systems
 - **Feature-Based Quota System**: Centralized usage tracking and limits
-- **Subscription Management**: Lemon Squeezy integration with webhooks
+- **Subscription Management**: Stripe integration with webhooks (AWS Lambda)
 - **Conversation Persistence**: Real-time chat with message history
 - **Usage Tracking**: Monthly billing period usage monitoring
+ - **Background Scheduler**: AWS EventBridge + Lambda for publishing
 
 ## 📁 Project Structure
 
@@ -38,7 +40,7 @@ AI-powered social media content creation platform with intelligent conversation-
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
 │   │   ├── conversations/ # Chat/conversation endpoints
-│   │   ├── lemonsqueezy/  # Payment webhooks
+│   │   ├── stripe/         # Stripe checkout and billing routes
 │   │   └── usage/         # Usage tracking
 │   ├── editor/            # Main chat interface
 │   └── scheduler/         # Content scheduling
@@ -58,7 +60,8 @@ AI-powered social media content creation platform with intelligent conversation-
 - Node.js 18+
 - PostgreSQL database
 - Clerk account for authentication
-- Lemon Squeezy account for payments
+- Stripe account for payments
+ - AWS account for webhooks/scheduler
 
 ### Installation
 
@@ -84,12 +87,11 @@ AI-powered social media content creation platform with intelligent conversation-
    DATABASE_URL="postgresql://..."
    
    # Authentication
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_..."
    CLERK_SECRET_KEY="sk_..."
    
    # Payments
-   LEMON_API_KEY="sk_..."
-   LEMONSQUEEZY_WEBHOOK_SECRET="..."
+   STRIPE_SECRET_KEY="sk_..."
+   SITE_URL="https://yourdomain.com"
    
    # AI
    OPENAI_API_KEY="sk-..."
@@ -112,40 +114,49 @@ AI-powered social media content creation platform with intelligent conversation-
 
 ```typescript
 // Current subscription plans
-export const SUBSCRIPTION_PLANS = {
+SUBSCRIPTION_PLANS: = {
   explore: {
     id: 'explore',
     name: 'Explore',
-    price: 5,
+    price: 9,
+    popular: false,
+    interval: 'month',
+    period: 'month',
+    action: 'explore',
+    buttonText: 'Upgrade to Explore',
     features: [
-      'AI-powered social media posts',
-      'Basic scheduling',
+      '30 drafts(10 ideas x 3  variations)',
+      '10 scheduled posts',
       'Template library access',
-      '20 AI drafts per month',
-      '10 scheduled posts per month'
+      '1 X account',
+      'Basic support'
     ],
     limits: {
-      copilotDrafts: 20,
+      copilotDrafts: 10,
       scheduledPosts: 10,
       starterTemplates: true,
-      customTemplates: false
+      customTemplates: true
     }
   },
   creator: {
     id: 'creator',
     name: 'Creator',
-    price: 15,
+    price: 29,
+    popular: true,
+    interval: 'month',
+    period: 'month',
+    action: 'creator',
+    buttonText: 'Upgrade to Creator',
     features: [
-      'Everything in Explore',
-      'Advanced AI features',
-      'Custom template creation',
-      '150 AI drafts per month',
-      '100 scheduled posts per month',
-      'Priority support'
+        '120 drafts(40 ideas x 3 variations)',
+        '75 scheduled posts',
+        'Template library access',
+        '1 X account',
+        'Priority support'
     ],
     limits: {
-      copilotDrafts: 150,
-      scheduledPosts: 100,
+      copilotDrafts: 40,
+      scheduledPosts: 75,
       starterTemplates: true,
       customTemplates: true
     }
@@ -155,27 +166,24 @@ export const SUBSCRIPTION_PLANS = {
 
 ### Lemon Squeezy Integration
 
-#### Product Setup
-1. **Create products** in Lemon Squeezy dashboard:
-   - **Explore Plan**: $5/month (Product ID: 631823)
-   - **Creator Plan**: $15/month (Product ID: 631761)
+#### Pricing Setup
+1. Create recurring Prices in the Stripe Dashboard for each plan.
+2. Use the generated Price IDs with checkout.
 
-2. **Configure webhooks**:
-   ```
-   Webhook URL: https://yourdomain.com/api/lemonsqueezy/webhook
-   Events: order_created, subscription_created, subscription_payment_success, etc.
-   ```
+#### Checkout
+- Endpoint: `POST /api/stripe/checkout`
+- Body: `{ "priceId": "price_XXX" }`
+- Returns: `{ url }` to redirect to Checkout
+- Requires env: `STRIPE_SECRET_KEY`, `SITE_URL`
 
-#### User Binding Strategy
-The webhook handler uses a robust multi-step user lookup:
+#### Billing Portal
+- Endpoint: `POST /api/stripe/billing-portal`
+- Returns: `{ url }` to redirect to Billing Portal
 
-1. **Clerk User ID** from custom data (most reliable)
-2. **Twitter username** from custom data
-3. **Email address** from webhook payload
-4. **Existing subscription ID** lookup
-
-#### Subscription Expiry
-Subscriptions are set to expire 30 days from activation for testing purposes.
+#### Webhooks on AWS
+- Stripe webhooks are handled by an AWS Lambda behind API Gateway (not Next.js).
+- Configure events like `checkout.session.completed`, `customer.subscription.updated`, `invoice.paid`, `customer.subscription.deleted`.
+- Lambda verifies signatures with `STRIPE_WEBHOOK_SECRET` and updates your database.
 
 ## 📊 Usage Tracking System
 
@@ -377,41 +385,53 @@ try {
 # Start development server
 npm run dev
 
-# Start tunnel for webhook testing
-npm run tunnel
-
-# Test webhook
-curl -X POST https://your-tunnel-url/api/lemonsqueezy/webhook \
-  -H "Content-Type: application/json" \
-  -d '{"test": "webhook"}'
+# (If testing AWS webhooks locally, use a tool like AWS SAM or expose your API Gateway test stage.)
 ```
 
-### Testing Subscriptions
-1. Create test user in your app
-2. Purchase subscription through Lemon Squeezy
-3. Verify webhook is received and processed
-4. Check database for subscription updates
-5. Test feature access with new subscription
+### Testing Subscriptions (Stripe)
+1. Create a test user in your app (Clerk test environment).
+2. Call `POST /api/stripe/checkout` with a Stripe test Price ID.
+3. Complete checkout with a Stripe test card (e.g., 4242 4242 4242 4242).
+4. Confirm the AWS webhook Lambda processes events and updates the user's subscription.
+5. Verify database updates and test feature access in the app.
 
 ## 🚀 Deployment
+
+### Netlify (GitHub Actions)
+
+- Uses workflow at `./.github/workflows/deploy-netlify.yml`.
+- Builds and deploys with Netlify CLI: `netlify deploy --build --prod`, honoring `netlify.toml`.
+- `netlify.toml` sets `publish = ".next"` and enables the Next.js plugin.
+- Required repository secrets:
+  - `NETLIFY_AUTH_TOKEN`
+  - `NETLIFY_SITE_ID`
+- Build-time envs forwarded by the workflow (set as repo secrets as needed):
+  - `CLERK_SECRET_KEY`, `NEXT_PUBLIC_GIPHY_API_KEY`, `DATABASE_URL`, `SITE_URL`, `STRIPE_SECRET_KEY`, `GEMINI_KEY`, `OPENAI_API_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
+
+Troubleshooting:
+- If you see `ENOENT: no such file or directory, lstat '.../out'`, ensure the workflow uses Netlify CLI and that `publish = ".next"` is set in `netlify.toml` (this app does not use `next export`).
 
 ### Environment Variables
 
 ```bash
 # Production environment variables
-LEMON_API_KEY=sk_live_XXXXXXXXXXXXXXXX
-LEMONSQUEEZY_WEBHOOK_SECRET=your_secure_webhook_secret
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+STRIPE_SECRET_KEY=sk_live_XXXXXXXXXXXXXXXX
+SITE_URL=https://yourdomain.com
 
 # Database
 DATABASE_URL=postgresql://user:pass@host:port/db
 
 # Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
 CLERK_SECRET_KEY=sk_live_...
 
 # AI
 OPENAI_API_KEY=sk-...
+
+# AWS (serverless webhooks & scheduler)
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
 ```
 
 ### Database Migration
@@ -424,11 +444,11 @@ npm run db:migrate
 npx prisma generate
 ```
 
-### Webhook Configuration
+### Webhook Configuration (Stripe on AWS)
 
-Update webhook URL in Lemon Squeezy dashboard:
+Point Stripe webhooks to your API Gateway endpoint backed by the Lambda handler, for example:
 ```
-https://yourdomain.com/api/lemonsqueezy/webhook
+https://<api-id>.execute-api.<region>.amazonaws.com/prod/stripe/webhook
 ```
 
 ## 📈 Monitoring
@@ -528,8 +548,8 @@ export const PLANS = {
 ### Debug Commands
 
 ```bash
-# Check webhook endpoint
-curl -X POST https://yourdomain.com/api/lemonsqueezy/webhook \
+# Check webhook endpoint (AWS API Gateway)
+curl -X POST https://<api-id>.execute-api.<region>.amazonaws.com/prod/stripe/webhook \
   -H "Content-Type: application/json" \
   -d '{"test": "webhook"}' -v
 

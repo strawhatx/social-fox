@@ -50,6 +50,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NEXT_AWS_SECRET_ACCESS_KEY }}
           STRIPE_PRICE_ID_EXPLORE: ${{ secrets.STRIPE_PRICE_ID_EXPLORE }}
           STRIPE_PRICE_ID_CREATOR: ${{ secrets.STRIPE_PRICE_ID_CREATOR }}
-          NEXT_PUBLIC_ADMIN_USER_IDS: ${{ secrets.NEXT_PUBLIC_ADMIN_USER_IDS }}
+          ADMIN_USER_IDS: ${{ secrets.ADMIN_USER_IDS }}
 
 

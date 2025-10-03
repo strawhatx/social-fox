@@ -4,7 +4,8 @@
 
 export function isAdmin(userId?: string | null): boolean {
   if (!userId) return false;
-  const raw = (process.env.NEXT_PUBLIC_ADMIN_USER_IDS || process.env.ADMIN_USER_IDS || '').trim();
+  // Server-only: do NOT read NEXT_PUBLIC_* here to avoid exposing admin list
+  const raw = (process.env.ADMIN_USER_IDS || '').trim();
   if (!raw) return false;
   const ids = raw.split(',').map((s) => s.trim()).filter(Boolean);
   return ids.includes(userId);

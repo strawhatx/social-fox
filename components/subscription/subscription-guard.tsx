@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Lock } from 'lucide-react';
 import useSubscription from '@/hooks/use-subscription';
 import { useUser } from '@clerk/nextjs';
-import { isAdmin } from '@/lib/admin';
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -47,11 +46,6 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
 
   // Check if user has active subscription
   const hasActiveSubscription = subscription?.status === 'active';
-
-  // Admins bypass subscription gating
-  if (user && isAdmin(user.id)) {
-    return <>{children}</>;
-  }
 
   if (!hasActiveSubscription) {
     return (

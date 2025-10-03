@@ -139,8 +139,8 @@ export async function POST(req: Request) {
 
       let uploaded: Array<{ url: string; type: string; key: string }> = [];
       if (pick.useFiles.length) {
-        const REGION = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION;
-        const BUCKET = process.env.AWS_S3_BUCKET;
+        const REGION = process.env.NEXT_AWS_REGION || process.env.NEXT_AWS_DEFAULT_REGION;
+        const BUCKET = process.env.NEXT_AWS_S3_BUCKET;
         if (!REGION || !BUCKET) return json({ error: 'S3 not configured' }, { status: 500 });
 
         const s3 = new S3Client({ region: REGION });

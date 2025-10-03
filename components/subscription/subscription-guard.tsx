@@ -5,28 +5,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Lock, Zap } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Check, Crown, Lock } from 'lucide-react';
 import useSubscription from '@/hooks/use-subscription';
-
-interface SubscriptionData {
-  plan: string;
-  status: string;
-  subscriptionId?: string;
-  expiry?: string;
-  planDetails: {
-    id: string;
-    name: string;
-    price: number;
-    interval: string;
-    features: string[];
-    limits: {
-      monthlyPosts: number;
-      aiRewrites: number;
-      scheduledPosts: number;
-    };
-  };
-}
+import { useUser } from '@clerk/nextjs';
+import { isAdmin } from '@/lib/admin';
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -35,6 +17,7 @@ interface SubscriptionGuardProps {
 
 export default function SubscriptionGuard({ children, fallback }: SubscriptionGuardProps) {
   const { subscription, loading, upgrade, openBillingPortal } = useSubscription();
+  const { user } = useUser();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
@@ -64,6 +47,11 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
 
   // Check if user has active subscription
   const hasActiveSubscription = subscription?.status === 'active';
+
+  // Admins bypass subscription gating
+  if (user && isAdmin(user.id)) {
+    return <>{children}</>;
+  }
 
   if (!hasActiveSubscription) {
     return (

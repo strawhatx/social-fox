@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { canUseFeatureDetailed, incrementFeatureQuota } from './subscriptions';
+import { isAdmin } from '@/lib/admin';
 
 export interface QuotaCheckResult {
   canProceed: boolean;
@@ -23,6 +24,14 @@ export async function checkQuota(
         canProceed: false,
         error: 'Unauthorized',
         statusCode: 401
+      };
+    }
+
+    // Admin bypass
+    if (isAdmin(userId)) {
+      return {
+        canProceed: true,
+        usage: { userId, feature, used: 0, limit: Number.MAX_SAFE_INTEGER }
       };
     }
 

@@ -64,8 +64,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {
+  const pk = (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').trim();
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''}>
+    <ClerkProvider publishableKey={pk}>
       <html lang="en">
         <body className={inter.className}>
           <UpgradeModalProvider>

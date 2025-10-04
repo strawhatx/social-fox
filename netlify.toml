@@ -9,7 +9,13 @@
   NETLIFY_ALLOWED_ENV = "NEXT_AWS_REGION,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
 
 [functions]
-  included_files = ["!*.env"]
+  # Ensure Prisma client and engines are bundled into Netlify Functions
+  included_files = [
+    "!*.env",
+    "node_modules/.prisma/client/**",
+    "node_modules/@prisma/client/**",
+    "prisma/schema.prisma"
+  ]
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

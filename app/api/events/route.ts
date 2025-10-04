@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, created: true, twitter: 'skipped_error' });
     }
   } catch (e) {
-    return NextResponse.json({ ok: false, error: 'Invalid payload' }, { status: 400 });
+    return NextResponse.json({ ok: false, error: JSON.stringify(e) }, { status: 400 });
   }
 }
 

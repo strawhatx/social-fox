@@ -11,16 +11,20 @@ function AuthCompleteInner() {
 
   useEffect(() => {
     const run = async () => {
+
       const event = searchParams.get('event') || 'unknown';
       if (!isLoaded || !user) return;
+
+      console.log('event', event);
+      console.log('user', user);
+
       try {
         await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: event,
-            userId: user.id,
-            email: user.primaryEmailAddress?.emailAddress ?? null,
+            userId: user.id
           }),
         });
       } catch (e) {

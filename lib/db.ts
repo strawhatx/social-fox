@@ -9,9 +9,9 @@ export async function ensureAppUserId(clerkUserId: string): Promise<string> {
     
     // If not found, create the user with upsert to handle race conditions
     user = await prisma.user.upsert({
-      where: { clerkUserId },
+      where: { clerkUserId, updatedAt: new Date() },
       update: {},
-      create: { clerkUserId }
+      create: { clerkUserId, updatedAt: new Date(), subscriptionStatus: 'inactive'}
     });
     return user.id;
   } catch (error) {

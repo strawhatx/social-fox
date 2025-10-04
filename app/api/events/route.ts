@@ -76,7 +76,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, created: true, twitter: 'skipped_error' });
     }
   } catch (e) {
-    return NextResponse.json({ ok: false, error: JSON.stringify(e) }, { status: 400 });
+    // Provide structured error details instead of JSON.stringify(Error)
+    const err: any = e;
+    console.error('Error in /api/events:', err);
+    return NextResponse.json({
+      ok: false,
+      error: err?.message || String(err),
+      name: err?.name,
+      code: err?.code,
+      clientVersion: err?.clientVersion,
+    }, { status: 500 });
   }
 }
 

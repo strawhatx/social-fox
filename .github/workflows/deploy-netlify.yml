@@ -27,15 +27,9 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Install Netlify CLI
-        run: npm i -g netlify-cli
-
-        
-      - name: Netlify Build & Deploy
-        run: netlify deploy --build --prod
+      - name: Build Next.js (explicit)
+        run: npm run build
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
@@ -52,5 +46,14 @@ jobs:
           STRIPE_PRICE_ID_EXPLORE: ${{ secrets.STRIPE_PRICE_ID_EXPLORE }}
           STRIPE_PRICE_ID_CREATOR: ${{ secrets.STRIPE_PRICE_ID_CREATOR }}
           ADMIN_USER_IDS: ${{ secrets.ADMIN_USER_IDS }}
+
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
+
+      - name: Netlify Deploy (publish .next)
+        run: netlify deploy --prod --dir=.next
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
 

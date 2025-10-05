@@ -81,10 +81,7 @@ export async function POST(request: Request) {
     console.error('Error in /api/events:', err);
     return NextResponse.json({
       ok: false,
-      error: err?.message || String(err),
-      name: err?.name,
-      code: err?.code,
-      clientVersion: err?.clientVersion,
+      error: err
     }, { status: 500 });
   }
 }

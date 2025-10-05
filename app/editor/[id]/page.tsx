@@ -105,15 +105,13 @@ export default function EditorPage() {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-300 rounded-lg flex items-center justify-center">
+                <div className="hidden md:flex w-8 h-8 bg-gradient-to-br from-orange-500 to-red-300 rounded-lg items-center justify-center">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
-                <h1 className="text-md text-foreground">
+                <h1 className="hidden md:block  text-md text-foreground">
                   {conversationTitle || `Conversation ${conversationId}`}
                 </h1>
-                <span className={`ml-4 text-sm ${connected ? "text-green-600" : "text-yellow-600"}`}>
-                  {connected ? "Connected" : "Connecting..."}
-                </span>
+
                 <div className="ml-auto lg:hidden">
                   <Button size="sm" onClick={() => setEditorOpen(true)} className="bg-orange-500 hover:bg-orange-600">
                     Open Editor
@@ -162,8 +160,8 @@ export default function EditorPage() {
                               : message.status === "pending"
                                 ? "bg-muted/20 rounded-2xl p-4 italic text-gray-400 max-w-[80%]"
                                 : message.status === "error"
-                                  ? "bg-red-100 rounded-2xl p-4 max-w-[80%]"
-                                  : "bg-white rounded-2xl p-4 max-w-[80%]"
+                                  ? "bg-red-100 rounded-2xl p-4 max-w-full md:max-w-[80%]"
+                                  : "bg-white rounded-2xl p-4 max-w-full md:max-w-[80%]"
                             }`}
                         >
                           <p className="leading-relaxed whitespace-pre-wrap">

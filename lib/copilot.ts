@@ -51,8 +51,8 @@ export const QUICK_TEMPLATES = [
     category: 'Engagement'
   },
   {
-    id: 'relatable-funny',
-    label: 'Relatable/Funny',
+    id: 'relatable',
+    label: 'Relatable',
     prompt: 'Turn this [situation] into a short, funny post people on X will instantly relate to',
     category: 'Engagement'
   },

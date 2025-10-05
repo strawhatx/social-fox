@@ -385,7 +385,7 @@ export default function TweetBuilder() {
                     onClick={() => handleTemplateSelect(template.prompt)}
                   >
                     <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex  items-center gap-3 mb-3">
                         <div className="p-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg">
                           <MessageSquare className="h-5 w-5 text-orange-600" />
                         </div>
@@ -401,8 +401,6 @@ export default function TweetBuilder() {
                   </Card>
                 ))}
               </div>
-
-
             </main>
           </div>
         </div>

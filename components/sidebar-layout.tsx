@@ -34,6 +34,7 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
           fixed left-0 top-0 h-full w-16 bg-sidebar border-r border-sidebar-border 
           flex flex-col items-center py-6 z-30 mini-sidebar shadow-lg
           transition-transform duration-200 ease-in-out
+          bg-white
           md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >

@@ -2,7 +2,6 @@
 
 import Hero from '@/components/landing/hero';
 import Results from '@/components/landing/results';
-import Demo from '@/components/landing/demo';
 import Features from '@/components/landing/features';
 import Pricing from '@/components/landing/pricing';
 import Footer from '@/components/landing/footer';
@@ -12,7 +11,6 @@ export default function Home() {
     <main>
       <Hero />
       <Results />
-      <Demo />
       <Features />
       <Pricing />
       <Footer />

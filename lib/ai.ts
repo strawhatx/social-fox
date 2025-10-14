@@ -62,57 +62,102 @@ function stripFences(text: string): string {
   return String(text || '').replace(/```json|```/g, '').trim();
 }
 
-export async function generateJsonFromPrompt(conversation_history: {role: string, content: string}[], temperature = 0.4): Promise<string> {
-  let jsonText = '';
-
-  // Primary: OpenAI
-  if (process.env.OPENAI_API_KEY) {
-    try {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const resp = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...conversation_history,
-        ] as  any,
-        temperature,
-      });
-      jsonText = stripFences(resp.choices?.[0]?.message?.content || '');
-      if (jsonText) return jsonText;
-    } catch {}
+export async function callGrok(
+  conversation_history: { role: string; content: string }[],
+  temperature = 0.4
+): Promise<string> {
+  const xaiKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY || '';
+  if (!xaiKey) return '';
+  try {
+    const grok = new OpenAI({
+      apiKey: xaiKey,
+      baseURL: process.env.XAI_BASE_URL || 'https://api.x.ai/v1'
+    } as any);
+    const resp = await (grok as any).chat.completions.create({
+      model: process.env.XAI_MODEL || 'grok-2-latest',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...conversation_history,
+      ] as any,
+      temperature,
+    });
+    return stripFences(resp.choices?.[0]?.message?.content || '');
+  } catch {
+    return '';
   }
+}
 
-  // Fallback: Gemini via HTTPS (no SDK dependency)
+export async function callOpenAI(
+  conversation_history: { role: string; content: string }[],
+  temperature = 0.4
+): Promise<string> {
+  const key = process.env.OPENAI_API_KEY || '';
+  if (!key) return '';
+  try {
+    const openai = new OpenAI({ apiKey: key });
+    const resp = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...conversation_history,
+      ] as any,
+      temperature,
+    });
+    return stripFences(resp.choices?.[0]?.message?.content || '');
+  } catch {
+    return '';
+  }
+}
+
+export async function callGemini(
+  conversation_history: { role: string; content: string }[],
+  temperature = 0.4
+): Promise<string> {
   const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_KEY || '';
-  if (geminiKey) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            contents: [{ 
-              parts: [{ 
-                text: [
-                  `system: ${SYSTEM_PROMPT}`,
-                  ...conversation_history.map(h => `${h.role}: ${h.content}`)
-                ].join('\n')
-              }] 
-            }], 
-            generationConfig: { temperature } 
-          }),
-        }
-      );
-      if (res.ok) {
-        const rj: any = await res.json();
-        const text = rj?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        jsonText = stripFences(text);
+  if (!geminiKey) return '';
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: [
+                `system: ${SYSTEM_PROMPT}`,
+                ...conversation_history.map(h => `${h.role}: ${h.content}`)
+              ].join('\n')
+            }]
+          }],
+          generationConfig: { temperature }
+        }),
       }
-    } catch {}
-  }
+    );
+    if (res.ok) {
+      const rj: any = await res.json();
+      const text = rj?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      return stripFences(text);
+    }
+  } catch {}
+  return '';
+}
 
-  return jsonText || '';
+export async function generateJsonFromPrompt(
+  conversation_history: { role: string; content: string }[],
+  temperature = 0.4
+): Promise<string> {
+  // Priority: Grok → OpenAI → Gemini
+  const grok = await callGrok(conversation_history, temperature);
+  if (grok) return grok;
+
+  const openai = await callOpenAI(conversation_history, temperature);
+  if (openai) return openai;
+
+  const gemini = await callGemini(conversation_history, temperature);
+  if (gemini) return gemini;
+
+  return '';
 }
 
 

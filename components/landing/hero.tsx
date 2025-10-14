@@ -65,6 +65,21 @@ const Hero = () => {
             <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">Thread templates</span>
           </div>
 
+          {/* Keyword-rich internal links to feature pages for crawl paths */}
+          <div className="mb-4">
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-700">
+              <Link href="/chatgpt-for-twitter" className="underline decoration-orange-300 hover:text-orange-600">
+                ChatGPT for Twitter
+              </Link>
+              <Link href="/ai-copilot-for-tweets" className="underline decoration-orange-300 hover:text-orange-600">
+                AI Copilot for Tweets
+              </Link>
+              <Link href="/ai-thread-writer" className="underline decoration-orange-300 hover:text-orange-600">
+                AI Thread Writer
+              </Link>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <Link
               href="/sign-up"

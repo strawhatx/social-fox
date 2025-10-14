@@ -19,16 +19,36 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isPublicRoute(req)) {
-    return NextResponse.next();
+  const isPublic = isPublicRoute(req);
+
+  // Add X-Robots-Tag noindex for private app areas and auth pages
+  const url = new URL(req.url);
+  const path = url.pathname;
+  const shouldNoIndex = (
+    path.startsWith('/editor') ||
+    path.startsWith('/library') ||
+    path.startsWith('/scheduler') ||
+    path.startsWith('/auth') ||
+    path.startsWith('/sign-in') ||
+    path.startsWith('/sign-up')
+  );
+
+  let res: NextResponse | undefined;
+  if (isPublic) {
+    res = NextResponse.next();
+  } else {
+    const { userId, redirectToSignIn } = await auth();
+    if (!userId) {
+      return redirectToSignIn({ returnBackUrl: req.url });
+    }
+    res = NextResponse.next();
   }
 
-  const { userId, redirectToSignIn } = await auth();
-  if (!userId) {
-    return redirectToSignIn({ returnBackUrl: req.url });
+  if (shouldNoIndex && res) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
-  return NextResponse.next();
+  return res;
 });
 
 export const config = {

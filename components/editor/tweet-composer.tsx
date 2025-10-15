@@ -50,13 +50,13 @@ export function TweetComposer({
     }
 
     return (
-        <div className="relative">
+        <div className="prose prose-sm max-w-none mb-6">
             <Textarea
                 ref={textareaRef}
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="min-h-[180px] resize-none bg-background border-border"
+                className="w-full min-h-[300px] bg-white border-0 resize-none focus-visible:ring-0 text-base leading-relaxed p-0"
                 maxLength={280}
             />
         </div>

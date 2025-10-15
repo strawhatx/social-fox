@@ -1,4 +1,6 @@
+"use client";
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 
 interface AttachmentItem {
@@ -39,6 +41,7 @@ interface TweetEditorActions {
 
 export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: string }): TweetEditorState & TweetEditorActions {
   // State
+  const router = useRouter();
   const [activeComposerTab, setActiveComposerTab] = useState<'compose' | 'drafts' | 'scheduled' | 'sent'>('compose');
   const [editedTweet, setEditedTweet] = useState('');
   const [isScheduled, setIsScheduled] = useState(false);
@@ -286,36 +289,11 @@ export function useTweetEditor(contentToLoad?: string, options?: { persistKey?: 
   };
 
   const loadDraft = (draft: any) => {
-    setEditedTweet(draft.content);
-    setActiveComposerTab('compose');
-    setEditingPostId(draft.id);
-    setCurrentPostStatus(draft.status);
-    
-    // Load attachments and community URL from draft metadata
-    const metadata = draft.metadata || {};
-    const att = (metadata.attachments || []).map((a: any) => ({ url: a.url, type: a.type || null, key: a.key }));
-    const communityUrl = metadata.community_url;
-  
-    // Convert image URLs back to attachment format
-    setAttachments(att);
-    setCommunityUrl(communityUrl || '');
+    if (draft?.id) router.push(`/editor/${draft.id}`);
   };
 
   const loadScheduled = (scheduled: any) => {
-    setEditedTweet(scheduled.content);
-    setActiveComposerTab('compose');
-    setEditingPostId(scheduled.id);
-    setCurrentPostStatus(scheduled.status);
-    
-    // Load attachments and community URL from scheduled metadata
-    const metadata = scheduled.metadata || {};
-    const att = (metadata.attachments || metadata.images || []).map((a: any) => {
-      if (typeof a === 'string') return { url: a, type: null } as AttachmentItem;
-      return { url: a.url, type: a.type || null, key: a.key } as AttachmentItem;
-    });
-    const communityUrl = metadata.community_url;
-    setAttachments(att);
-    setCommunityUrl(communityUrl || '');
+    if (scheduled?.id) router.push(`/editor/${scheduled.id}`);
   };
 
   const handleInsertHashtag = (tag: string) => {

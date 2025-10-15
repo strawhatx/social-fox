@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const session = await createCheckoutSession(
       customerId,
       priceId,
-      `${process.env.SITE_URL}/editor?success=true`,
+      `${process.env.SITE_URL}/calendar?success=true`,
       `${process.env.SITE_URL}/pricing?canceled=true`
     );
 

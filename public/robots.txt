@@ -3,6 +3,7 @@ Allow: /
 
 # Block private/sensitive areas
 Disallow: /api/
+Disallow: /calendar/
 Disallow: /editor/
 Disallow: /library/
 Disallow: /scheduler/
@@ -15,6 +16,7 @@ Disallow: /*/callback/
 User-agent: Twitterbot
 Allow: /
 Disallow: /api/
+Disallow: /calendar/
 Disallow: /editor/
 Disallow: /library/
 Disallow: /scheduler/
@@ -25,6 +27,7 @@ Disallow: /auth/
 User-agent: facebookexternalhit
 Allow: /
 Disallow: /api/
+Disallow: /calendar/
 Disallow: /editor/
 Disallow: /library/
 Disallow: /scheduler/

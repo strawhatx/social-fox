@@ -31,7 +31,7 @@ function AuthCompleteInner() {
         // ignore errors to avoid blocking redirect
         console.error(e);
       } finally {
-        router.replace('/editor');
+        router.replace('/calendar');
       }
     };
     run();

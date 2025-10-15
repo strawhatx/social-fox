@@ -13,9 +13,8 @@ import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 import SubscriptionStatus from './subscription/subscription-status';
 
 const menuItems = [
-  { id: 'editor', title: 'X Copilot', path: '/editor', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
-  { id: "library", title: "X Library", icon: "✨", path: '/library', color: "text-orange-500 hover:bg-orange-100", stats: "15 templates",description: "AI-powered tweet templates for indie hackers and builders" },
-  { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-600 hover:bg-orange-100', stats: '5 queued', description: 'Manage your scheduled tweets' },
+  { id: 'calendar', title: 'Calendar', path: '/calendar', icon: '📆', color: 'text-orange-600 hover:bg-orange-100', stats: 'Plan 30 days', description: 'Plan and schedule posts with a monthly calendar' },
+  { id: 'analytics', title: 'Analytics', path: '/analytics', icon: '�', color: 'text-orange-400 hover:bg-orange-100', stats: 'View your content performance', description: 'Track your content engagement and performance' }
 ];
 
 function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {

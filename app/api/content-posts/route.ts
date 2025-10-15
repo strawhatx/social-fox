@@ -172,12 +172,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { content, platform, scheduled_at, status, attachments = [], communityUrl } = body;
 
-    // Validate attachments
+    // Validate attachments: allow text-only OR one video/gif OR 1-4 images
     const vids = attachments.filter((a: any) => isVideo(a?.type)).length;
     const gifs = attachments.filter((a: any) => isGif(a?.type)).length;
     const imgs = attachments.filter((a: any) => isImage(a?.type)).length;
 
-    if ((vids + gifs > 1) || (vids + gifs === 1 && imgs > 0) || (vids + gifs === 0 && !(imgs >= 1 && imgs <= 4))) {
+    const isTextOnly = (vids + gifs + imgs) === 0;
+    const hasSingleMedia = (vids + gifs) === 1 && imgs === 0;
+    const hasImagesOnly = (vids + gifs) === 0 && imgs >= 1 && imgs <= 4;
+    if (!(isTextOnly || hasSingleMedia || hasImagesOnly)) {
       return json({ error: 'Invalid attachments' }, { status: 400 });
     }
 

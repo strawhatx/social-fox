@@ -160,4 +160,11 @@ export async function generateJsonFromPrompt(
   return '';
 }
 
+export async function getBestTimeToPost(): Promise<{ time: string }> {
+  const conversation_history = [{ role: 'user', content: 'What is the best 3 timeS to post on Twitter for the highes engagemnent? ' }];
+  const response = await generateJsonFromPrompt(conversation_history);
+  const parsedResponse = JSON.parse(response || '{}');
+  return { time: parsedResponse.time || '2:00 PM' };
+}
+
 

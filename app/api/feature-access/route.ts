@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { getUserSubscription, canUseFeatureDetailed } from '@/lib/subscriptions';
 import { getFeatureLimit, QUOTA_FEATURES } from '@/lib/features';
 

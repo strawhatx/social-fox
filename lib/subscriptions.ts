@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { resolveUserUuid } from '@/lib/db';
 import { QUOTA_FEATURES } from '@/lib/features';
 import { SUBSCRIPTION_PLANS, SubscriptionPlan } from '@/lib/subscription-plans';

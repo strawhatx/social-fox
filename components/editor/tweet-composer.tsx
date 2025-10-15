@@ -56,7 +56,7 @@ export function TweetComposer({
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full min-h-[300px] bg-white border-0 resize-none focus-visible:ring-0 text-base leading-relaxed p-0"
+                className="w-full min-h-[150px] bg-white border border-gray-200 rounded-md resize-none focus-visible:ring-0 text-base leading-relaxed p-0"
                 maxLength={280}
             />
         </div>

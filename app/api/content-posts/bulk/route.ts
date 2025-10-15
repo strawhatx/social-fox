@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { resolveUserUuid } from '@/lib/db';
 
 function json(body: unknown, init?: ResponseInit) {

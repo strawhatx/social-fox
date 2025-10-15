@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 
 // Resolve or create the app-level user UUID from a Clerk user ID using Prisma
 export async function ensureAppUserId(clerkUserId: string): Promise<string> {

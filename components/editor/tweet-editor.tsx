@@ -1,12 +1,8 @@
 "use client";
 
-import { useRef } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+
 import {
-    Plus,
-    Info,
     Type,
     Bold,
     Italic,
@@ -15,51 +11,38 @@ import {
     AlignLeft,
     List,
     ListOrdered,
-    Link as LinkIcon,
-    Image as ImageIcon,
-    Table,
-    Undo,
-    Redo,
-    MoreHorizontal,
 } from 'lucide-react';
 import { TweetComposer } from './tweet-composer';
 import HashtagPicker from '@/components/editor/hashtag-picker';
 import EmojiPicker from '@/components/editor/emoji-picker';
 import GiphyPicker from '@/components/editor/giphy-picker';
 import ImageUploader from '@/components/editor/image-uploader';
-import { useTweetEditor } from '@/hooks/use-tweet-editor';
 import { toast } from '@/hooks/use-toast';
+import { AttachmentItem } from '@/lib/types/attachments';
 
 interface TweetEditorProps {
-    contentToLoad?: string;
-    persistKey?: string;
+    content: string|null;
+    setContent: (content: string) => void;
+    attachments: AttachmentItem[];
+    setAttachments: (attachments: AttachmentItem[]) => void;
 }
 
-export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorProps) {
-    const {
-        activeComposerTab,
-        editedTweet,
-        isScheduled,
-        attachments,
-        communityUrl,
-        currentPostStatus,
-        drafts,
-        scheduled,
-        loadingDrafts,
-        loadingScheduled,
-        setActiveComposerTab,
-        setEditedTweet,
-        setAttachments,
-        setCommunityUrl,
-        handleScheduleConfirm,
-        handleSaveDraft,
-        loadDraft,
-        loadScheduled,
-        handleInsertHashtag,
-        addHashtag,
-    } = useTweetEditor(contentToLoad, { persistKey });
-
-    const fileInputRef = useRef<HTMLInputElement>(null);
+export default function TweetEditor({ content, setContent, attachments, setAttachments }: TweetEditorProps) {
+    const handleInsertHashtag = (tag: string) => {
+        const cleanTag = tag.startsWith('#') ? tag : `#${tag}`;
+        const addition = (content?.endsWith(' ') || content?.length === 0) ? cleanTag : ` ${cleanTag}`;
+        const next = content + addition;
+        if (next.length > 280) {
+          toast({
+            title: "Too long",
+            description: "Adding this hashtag would exceed 280 characters.",
+          });
+          return;
+        }
+        setContent(next);
+      };
+    
+      const addHashtag = () => setContent(content ? content + " #" : "#");
 
     return (
         <div className="max-w-4xl mx-auto px-12 py-8">
@@ -145,7 +128,7 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                                 toast({ title: 'Only one video allowed', description: 'Remove other attachments before adding a video.' });
                                 return;
                             }
-                            setAttachments((prev) => [...prev, incomingVideo]);
+                            setAttachments([...attachments, incomingVideo]);
                             return;
                         }
 
@@ -157,7 +140,7 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                             toast({ title: 'Image limit', description: 'You can attach up to 4 images.' });
                         }
                         if (!allowed.length) return;
-                        setAttachments((prev) => [...prev, ...allowed]);
+                        setAttachments([...attachments, ...allowed]);
                     }}
                     multiple
                 />
@@ -169,42 +152,26 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                         return;
                     }
                     const gifAttachment = { url: gifUrl, file: null, type: 'image/gif' };
-                    setAttachments((prev) => [...prev, gifAttachment]);
+                    setAttachments([...attachments, gifAttachment]);
                 }} />
-
-                <HashtagPicker
-                    content={editedTweet || ""}
-                    onInsert={handleInsertHashtag}
-                    onAddManual={addHashtag}
-                />
 
                 <EmojiPicker onInsert={(emoji) => {
                     const insert = (window as any).__insertIntoTweet as undefined | ((t: string) => void);
                     if (insert) insert(emoji);
                     else {
-                        const addition = (editedTweet.endsWith(' ') || editedTweet.length === 0) ? emoji : ` ${emoji}`;
-                        const next = editedTweet + addition;
-                        if (next.length <= 280) setEditedTweet(next);
+                        const addition = (content?.endsWith(' ') || content?.length === 0) ? emoji : ` ${emoji}`;
+                        const next = content + addition;
+                        if (next.length <= 280) setContent(next);
                     }
                 }} />
             </div>
 
-            <TweetComposer
-                value={editedTweet}
-                onChange={(value) => {
-                    if (currentPostStatus !== 'posted') {
-                        setEditedTweet(value);
-                    }
-                }}
-                placeholder="Start writing your post..."
-            />
-
-            <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
                 <div className="flex items-center gap-2 order-2 sm:order-1">
-                    <span className={`text-xs ${editedTweet.length > 250 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                        {editedTweet.length} / 280
+                    <span className={`text-xs ${content?.length??0 > 250 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {content?.length} / 280
                     </span>
-                    {editedTweet && (
+                    {content && (
                         <div className="flex items-center gap-1">
                             <span className="text-green-600 text-xs">saved</span>
                             <span className="text-green-600">✓</span>
@@ -214,38 +181,43 @@ export default function TweetEditor({ contentToLoad, persistKey }: TweetEditorPr
                 <div className="flex items-center gap-1 order-1 sm:order-2 flex-wrap">
                 </div>
             </div>
+            <TweetComposer
+                value={content || ""}
+                onChange={(value) => setContent(value)}
+                placeholder="Start writing your post..."
+            />
 
             {/* Attachments preview */}
             {attachments.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {attachments.map((att, idx) => (
-                        <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
-                            {att.type && att.type?.startsWith('image/') ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
-                            ) : att.type && att.type?.startsWith('video/') ? (
-                                <video src={att.url} className="w-full h-24 object-cover" muted />
-                            ) : (
-                                // GIF from Giphy (no file object)
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={att.url} alt="GIF" className="w-full h-24 object-cover" />
-                            )}
-                            <button
-                                type="button"
-                                className="absolute top-1 right-1 bg-background/80 border border-border text-foreground text-xs px-1 rounded opacity-0 group-hover:opacity-100"
-                                onClick={() => setAttachments((prev) => prev.filter((_, i) => i !== idx))}
-                            >
-                                Remove
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                <>
+                    <h4 className="text-sm text-muted-foreground mb-3">
+                        Attached Media ({attachments.length} / {(attachments.some(a => a.type === 'image/gif') || attachments.some(a => (a.type || '').startsWith('video/'))) ? 1 : 4})
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {attachments.map((att, idx) => (
+                            <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
+                                {att.type && att.type?.startsWith('image/') ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
+                                ) : att.type && att.type?.startsWith('video/') ? (
+                                    <video src={att.url} className="w-full h-24 object-cover" muted />
+                                ) : (
+                                    // GIF from Giphy (no file object)
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={att.url} alt="GIF" className="w-full h-24 object-cover" />
+                                )}
+                                <button
+                                    type="button"
+                                    className="absolute top-1 right-1 bg-background/80 border border-border text-foreground text-xs px-1 rounded opacity-0 group-hover:opacity-100"
+                                    onClick={() => setAttachments(attachments.filter((_, i) => i !== idx))}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
-
         </div>
-
-
-
-
     );
 }

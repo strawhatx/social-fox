@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@clerk/nextjs/server";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { resolveUserUuid } from "@/lib/db";
 
 //

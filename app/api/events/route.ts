@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ensureAppUserId } from '@/lib/db';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { clerkClient } from '@clerk/nextjs/server';
 import { getUserTwitterBearerToken, fetchTwitterUserByUsername } from '@/lib/twitter';
 

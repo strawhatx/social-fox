@@ -57,15 +57,6 @@ export function useSubscription() {
         });
         return;
       }
-
-      if (plan === 'explore' && subscription.plan === 'creator') {
-        toast({
-          title: 'Cannot Downgrade',
-          description: 'You cannot purchase explore when you already have a creator subscription.',
-          variant: 'destructive'
-        });
-        return;
-      }
     }
 
     const priceId = getPriceId(plan);

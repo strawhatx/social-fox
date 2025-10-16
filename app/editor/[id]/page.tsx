@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Link as LinkIcon, Twitter, TrendingUp, Hash, FileText, MessageSquarePlus} from "lucide-react";
+import { Link as LinkIcon, Twitter, TrendingUp, Hash, FileText, MessageSquarePlus } from "lucide-react";
 import TweetEditor from "@/components/editor/tweet-editor";
 import { AttachmentItem } from "@/lib/types/attachments";
 import TweetPreview from "@/components/editor/tweet-preview";
@@ -31,10 +31,6 @@ export default function EditorPage() {
     { id: 'editor-1', content: '', attachments: [] }
   ]);
 
-  const words = thread[0].content.split(/\s+/).filter(Boolean).length;
-  const hashtags = (thread[0].content.match(/#\w+/g) || []).length;
-  const lines = thread[0].content.split("\n").length;
-
   const addNewEditor = () => {
     const newEditorId = `editor-${thread.length + 1}`;
     setThread([...thread, { id: newEditorId, content: '', attachments: [] }]);
@@ -44,9 +40,7 @@ export default function EditorPage() {
     <SidebarLayout>
       <SubscriptionGuard>
         <div className="min-h-screen bg-white flex">
-
           <div className="flex-1 pt-4 pb-8 overflow-y-auto">
-
             {thread.map((post) => (
               <TweetEditor
                 key={post.id}
@@ -56,18 +50,19 @@ export default function EditorPage() {
                 setAttachments={(attachments) => setThread(thread.map((e) => e.id === post.id ? { ...e, attachments } : e))}
               />
             ))}
+
+            <div className="flex justify-center px-12">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addNewEditor}
+                className="w-full border-dashed border-2 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 py-6"
+              >
+                <MessageSquarePlus className="w-5 h-5 mr-2" />
+                Add another tweet to thread
+              </Button>
+            </div>
             
-            <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={addNewEditor}
-                  className="w-full border-dashed border-2 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 py-6"
-                >
-                  <MessageSquarePlus className="w-5 h-5 mr-2" />
-                  Add another tweet to thread
-                </Button>
-
-
           </div>
 
           <div className="w-80 border-l border-border/50 bg-gray-50/50 pt-4 overflow-y-auto">
@@ -79,12 +74,12 @@ export default function EditorPage() {
               </div>
               <div className="p-4 space-y-4">
                 <TabsContent value="preview" className="mt-0 space-y-4">
-                  {thread.map((post) => (
-                  <TweetPreview
-                    content={post.content}
-                    attachments={post.attachments}
-                  />
-                ))}
+                  { thread.map((post) => (
+                    <TweetPreview
+                      content={post.content}
+                      attachments={post.attachments}
+                    />
+                  ))}
                 </TabsContent>
               </div>
             </Tabs>

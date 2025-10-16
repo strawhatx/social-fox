@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Home, Menu, CircleDollarSign } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
-import QuotaIndicator from '@/components/editor/quota-indicator';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 import SubscriptionStatus from './subscription/subscription-status';
+import SubscriptionManager from './subscription/subscription-manager';
 
 const menuItems = [
   { id: 'calendar', title: 'Calendar', path: '/calendar', icon: '📆', color: 'text-orange-600 hover:bg-orange-100', stats: 'Plan 30 days', description: 'Plan and schedule posts with a monthly calendar' },
@@ -78,6 +78,19 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
             </Tooltip>
           ))}
         </nav>
+
+        <UserButton afterSignOutUrl="/sign-in" userProfileMode="modal">
+        {/* You can also pass the content as direct children */}
+        <UserButton.UserProfilePage label="Terms" labelIcon={<CircleDollarSign className="w-4 h-4 text-gray-500" />} url="terms">
+          <div>
+            <h1 className="text-md font-semibold">Subscription</h1>
+            <hr className="my-2" />
+
+            <SubscriptionManager />
+            
+          </div>
+        </UserButton.UserProfilePage>
+      </UserButton>
       </div>
     </>
   );
@@ -112,9 +125,6 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
               </Button>
               <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
               <div className="ml-auto flex items-center gap-3">
-                <SubscriptionStatus />
-                <QuotaIndicator />
-                <UserButton afterSignOutUrl="/sign-in" />
               </div>
             </header>
             <div className="flex-1 overflow-auto">{children}</div>

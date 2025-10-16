@@ -19,30 +19,33 @@ import GiphyPicker from '@/components/editor/giphy-picker';
 import ImageUploader from '@/components/editor/image-uploader';
 import { toast } from '@/hooks/use-toast';
 import { AttachmentItem } from '@/lib/types/attachments';
+import { AiRewritePopover } from './ai-rewrite-popover';
+import { AIContentGenerator } from './ai-content-generator';
 
 interface TweetEditorProps {
-    content: string|null;
+    content: string | null;
     setContent: (content: string) => void;
     attachments: AttachmentItem[];
     setAttachments: (attachments: AttachmentItem[]) => void;
 }
 
 export default function TweetEditor({ content, setContent, attachments, setAttachments }: TweetEditorProps) {
+    
     const handleInsertHashtag = (tag: string) => {
         const cleanTag = tag.startsWith('#') ? tag : `#${tag}`;
         const addition = (content?.endsWith(' ') || content?.length === 0) ? cleanTag : ` ${cleanTag}`;
         const next = content + addition;
         if (next.length > 280) {
-          toast({
-            title: "Too long",
-            description: "Adding this hashtag would exceed 280 characters.",
-          });
-          return;
+            toast({
+                title: "Too long",
+                description: "Adding this hashtag would exceed 280 characters.",
+            });
+            return;
         }
         setContent(next);
-      };
-    
-      const addHashtag = () => setContent(content ? content + " #" : "#");
+    };
+
+    const addHashtag = () => setContent(content ? content + " #" : "#");
 
     return (
         <div className="max-w-4xl mx-auto px-12 py-8">
@@ -99,7 +102,6 @@ export default function TweetEditor({ content, setContent, attachments, setAttac
                     <ListOrdered className="w-4 h-4" />
                 </Button>
                 <div className="w-px h-5 bg-border mx-2" />
-
 
                 <ImageUploader
                     onSelect={(urls, files) => {
@@ -164,11 +166,19 @@ export default function TweetEditor({ content, setContent, attachments, setAttac
                         if (next.length <= 280) setContent(next);
                     }
                 }} />
+
+                <div className="w-px h-5 bg-border mx-2" />
+                <AIContentGenerator
+                    currentContent={content || ""}
+                    onApplyContent={(content) => {
+                        setContent(content);
+                    }}
+                />
             </div>
 
             <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
                 <div className="flex items-center gap-2 order-2 sm:order-1">
-                    <span className={`text-xs ${content?.length??0 > 250 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    <span className={`text-xs ${content?.length ?? 0 > 250 ? 'text-red-500' : 'text-muted-foreground'}`}>
                         {content?.length} / 280
                     </span>
                     {content && (

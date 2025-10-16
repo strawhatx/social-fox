@@ -9,8 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Home, Menu, CircleDollarSign } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
-import SubscriptionStatus from './subscription/subscription-status';
 import SubscriptionManager from './subscription/subscription-manager';
+
+interface Header {
+  page: string;
+  left_content: React.ReactNode;
+}
+
+interface SidebarLayoutProps {
+  children: React.ReactNode;
+  header?: Header;
+}
 
 const menuItems = [
   { id: 'calendar', title: 'Calendar', path: '/calendar', icon: '📆', color: 'text-orange-600 hover:bg-orange-100', stats: 'Plan 30 days', description: 'Plan and schedule posts with a monthly calendar' },
@@ -80,23 +89,23 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
         </nav>
 
         <UserButton afterSignOutUrl="/sign-in" userProfileMode="modal">
-        {/* You can also pass the content as direct children */}
-        <UserButton.UserProfilePage label="Terms" labelIcon={<CircleDollarSign className="w-4 h-4 text-gray-500" />} url="terms">
-          <div>
-            <h1 className="text-md font-semibold">Subscription</h1>
-            <hr className="my-2" />
+          {/* You can also pass the content as direct children */}
+          <UserButton.UserProfilePage label="Subscription" labelIcon={<CircleDollarSign className="w-4 h-4 text-gray-500" />} url="terms">
+            <div>
+              <h1 className="text-md font-semibold">Subscription</h1>
+              <hr className="my-2" />
 
-            <SubscriptionManager />
-            
-          </div>
-        </UserButton.UserProfilePage>
-      </UserButton>
+              <SubscriptionManager />
+
+            </div>
+          </UserButton.UserProfilePage>
+        </UserButton>
       </div>
     </>
   );
 }
 
-export default function SidebarLayout({ children }: { children: React.ReactNode }) {
+export default function SidebarLayout({ children, header = { page: 'Home', left_content: '' } }: SidebarLayoutProps) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('home');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -123,8 +132,9 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
               <Button variant="ghost" size="sm" className="md:hidden w-10 h-10 p-0 hover:bg-orange-100" onClick={toggleMobileSidebar}>
                 <Menu className="h-4 w-4" />
               </Button>
-              <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
+              <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || header?.page}</h1>
               <div className="ml-auto flex items-center gap-3">
+                {header?.left_content}
               </div>
             </header>
             <div className="flex-1 overflow-auto">{children}</div>

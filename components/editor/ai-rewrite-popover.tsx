@@ -2,8 +2,9 @@
 
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Button } from '../ui/button';
-import { Edit, Frown, Heart, Languages, Laugh, MessageCircle, Minus, Palette, PenTool, Star, Wand2, Zap } from 'lucide-react';
+import { Edit, Frown, Heart, Languages, Laugh, MessageCircle, Minus, Palette, PenTool, Sparkles, Star, Wand2, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const enhancementMap: Record<string, string> = {
   "improve-grammar": "✨ Enhanced with improved grammar and clarity",
@@ -19,16 +20,13 @@ const enhancementMap: Record<string, string> = {
 };
 
 export function AiRewritePopover({
-  open,
-  onOpenChange,
   onApply
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onApply: (replacement: string) => void;
 }) {
-  const handleAiEnhancement = (action: string) => {
+  const [open, setOpen] = useState(false);
 
+  const handleAiEnhancement = (action: string) => {
     // Get the instruction text for the selected action
     const instructionMap: Record<string, string> = {
       'improve-grammar': 'Improve the grammar and clarity of this text while keeping the same meaning and tone:',
@@ -46,7 +44,7 @@ export function AiRewritePopover({
     const instruction = instructionMap[action] || 'Improve this text:';
 
     onApply(instruction);
-    onOpenChange(false);
+    setOpen(false);
 
     toast({
       title: 'Instruction added!',
@@ -55,15 +53,14 @@ export function AiRewritePopover({
   };
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
           className="h-8 px-3 text-xs"
         >
-          <Edit className="h-3 w-3 mr-1" />
-          Edit
+          <Sparkles className="h-3 w-3 mr-1" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -79,7 +76,7 @@ export function AiRewritePopover({
               variant="ghost"
               size="sm"
               className="text-orange-600 hover:text-orange-700 h-6 w-6 p-0"
-              onClick={() => onOpenChange(false)}
+              onClick={() => setOpen(false)}
             >
               ✕
             </Button>

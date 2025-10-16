@@ -45,12 +45,12 @@ export default function SubscriptionManager() {
       {isActive ? (
         // Current Plan and Manage Option
         <div>
-          <div className="flex items-center gap-2 text-md font-semibold mb-2">
+          <div className="flex items-center gap-2 text-md font-semibold mb-4">
             <Crown className="h-5 w-5 text-orange-500" />
             Current Plan
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-medium">{planDetails?.name}</h3>
               <p className="text-xs text-muted-foreground">

@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Link as LinkIcon, Twitter, TrendingUp, Hash, FileText, MessageSquarePlus } from "lucide-react";
+import { Link as LinkIcon, Twitter, TrendingUp, Hash, FileText, MessageSquarePlus, Copy, Save } from "lucide-react";
 import TweetEditor from "@/components/editor/tweet-editor";
 import { AttachmentItem } from "@/lib/types/attachments";
 import TweetPreview from "@/components/editor/tweet-preview";
@@ -36,8 +36,40 @@ export default function EditorPage() {
     setThread([...thread, { id: newEditorId, content: '', attachments: [] }]);
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(thread.map((post) => post.content).join('\n'));
+  };
+
+  const handleSave = () => {
+    console.log('save');
+  };
+
   return (
-    <SidebarLayout>
+    <SidebarLayout header={{
+      page: 'Editor',
+      left_content:
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopy}
+          >
+            <Copy className="w-4 h-4 mr-2" />
+            Copy
+          </Button>
+          <Button variant="ghost" size="sm">
+            Remake
+          </Button>
+          <Button
+            size="sm"
+            className="bg-black hover:bg-black/90 text-white"
+            onClick={handleSave}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save
+          </Button>
+        </div>
+    }}>
       <SubscriptionGuard>
         <div className="min-h-screen bg-white flex">
           <div className="flex-1 pt-4 pb-8 overflow-y-auto">
@@ -62,7 +94,7 @@ export default function EditorPage() {
                 Add another tweet to thread
               </Button>
             </div>
-            
+
           </div>
 
           <div className="w-80 border-l border-border/50 bg-gray-50/50 pt-4 overflow-y-auto">
@@ -74,7 +106,7 @@ export default function EditorPage() {
               </div>
               <div className="p-4 space-y-4">
                 <TabsContent value="preview" className="mt-0 space-y-4">
-                  { thread.map((post) => (
+                  {thread.map((post) => (
                     <TweetPreview
                       content={post.content}
                       attachments={post.attachments}

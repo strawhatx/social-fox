@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
-import { useSchedulerPosts, type SchedulerItem } from "@/hooks/use-scheduler-posts";
+import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
 
 type CalendarPost = {
     id: string;

@@ -13,13 +13,11 @@ import {
     ListOrdered,
 } from 'lucide-react';
 import { TweetComposer } from './tweet-composer';
-import HashtagPicker from '@/components/editor/hashtag-picker';
 import EmojiPicker from '@/components/editor/emoji-picker';
 import GiphyPicker from '@/components/editor/giphy-picker';
 import ImageUploader from '@/components/editor/image-uploader';
 import { toast } from '@/hooks/use-toast';
 import { AttachmentItem } from '@/lib/types/attachments';
-import { AiRewritePopover } from './ai-rewrite-popover';
 import { AIContentGenerator } from './ai-content-generator';
 
 interface TweetEditorProps {
@@ -31,21 +29,6 @@ interface TweetEditorProps {
 
 export default function TweetEditor({ content, setContent, attachments, setAttachments }: TweetEditorProps) {
     
-    const handleInsertHashtag = (tag: string) => {
-        const cleanTag = tag.startsWith('#') ? tag : `#${tag}`;
-        const addition = (content?.endsWith(' ') || content?.length === 0) ? cleanTag : ` ${cleanTag}`;
-        const next = content + addition;
-        if (next.length > 280) {
-            toast({
-                title: "Too long",
-                description: "Adding this hashtag would exceed 280 characters.",
-            });
-            return;
-        }
-        setContent(next);
-    };
-
-    const addHashtag = () => setContent(content ? content + " #" : "#");
 
     return (
         <div className="max-w-4xl mx-auto px-12 py-8">
@@ -104,9 +87,9 @@ export default function TweetEditor({ content, setContent, attachments, setAttac
                 <div className="w-px h-5 bg-border mx-2" />
 
                 <ImageUploader
-                    onSelect={(urls, files) => {
+                    onSelect={(items) => {
                         // Normalize new items with types
-                        const incoming = urls.map((u, i) => ({ url: u, file: files[i], type: files[i]?.type || null })).filter(Boolean);
+                        const incoming = (items || []).map(it => ({ url: it.url, file: it.file, type: it.type || null, key: it.key })).filter(Boolean as any);
 
                         // Existing counts
                         const hasGif = attachments.some(a => a.type === 'image/gif');
@@ -219,7 +202,19 @@ export default function TweetEditor({ content, setContent, attachments, setAttac
                                 <button
                                     type="button"
                                     className="absolute top-1 right-1 bg-background/80 border border-border text-foreground text-xs px-1 rounded opacity-0 group-hover:opacity-100"
-                                    onClick={() => setAttachments(attachments.filter((_, i) => i !== idx))}
+                                    onClick={async () => {
+                                        const target = attachments[idx];
+                                        if (target?.key) {
+                                            try {
+                                                await fetch('/api/s3/delete', {
+                                                    method: 'POST',
+                                                    headers: { 'content-type': 'application/json' },
+                                                    body: JSON.stringify({ key: target.key }),
+                                                });
+                                            } catch {}
+                                        }
+                                        setAttachments(attachments.filter((_, i) => i !== idx));
+                                    }}
                                 >
                                     Remove
                                 </button>

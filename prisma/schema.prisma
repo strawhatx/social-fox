@@ -49,20 +49,29 @@ model TwitterAccount {
 }
 
 model ContentPost {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content     String
-  platform    String
-  status      String    @default("draft") // draft, scheduled, posted, archived, failed
-  scheduledAt DateTime? @map("scheduled_at") @db.Timestamptz(6)
-  postedAt    DateTime? @map("posted_at") @db.Timestamptz(6)
-  engagement  Json      @default("{}")
-  metadata    Json      @default("{}")
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  userId      String    @map("user_id") @db.Uuid
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(uuid())
+  platform     String
+  status       String   @default("draft")
+  scheduledAt  DateTime?
+  postedAt     DateTime?
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  items    ContentPostItem[]
+}
 
-  @@map("content_posts")
+model ContentPostItem {
+  id           String         @id @default(uuid())
+  post         ContentPost    @relation(fields: [postId], references: [id])
+  postId       String
+  parent       ContentPostItem? @relation("Thread", fields: [parentId], references: [id])
+  parentId     String?
+  children     ContentPostItem[] @relation("Thread")
+  content      String
+  media        Json            @default(sql:"'[]'")
+  metadata     Json            @default(sql:"'{}'")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now())
 }
 
 

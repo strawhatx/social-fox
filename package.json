@@ -90,6 +90,7 @@
     "@netlify/edge-functions-bootstrap": "^2.17.1",
     "@types/aws-lambda": "^8.10.130",
     "@types/formidable": "^3.4.5",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",
     "aws-lambda": "^1.0.7",

@@ -168,3 +168,54 @@ export async function getBestTimeToPost(): Promise<{ time: string }> {
 }
 
 
+export async function aiRewrite(text: string, style?: string): Promise<string> {
+  const styleLine = style ? `Style: ${style}.` : '';
+
+  const conversation_history = [
+    { role: 'system', content: 'You rewrite short social copy. Keep under 280 chars. Return only the rewritten text.' },
+    { role: 'user', content: `Rewrite the following text for a tweet. ${styleLine} Keep it natural, concise, and always under 280 characters. Do not add backticks or quotes.\n\nText:\n${text}` },
+  ];
+  
+  const response = await generateJsonFromPrompt(conversation_history);
+
+  if (response) return response;
+
+  // Last resort: simple local transformation iff all the ai stuff fail
+  return localRewrite(response, style);
+}
+
+export async function aiGenerate(prompt: string): Promise<string> {
+  const conversation_history = [
+    { role: 'system', content: 'You generate short social copy. Keep under 280 chars. Return only the generated text.' },
+    { role: 'user', content: prompt },
+  ];
+  const response = await generateJsonFromPrompt(conversation_history);
+  return response;
+}
+
+function localRewrite(text: string, style?: string): string {
+  const t = text?.trim();
+  if (!t) return '';
+  let s = t;
+  switch (style) {
+    case 'concise':
+      s = t.substring(0, Math.max(50, Math.floor(t.length * 0.8)));
+      break;
+    case 'engaging':
+      s = `🚀 ${t}`;
+      break;
+    case 'humorous':
+      s = `${t} 😄`;
+      break;
+    case 'inspirational':
+      s = `💪 ${t} #Motivation`;
+      break;
+    default:
+      s = t.charAt(0).toUpperCase() + t.slice(1);
+      if (!/[.!?]$/.test(s)) s += '.';
+      s += ' ✨';
+  }
+  return s;
+}
+
+

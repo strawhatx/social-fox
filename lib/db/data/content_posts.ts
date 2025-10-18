@@ -9,7 +9,7 @@ export async function createScheduledPost(userId: string, params: {
 }) {
   const { platform = 'twitter', scheduled_at } = params;
 
-  if(!scheduled_at) throw new Error('Scheduled at is required');
+  if (!scheduled_at) throw new Error('Scheduled at is required');
 
   return prisma.contentPost.create({
     data: {
@@ -22,3 +22,5 @@ export async function createScheduledPost(userId: string, params: {
     },
   });
 }
+
+

@@ -1,69 +1,12 @@
 import OpenAI from 'openai';
 
-const SYSTEM_PROMPT = `
-Role:
-You are Social Fox, an AI professional social media manager and content strategist specializing in Twitter/X. You are always an expert in content, providing authentic, engaging, on-brand posts and conversational guidance. Always return a single, valid JSON object (never markdown, never plain text).
-
-Principles:
-Respond as a friendly, human-like social media expert. Be conversational, approachable, and actionable.
-Emphasize authenticity, drawing on the brand’s voice, values, and storytelling. Content should feel organic, relatable, and never robotic or overly promotional.
-
-Behavior by Request Type:
-
-1. Content Creation or Editing Requests
-Triggered when the user asks to:
-- write, draft, create, or generate posts/tweets/captions/threads
-- rewrite, rephrase, restyle, or adjust tone (e.g., "make it funnier", "rewrite sarcastically", "make it bolder")
-- improve, enhance, shorten, expand, or adapt existing social media content
-→ Always return exactly this structure:
-
-{
-  "text": "Concise, professional response acknowledging the request (e.g., brief intro, or summary of approach)",
-  "drafts": [
-    { "text": "Post option 1", "tone": "motivational" },
-    { "text": "Post option 2", "tone": "authentic" },
-    { "text": "Post option 3", "tone": "casual" }
-  ]
-}
-
-Rules for Drafts:
-- Always provide 3 creative variations unless explicitly told otherwise.
-- Each must be ≤ 280 characters unless the user requests long-form (e.g., thread).
-- Use the 'tone' label to reflect the actual style.
-- If the user gives an example or input text, rewrite or adapt it into 3 versions matching their tone/style request.
-
-2. Advice / Questions (Social-related)
-Triggered when the user asks about strategy, growth, posting times, engagement, branding, tone, etc.
-→ Always return exactly this structure:
-
-{
-  "text": "Concise, friendly, expert response answering the user",
-  "drafts": []
-}
-
-3. Other / Off-Topic Questions
-Triggered when the user asks about something unrelated to content or social media.
-→ Return a natural conversational response, formatted as:
-
-{
-  "text": "Friendly, human-like answer (optionally redirecting to social or brand-related context)",
-  "drafts": []
-}
-
-Output Rules:
-- Always return a single valid JSON object.
-- No markdown fences, no explanations, no extra commentary.
-- "drafts" is **only** populated for writing, editing, or tone-change requests.
-- Always sound confident, human, and creative — never robotic or formulaic.
-`;
-
 
 function stripFences(text: string): string {
   return String(text || '').replace(/```json|```/g, '').trim();
 }
 
 export async function callGrok(
-  conversation_history: { role: string; content: string }[],
+  prompts: { role: string; content: string }[],
   temperature = 0.4
 ): Promise<string> {
   const xaiKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY || '';
@@ -76,8 +19,7 @@ export async function callGrok(
     const resp = await (grok as any).chat.completions.create({
       model: process.env.XAI_MODEL || 'grok-2-latest',
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...conversation_history,
+        ...prompts,
       ] as any,
       temperature,
     });
@@ -88,7 +30,7 @@ export async function callGrok(
 }
 
 export async function callOpenAI(
-  conversation_history: { role: string; content: string }[],
+  prompts: { role: string; content: string }[],
   temperature = 0.4
 ): Promise<string> {
   const key = process.env.OPENAI_API_KEY || '';
@@ -98,8 +40,7 @@ export async function callOpenAI(
     const resp = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...conversation_history,
+        ...prompts,
       ] as any,
       temperature,
     });
@@ -110,7 +51,7 @@ export async function callOpenAI(
 }
 
 export async function callGemini(
-  conversation_history: { role: string; content: string }[],
+  prompts: { role: string; content: string }[],
   temperature = 0.4
 ): Promise<string> {
   const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_KEY || '';
@@ -125,8 +66,7 @@ export async function callGemini(
           contents: [{
             parts: [{
               text: [
-                `system: ${SYSTEM_PROMPT}`,
-                ...conversation_history.map(h => `${h.role}: ${h.content}`)
+                ...prompts.map(h => `${h.role}: ${h.content}`)
               ].join('\n')
             }]
           }],
@@ -144,39 +84,42 @@ export async function callGemini(
 }
 
 export async function generateJsonFromPrompt(
-  conversation_history: { role: string; content: string }[],
+  prompts: { role: string; content: string }[],
   temperature = 0.4
 ): Promise<string> {
   // Priority: Grok → OpenAI → Gemini
-  const grok = await callGrok(conversation_history, temperature);
+  const grok = await callGrok(prompts, temperature);
   if (grok) return grok;
 
-  const openai = await callOpenAI(conversation_history, temperature);
+  const openai = await callOpenAI(prompts, temperature);
   if (openai) return openai;
 
-  const gemini = await callGemini(conversation_history, temperature);
+  const gemini = await callGemini(prompts, temperature);
   if (gemini) return gemini;
 
   return '';
 }
 
 export async function getBestTimeToPost(): Promise<{ time: string }> {
-  const conversation_history = [{ role: 'user', content: 'What is the best 3 timeS to post on Twitter for the highes engagemnent? ' }];
-  const response = await generateJsonFromPrompt(conversation_history);
+  const prompts = [{ role: 'user', content: 'What is the best 3 timeS to post on Twitter for the highes engagemnent? ' }];
+  const response = await generateJsonFromPrompt(prompts);
   const parsedResponse = JSON.parse(response || '{}');
   return { time: parsedResponse.time || '2:00 PM' };
 }
 
+export async function bulkPostGeneration(): Promise<string> {
+
+}
 
 export async function aiRewrite(text: string, style?: string): Promise<string> {
   const styleLine = style ? `Style: ${style}.` : '';
 
-  const conversation_history = [
+  const prompts = [
     { role: 'system', content: 'You rewrite short social copy. Keep under 280 chars. Return only the rewritten text.' },
     { role: 'user', content: `Rewrite the following text for a tweet. ${styleLine} Keep it natural, concise, and always under 280 characters. Do not add backticks or quotes.\n\nText:\n${text}` },
   ];
   
-  const response = await generateJsonFromPrompt(conversation_history);
+    const response = await generateJsonFromPrompt(prompts);
 
   if (response) return response;
 
@@ -185,11 +128,11 @@ export async function aiRewrite(text: string, style?: string): Promise<string> {
 }
 
 export async function aiGenerate(prompt: string): Promise<string> {
-  const conversation_history = [
+  const prompts = [
     { role: 'system', content: 'You generate short social copy. Keep under 280 chars. Return only the generated text.' },
     { role: 'user', content: prompt },
   ];
-  const response = await generateJsonFromPrompt(conversation_history);
+  const response = await generateJsonFromPrompt(prompts);
   return response;
 }
 

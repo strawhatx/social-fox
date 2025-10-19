@@ -41,6 +41,11 @@ export async function GET(req: Request) {
         // Return posts scheduled within the requested month
         scheduledAt: { gte: startOfMonth, lt: startOfNextMonth },
       },
+      include: {
+        items: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
       orderBy: [{ scheduledAt: { sort: 'asc', nulls: 'last' } }],
     });
 

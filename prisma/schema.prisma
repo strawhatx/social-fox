@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -49,31 +48,35 @@ model TwitterAccount {
 }
 
 model ContentPost {
-  id           String   @id @default(uuid())
-  platform     String
-  status       String   @default("draft")
-  scheduledAt  DateTime?
-  postedAt     DateTime?
-  userId       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
-  items    ContentPostItem[]
+  id          String            @id @default(uuid()) @db.Uuid
+  platform    String
+  status      String            @default("draft")
+  scheduledAt DateTime?         @map("scheduled_at") @db.Timestamptz(6)
+  postedAt    DateTime?         @map("posted_at") @db.Timestamptz(6)
+  userId      String            @map("user_id") @db.Uuid
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  items       ContentPostItem[]
+
+   @@map("content_posts")
 }
 
 model ContentPostItem {
-  id           String         @id @default(uuid())
-  post         ContentPost    @relation(fields: [postId], references: [id])
-  postId       String
-  parent       ContentPostItem? @relation("Thread", fields: [parentId], references: [id])
-  parentId     String?
-  children     ContentPostItem[] @relation("Thread")
-  content      String
-  media        Json            @default(sql:"'[]'")
-  metadata     Json            @default(sql:"'{}'")
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @default(now())
-}
+  id        String            @id @default(uuid()) @db.Uuid
+  post      ContentPost       @relation(fields: [postId], references: [id])
+  postId    String            @map("post_id") @db.Uuid
+  parent    ContentPostItem?  @relation("Thread", fields: [parentId], references: [id])
+  parentId  String?           @map("parent_id") @db.Uuid
+  children  ContentPostItem[] @relation("Thread")
+  content   String
+  media     Json              @default(dbgenerated("'[]'::jsonb"))
+  metadata  Json              @default(dbgenerated("'{}'::jsonb"))
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
 
+   @@map("content_post_items")
+}
 
 model Library {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -131,4 +134,3 @@ model UserUsage {
   @@unique([userId, feature, periodStart, periodEnd])
   @@map("user_usage")
 }
-

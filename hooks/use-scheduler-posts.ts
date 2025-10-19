@@ -21,9 +21,28 @@ export function useSchedulerPosts() {
     }
   };
 
+  const fetchScheduledFor = async (month: number, year: number) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ month: String(month), year: String(year) });
+      const res = await fetch(`/api/content-posts?${params.toString()}`);
+      const body = await res.json();
+      const data = (body?.data as ContentPost[]) || [];
+      setPosts(data);
+    } catch (error) {
+      console.error('Error fetching scheduler posts for month:', error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const items: ContentPost[] = useMemo(() => {
     return posts.map((p) => ({
       id: p.id,
+      userId: p.userId,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
       platform: (p.platform || 'twitter') as any,
       status: p.status || 'draft',
       scheduledAt: p.scheduledAt,
@@ -67,6 +86,7 @@ export function useSchedulerPosts() {
     items,
     loading,
     refetch: fetchScheduled,
+    refetchForMonthYear: fetchScheduledFor,
     update,
     remove,
   };

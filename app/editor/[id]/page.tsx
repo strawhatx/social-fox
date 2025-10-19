@@ -1,45 +1,47 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
 import { Button } from "@/components/ui/button";
-import { v4 as uuidv4 } from 'uuid';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Link as LinkIcon, Twitter, TrendingUp, Hash, FileText, MessageSquarePlus, Copy, Save } from "lucide-react";
+import { MessageSquarePlus, Copy, Save } from "lucide-react";
 import TweetEditor from "@/components/editor/tweet-editor";
 import { AttachmentItem } from "@/lib/types/attachments";
-import TweetPreview from "@/components/editor/tweet-preview";
-import { getBestTimeToPost } from '@/lib/ai';
 import { useParams } from "next/navigation";
+import TweetPreview from "@/components/editor/tweet-preview";
+import { ContentPostItem } from "@/lib/types/content_posts";
+
+interface Thread {
+  id: string;
+  content: string;
+  attachments: AttachmentItem[];
+}
 
 export default function EditorPage() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"preview" | "data" | "outline">("preview");
-  const [bestTime, setBestTime] = useState<string>('');
   const params = useParams();
-  const rawId = params.id as string;
-  const isNew = rawId === 'new';
-  const [postId, setPostId] = useState<string | null>(isNew ? null : rawId);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+  const [thread, setThread] = useState<Array<Thread>>([]);
 
   // Fetch best time to post on mount
   useEffect(() => {
-    async function fetchBestTime() {
-      const result = await getBestTimeToPost();
-      setBestTime(result.time);
-    }
-    fetchBestTime();
+    const fetchPost = async () => {
+      const res = await fetch(`/api/content-posts/${encodeURIComponent(params.id as string)}`);
+      const data = await res.json();
+
+      setScheduledAt(data.data.scheduledAt);
+      setThread(data.data.items.map((item: ContentPostItem) => ({
+        id: item.id,
+        content: item.content,
+        attachments: item.media,
+      })));
+    };
+
+    fetchPost();
+    
   }, []);
 
-  useEffect(() => {
-    
-  }, [isNew]);
-
-  const [thread, setThread] = useState<Array<{ id: string; content: string; attachments: AttachmentItem[] }>>([
-    { id: 'editor-1', content: '', attachments: [] }
-  ]);
 
   const addNewEditor = () => {
     const newEditorId = `editor-${thread.length + 1}`;
@@ -52,8 +54,7 @@ export default function EditorPage() {
 
   const handleSave = async () => {
     try {
-      if (!postId) return;
-      const url = `/api/content-posts/${encodeURIComponent(postId)}`;
+      const url = `/api/content-posts/${encodeURIComponent(params.id as string)}`;
       const method = 'PATCH';
       const body: any = {};
       if (scheduledAt) body.scheduled_at = scheduledAt;

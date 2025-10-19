@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from 'react';
-import { format, setHours, setMinutes } from 'date-fns';
+import { useState } from 'react';
 import { Button } from '../ui/button';
-import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
-import { ChevronDown } from 'lucide-react';
+import { Clock, Plus } from 'lucide-react';
+import { Dialog, DialogFooter, DialogContent, DialogDescription,  DialogTitle, DialogHeader } from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
 
 type SchedulePickerProps = {
     scheduledAt?: Date;
@@ -15,93 +14,133 @@ type SchedulePickerProps = {
 };
 
 export default function SchedulePicker({ scheduledAt, onConfirm, disabled }: SchedulePickerProps) {
-    const [open, setOpen] = useState(false);
-    const initial = scheduledAt ?? new Date();
-    const [day, setDay] = useState<Date>(initial);
-    const [hour, setHour] = useState<string>(String(initial.getHours()).padStart(2, '0'));
-    const [minute, setMinute] = useState<string>(String(initial.getMinutes()).padStart(2, '0'));
+  const [showAddPostDialog, setShowAddPostDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(scheduledAt ?? null);
+  const [selectedTime, setSelectedTime] = useState("09:00");
+  
+  const commonTimes = [
+    { label: 'Morning', time: '09:00' },
+    { label: 'Noon', time: '12:00' },
+    { label: 'Afternoon', time: '15:00' },
+    { label: 'Evening', time: '18:00' },
+  ];
 
-    const preview = useMemo(() => {
-        const withHours = setHours(day, Number(hour));
-        const withMinutes = setMinutes(withHours, Number(minute));
-        return withMinutes;
-    }, [day, hour, minute]);
+  const handleOpen = () => {
+    setSelectedDate(scheduledAt ?? new Date());
+    setShowAddPostDialog(true);
+  };
 
-    const label = scheduledAt ? `In Queue` : `Add to Queue`;
-    const labelDate = scheduledAt ? format(scheduledAt, 'MMM d, yyyy h:mm a') : undefined;
+  const handleConfirm = () => {
+    const base = selectedDate ?? scheduledAt ?? new Date();
+    const [hourStr, minuteStr] = selectedTime.split(":");
+    const hour = parseInt(hourStr || "0", 10);
+    const minute = parseInt(minuteStr || "0", 10);
+    const dt = new Date(base);
+    dt.setHours(hour, minute, 0, 0);
+    setShowAddPostDialog(false);
+    onConfirm(dt);
+  };
 
-    const hours: string[] = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-    const minutes: string[] = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled}
+        className="w-full text-xs justify-start px-2 h-6 text-orange-600 border-orange-200 border-dashed hover:bg-orange-50"
+        onClick={handleOpen}
+      >
+        
+       + Add Post
+      </Button>
 
-    return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+      <Dialog open={showAddPostDialog} onOpenChange={setShowAddPostDialog}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-orange-500" />
+            Schedule New Post
+          </DialogTitle>
+          <DialogDescription>
+            Select a date and time to schedule your new social media post.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="date" className="text-sm font-medium">
+              Date
+            </Label>
+            <Input
+              id="date"
+              type="date"
+              value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
+              onChange={(e) => setSelectedDate(new Date(e.target.value))}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="time" className="text-sm font-medium">
+              Time
+            </Label>
+            <div className="flex gap-2 mb-2">
+              {commonTimes.map((timeOption) => (
                 <Button
-                    disabled={disabled}
-                    className={`flex-1 flex flex-col items-center py-2 text-sm ${scheduledAt ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600'}`}
+                  key={timeOption.time}
+                  type="button"
+                  variant={selectedTime === timeOption.time ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedTime(timeOption.time)}
+                  className={selectedTime === timeOption.time ? "bg-orange-500 hover:bg-orange-600 text-white" : ""}
                 >
-                    <div className="flex items-center gap-1">
-                        <span>{label}</span>
-                        <ChevronDown className="h-3 w-3" />
-                    </div>
-                    <span className="text-xs opacity-90">{labelDate ?? format(preview, 'MMM d, yyyy h:mm a')}</span>
+                  {timeOption.label}
                 </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-3 w-[320px] bg-gradient-to-br from-blue-50 to-orange-50 border-orange-200" sideOffset={15}
-                alignOffset={100}
-                align="end">
-                <div className="space-y-3">
-                    <Calendar
-                        mode="single"
-                        selected={day}
-                        onSelect={(d) => d && setDay(d)}
-                        initialFocus
-                        classNames={{
-                            day_selected: 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 focus:from-orange-600 focus:to-red-600',
-                            day_today: 'bg-orange-100 text-orange-700',
-                            day: 'hover:bg-orange-100 hover:text-orange-700'
-                        }}
-                    />
-                    <div className="flex items-center gap-2">
-                        <Select value={hour} onValueChange={setHour}>
-                            <SelectTrigger className="w-20 h-8 text-xs">
-                                <SelectValue placeholder="HH" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {hours.map((h) => (
-                                    <SelectItem key={h} value={h}>{h}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <span className="text-muted-foreground text-xs">:</span>
-                        <Select value={minute} onValueChange={setMinute}>
-                            <SelectTrigger className="w-20 h-8 text-xs">
-                                <SelectValue placeholder="MM" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {minutes.map((m) => (
-                                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <span className="ml-auto text-xs text-muted-foreground">{format(preview, 'h:mm a')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-                            onClick={() => {
-                                onConfirm(preview);
-                                setOpen(false);
-                            }}
-                        >
-                            Confirm
-                        </Button>
-                        <Button variant="outline" onClick={() => setOpen(false)} className="h-8 text-xs border-orange-200 text-orange-600 hover:bg-orange-100">Cancel</Button>
-                    </div>
-                </div>
-            </PopoverContent>
-        </Popover>
-    );
+              ))}
+            </div>
+            <Input
+              id="time"
+              type="time"
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          {selectedDate && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+              <p className="text-sm text-orange-900">
+                <span className="font-medium">Scheduled for:</span>
+                <br />
+                {selectedDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })} at {selectedTime}
+              </p>
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowAddPostDialog(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            className="bg-orange-500 hover:bg-orange-600 text-white"
+            onClick={handleConfirm}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Post
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
+  );
 }
 
 

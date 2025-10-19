@@ -27,7 +27,11 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     const appUserId = await resolveUserUuid(userId);
     if (!appUserId) return json({ error: "User not found" }, { status: 404 });
 
-    const row = await prisma.contentPost.findFirst({ where: { id: params.id, userId: appUserId } });
+    const row = await prisma.contentPost.findFirst({ 
+      where: { id: params.id, userId: appUserId },
+      include: { items: true }
+    });
+    
     if (!row) return json({ error: "Not found" }, { status: 404 });
 
     return json({ data: row });

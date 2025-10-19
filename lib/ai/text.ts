@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { generateImagesFromPrompt } from './image';
 
 
 function stripFences(text: string): string {
@@ -101,14 +102,54 @@ export async function generateJsonFromPrompt(
 }
 
 export async function getBestTimeToPost(): Promise<{ time: string }> {
-  const prompts = [{ role: 'user', content: 'What is the best 3 timeS to post on Twitter for the highes engagemnent? ' }];
+  const prompts = [
+    { role: 'user', content: 'What is the best 3 times to post on Twitter for the highes engagemnent? ' }
+  ];
   const response = await generateJsonFromPrompt(prompts);
   const parsedResponse = JSON.parse(response || '{}');
   return { time: parsedResponse.time || '2:00 PM' };
 }
 
-export async function bulkPostGeneration(): Promise<string> {
+export async function bulkPostGeneration(audience: string, subject: string ): Promise<{ posts: { text: string; image?: string }[] }> {
+  const prompts = [
+    { role: "system", content: `You are a viral Twitter ghostwriter who writes engaging, high-converting posts for ${audience}.` },
+    { role: "user", content: `Generate 30 short posts about ${subject}. Return JSON in the format: { posts: [{ text: string }] }` },
+  ];
 
+  // Step 1: Generate 30 posts (text)
+  const response = await generateJsonFromPrompt(prompts);
+  const parsedResponse = JSON.parse(response || '{"posts": []}');
+  const posts = parsedResponse.posts || [];
+
+  if (!posts.length) {
+    console.error('⚠️ No posts returned from text generation');
+    return { posts: [] };
+  }
+
+  // Step 2: Generate all images in parallel (with throttling)
+  const concurrency = 5; // limit to 5 at a time to avoid rate limits
+  const results: { text: string; image?: string }[] = [];
+
+  for (let i = 0; i < posts.length; i += concurrency) {
+    const chunk = posts.slice(i, i + concurrency);
+    const chunkResults = await Promise.allSettled(
+      chunk.map(async (post: any) => {
+        const prompt = `Generate a relevant image for this post: "${post.text}"`;
+        const images = await generateImagesFromPrompt([{ role: "user", content: prompt }], { count: 1 });
+        return { text: post.text, image: images?.[0] || "" };
+      })
+    );
+
+    results.push(
+      ...chunkResults.map((r, i) => {
+        if (r.status === "fulfilled") return r.value;
+        console.error(`❌ Image failed for post ${i}:`, r.reason);
+        return { text: chunk[i].text, image: "" };
+      })
+    );
+  }
+
+  return { posts: results };
 }
 
 export async function aiRewrite(text: string, style?: string): Promise<string> {

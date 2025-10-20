@@ -110,10 +110,12 @@ export async function getBestTimeToPost(): Promise<{ time: string }> {
   return { time: parsedResponse.time || '2:00 PM' };
 }
 
-export async function bulkPostGeneration(audience: string, subject: string ): Promise<{ posts: { text: string; image?: string }[] }> {
+export async function bulkPostGeneration(audience: string, subject: string, tone: string, goals: string ): Promise<{ posts: { text: string; image?: string }[] }> {
   const prompts = [
     { role: "system", content: `You are a viral Twitter ghostwriter who writes engaging, high-converting posts for ${audience}.` },
     { role: "user", content: `Generate 30 short posts about ${subject}. Return JSON in the format: { posts: [{ text: string }] }` },
+    { role: "user", content: `The tone of the posts should be ${tone}.` },
+    { role: "user", content: `The goals of the posts should be ${goals}.` },
   ];
 
   // Step 1: Generate 30 posts (text)

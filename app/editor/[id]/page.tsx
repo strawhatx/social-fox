@@ -22,7 +22,9 @@ export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<"preview" | "data" | "outline">("preview");
   const params = useParams();
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  const [thread, setThread] = useState<Array<Thread>>([]);
+  const [thread, setThread] = useState<Array<Thread>>([
+    {id: '1', content: '', attachments: []},
+  ]);
 
   // Fetch best time to post on mount
   useEffect(() => {

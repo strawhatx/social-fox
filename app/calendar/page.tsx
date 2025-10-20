@@ -10,10 +10,11 @@ import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
 import { ContentPost } from "@/lib/types/content_posts";
 import SchedulePicker from "@/components/editor/schedule-picker";
 import PostGrid from "@/components/calendar/post-grid";
+import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
 
 interface DashboardProps {
     posts: ContentPost[];
-    onExport: (audience: string, subject: string) => void;
+    onExport: (audience: string, subject: string, tone: string, goals: string) => void;
     onMonthChange?: (month: number, year: number) => void;
 }
 
@@ -98,14 +99,8 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                 <div>
                     <p className="text-gray-600">Plan and track your content.</p>
                 </div>
-                <Button 
-                    variant="default"
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm" 
-                    onClick={onExport}
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Generate 30 Day Plan
-                </Button>
+            
+                <ContentPlanDialog onGeneratePlan={onExport} />
             </div>
 
             <div className="flex items-center justify-between mb-6">
@@ -152,7 +147,7 @@ export default function CalendarPage() {
 
 
 
-    const handleExport = async (audience: string, subject: string) => {
+    const handleExport = async (audience: string, subject: string, tone: string, goals: string) => {
         const start = new Date();
 
         await fetch('/api/content-posts/bulk', { 
@@ -161,7 +156,9 @@ export default function CalendarPage() {
             body: JSON.stringify({ 
                 startDate: start.toISOString(), 
                 audience, 
-                subject 
+                subject,
+                tone,
+                goals
             }) 
         });
         await refetch();

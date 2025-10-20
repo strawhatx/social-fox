@@ -16,12 +16,12 @@ export async function POST(req: Request) {
     if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { startDate, audience, subject } = body as { startDate: string; audience: string; subject: string; };
+    const { startDate, audience, subject, tone, goals } = body as { startDate: string; audience: string; subject: string; tone: string; goals: string; };
     if (!startDate || !audience || !subject) {
       return json({ error: 'Missing required fields: startDate, audience, subject' }, { status: 400 });
     }
 
-    const { posts } = await bulkPostGeneration(audience, subject);
+    const { posts } = await bulkPostGeneration(audience, subject, tone, goals);
     if (!Array.isArray(posts) || posts.length === 0) {
       return json({ error: 'No posts generated' }, { status: 400 });
     }
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
             },
           },
         });
-        
+
         ids.push(createdPost.id);
         currentDate.setDate(currentDate.getDate() + 1); // stagger schedule by 1 day
       }

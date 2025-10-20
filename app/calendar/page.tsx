@@ -9,10 +9,11 @@ import SubscriptionGuard from "@/components/subscription/subscription-guard";
 import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
 import { ContentPost } from "@/lib/types/content_posts";
 import SchedulePicker from "@/components/editor/schedule-picker";
+import PostGrid from "@/components/calendar/post-grid";
 
 interface DashboardProps {
     posts: ContentPost[];
-    onExport: () => void;
+    onExport: (audience: string, subject: string) => void;
     onMonthChange?: (month: number, year: number) => void;
 }
 
@@ -68,7 +69,6 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
     const currentYear = currentDate.getFullYear();
 
     const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
 
@@ -79,7 +79,6 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
         days.push(new Date(day));
     }
 
-    const getStatusColor = (status: string) => status === 'posted' ? 'bg-emerald-600' : status === 'scheduled' ? 'bg-blue-600' : 'bg-amber-500';
     const isToday = (date: Date) => date.toDateString() === today.toDateString();
     const isCurrentMonth = (date: Date) => date.getMonth() === currentMonth;
     const goToPreviousMonth = () => {
@@ -99,7 +98,11 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                 <div>
                     <p className="text-gray-600">Plan and track your content.</p>
                 </div>
-                <Button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm" onClick={onExport}>
+                <Button 
+                    variant="default"
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm" 
+                    onClick={onExport}
+                >
                     <Plus className="w-4 h-4 mr-2" />
                     Generate 30 Day Plan
                 </Button>
@@ -124,72 +127,15 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                         </div>
                     ))}
                 </div>
-                <div className="grid grid-cols-7">
-                    {days.map((date: Date, index: number) => {
-                        const dayPosts = posts.filter((p) => {
-                            if (!p.scheduledAt) return false;
-                            const t = new Date(p.scheduledAt);
-                            return t.getFullYear() === date.getFullYear() && t.getMonth() === date.getMonth() && t.getDate() === date.getDate();
-                        });
-                        const isCurrentMonthDay = isCurrentMonth(date);
-                        const isTodayDate = isToday(date);
-                        return (
-                            <div
-                                key={index}
-                                className={`min-h-[120px] border-r border-b border-gray-100 p-3 ${!isCurrentMonthDay ? 'bg-gray-50' : 'bg-white'
-                                    } hover:bg-gray-50 transition-colors`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span
-                                        className={`text-sm font-medium ${isTodayDate
-                                                ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
-                                                : isCurrentMonthDay
-                                                    ? 'text-gray-900'
-                                                    : 'text-gray-400'
-                                            }`}
-                                    >
-                                        {date.getDate()}
-                                    </span>
-                                </div>
 
-                                {/* Posts for this day */}
-                                <div className="space-y-1">
-                                    {dayPosts.map((post) => {
-                                        const scheduled = post.scheduledAt ? new Date(post.scheduledAt) : null;
-                                        const timeLabel = scheduled ? scheduled.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                                        const preview = Array.isArray(post.items) && post.items.length > 0 ? post.items[0].content : 'New post';
-                                        return (
-                                            <div
-                                                key={post.id}
-                                                className={`text-xs text-white px-2 py-1.5 rounded-md cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(post.status)}`}
-                                                onClick={() => onSelectPost(post)}
-                                                title={`${timeLabel} ${preview}`.trim()}
-                                            >
-                                                {timeLabel && (
-                                                    <div className="flex items-center gap-1 mb-0.5">
-                                                        <Clock className="w-3 h-3" />
-                                                        <span className="opacity-90">{timeLabel}</span>
-                                                    </div>
-                                                )}
-                                                <div className="truncate font-medium">
-                                                    {preview}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-
-                                    {/* Add post - uses SchedulePicker */}
-                                    {isCurrentMonthDay && (
-                                        <SchedulePicker
-                                            scheduledAt={date}
-                                            onConfirm={(dt) => handleAddPost(dt)}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                <PostGrid 
+                    posts={posts} 
+                    isCurrentMonth={isCurrentMonth} 
+                    isToday={isToday} 
+                    days={days} 
+                    onSelectPost={onSelectPost} 
+                    handleAddPost={handleAddPost} 
+                />
             </div>
 
             <div className="flex items-center gap-6 mt-6 text-sm">
@@ -206,13 +152,18 @@ export default function CalendarPage() {
 
 
 
-    const handleExport = async () => {
+    const handleExport = async (audience: string, subject: string) => {
         const start = new Date();
-        const itemsPayload = Array.from({ length: 30 }).map((_, i) => {
-            const d = new Date(start); d.setDate(d.getDate() + i); d.setHours(9, 0, 0, 0);
-            return { content: `Post ${i + 1}`, scheduled_at: d.toISOString() };
+
+        await fetch('/api/content-posts/bulk', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ 
+                startDate: start.toISOString(), 
+                audience, 
+                subject 
+            }) 
         });
-        await fetch('/api/content-posts/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: itemsPayload }) });
         await refetch();
     };
 

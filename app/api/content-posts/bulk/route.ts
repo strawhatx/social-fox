@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db/prisma';
 import { resolveUserUuid } from '@/lib/db';
+import { bulkPostGeneration } from '@/lib/ai/text';
 
 function json(body: unknown, init?: ResponseInit) {
   return new Response(JSON.stringify(body), {
@@ -14,28 +15,49 @@ export async function POST(req: Request) {
     const { userId } = await auth();
     if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
 
-    const appUserId = await resolveUserUuid(userId);
-    if (!appUserId) return json({ error: 'User not found' }, { status: 404 });
-
     const body = await req.json();
-    const { items } = body as { items: Array<{ content: string; scheduled_at?: string | null; platform?: string; metadata?: any }>; };
-    if (!Array.isArray(items) || items.length === 0) {
-      return json({ error: 'No items provided' }, { status: 400 });
+    const { startDate, audience, subject } = body as { startDate: string; audience: string; subject: string; };
+    if (!startDate || !audience || !subject) {
+      return json({ error: 'Missing required fields: startDate, audience, subject' }, { status: 400 });
     }
 
-    const toCreate = items.map((i) => ({
-      userId: appUserId,
-      content: (i.content || '').trim(),
-      platform: i.platform || 'twitter',
-      status: i.scheduled_at ? 'scheduled' : 'draft',
-      scheduledAt: i.scheduled_at ? new Date(i.scheduled_at) : null,
-      metadata: i.metadata || {},
-    })).filter((r) => r.content.length > 0);
+    const { posts } = await bulkPostGeneration(audience, subject);
+    if (!Array.isArray(posts) || posts.length === 0) {
+      return json({ error: 'No posts generated' }, { status: 400 });
+    }
 
-    if (toCreate.length === 0) return json({ error: 'No valid content' }, { status: 400 });
+    let currentDate = new Date(startDate);
 
-    const created = await prisma.contentPost.createMany({ data: toCreate });
-    return json({ success: true, count: created.count });
+    // Create posts and items transactionally, maintaining item ordering via parentId
+    const createdIds = await prisma.$transaction(async (tx) => {
+      const ids: string[] = [];
+      for (let i = 0; i < posts.length; i++) {
+        const post = posts[i];
+        const scheduledAt = new Date(currentDate);
+
+        const createdPost = await tx.contentPost.create({
+          data: {
+            userId: userId,
+            platform: 'x',
+            status: 'scheduled',
+            scheduledAt,
+            items: {
+              create: {
+                content: String(post?.text || '').trim(),
+                media: [{ url: post?.image || '', type: 'image' }],
+                metadata: { attachments: [] },
+              },
+            },
+          },
+        });
+        
+        ids.push(createdPost.id);
+        currentDate.setDate(currentDate.getDate() + 1); // stagger schedule by 1 day
+      }
+      return ids;
+    });
+
+    return json({ success: true, count: createdIds.length, ids: createdIds });
   } catch (err) {
     console.error('Error bulk creating content_posts:', err);
     return json({ error: 'Internal server error' }, { status: 500 });

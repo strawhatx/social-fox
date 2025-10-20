@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { auth } from "@clerk/nextjs/server";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/db/prisma";
-import { resolveUserUuid } from "@/lib/db";
+import { resolveUserUuid } from "@/lib/db/data/users";
 
 //
 // --- Utils
@@ -31,7 +31,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       where: { id: params.id, userId: appUserId },
       include: { items: true }
     });
-    
+
     if (!row) return json({ error: "Not found" }, { status: 404 });
 
     return json({ data: row });

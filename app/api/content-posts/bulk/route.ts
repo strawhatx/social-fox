@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db/prisma';
-import { resolveUserUuid } from '@/lib/db';
+import { resolveUserUuid } from '@/lib/db/data/users';
 import { bulkPostGeneration } from '@/lib/ai/text';
 
 function json(body: unknown, init?: ResponseInit) {
@@ -14,6 +14,9 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
+
+    const appUserId = await resolveUserUuid(userId);
+    if (!appUserId) return json({ error: 'User not found' }, { status: 404 });
 
     const body = await req.json();
     const { startDate, audience, subject, tone, goals } = body as { startDate: string; audience: string; subject: string; tone: string; goals: string; };
@@ -37,7 +40,7 @@ export async function POST(req: Request) {
 
         const createdPost = await tx.contentPost.create({
           data: {
-            userId: userId,
+            userId: appUserId,
             platform: 'x',
             status: 'scheduled',
             scheduledAt,

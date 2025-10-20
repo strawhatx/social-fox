@@ -8,7 +8,6 @@ import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
 import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
 import { ContentPost } from "@/lib/types/content_posts";
-import SchedulePicker from "@/components/editor/schedule-picker";
 import PostGrid from "@/components/calendar/post-grid";
 import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
 

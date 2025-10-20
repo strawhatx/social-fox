@@ -1,6 +1,6 @@
 import SchedulePicker from "../editor/schedule-picker";
 import { Clock } from "lucide-react";
-import { ContentPost } from "@/lib/types/content";
+import { ContentPost } from "@/lib/types/content_posts";
 
 interface DayPostProps {
     posts: ContentPost[];

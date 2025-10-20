@@ -1,6 +1,6 @@
 
 import { prisma } from '@/lib/db/prisma';
-import { resolveUserUuid } from '@/lib/db';
+import { resolveUserUuid } from '@/lib/db/data/users';
 import { auth } from '@clerk/nextjs/server';
 import { createScheduledPost } from '@/lib/db/data/content_posts';
 

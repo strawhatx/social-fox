@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 type RoleContent = { role: string; content: string };
 
 type ImageSize = '256x256' | '512x512' | '1024x1024' | '2048x2048';
-type ImageQuality = 'standard' | 'hd';
+type ImageQuality = 'low' | 'medium' | 'high' | 'auto';
 type ImageStyle = 'vivid' | 'natural';
 
 interface ImageOptions {
@@ -79,7 +79,7 @@ async function callOpenAIImage(prompt: string, options: ImageOptions = {}): Prom
   const model = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
   const size: ImageSize = options.size || '1024x1024';
   const n = Math.max(1, Math.min(options.count || 1, 10));
-  const quality: ImageQuality = options.quality || 'standard';
+  const quality: ImageQuality = options.quality || 'medium';
   const style: ImageStyle | undefined = options.style;
   const background = options.background;
 
@@ -90,8 +90,7 @@ async function callOpenAIImage(prompt: string, options: ImageOptions = {}): Prom
     n,
     quality,
     style,
-    background,
-    response_format: 'b64_json'
+    background
   } as any);
 
   const images = (response?.data || [])

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { resolveUserUuid } from '@/lib/db';
+import { resolveUserUuid } from '@/lib/db/data/users';
 import { QUOTA_FEATURES } from '@/lib/features';
 import { SUBSCRIPTION_PLANS, SubscriptionPlan } from '@/lib/subscription-plans';
 

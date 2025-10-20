@@ -24,7 +24,9 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
 
     return (
         <>
-            <DialogTrigger asChild>
+
+
+            <Dialog open={open} onOpenChange={setOpen}>   <DialogTrigger asChild>
                 <Button
                     variant="default"
                     className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm"
@@ -34,8 +36,6 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                     Generate 30 Day Plan
                 </Button>
             </DialogTrigger>
-
-            <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[550px]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">

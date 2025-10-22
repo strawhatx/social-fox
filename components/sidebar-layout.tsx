@@ -23,7 +23,7 @@ interface SidebarLayoutProps {
 
 const menuItems = [
   { id: 'calendar', title: 'Calendar', path: '/calendar', icon: '📆', color: 'text-orange-600 hover:bg-orange-100', stats: 'Plan 30 days', description: 'Plan and schedule posts with a monthly calendar' },
-  { id: 'analytics', title: 'Analytics', path: '/analytics', icon: '�', color: 'text-orange-400 hover:bg-orange-100', stats: 'View your content performance', description: 'Track your content engagement and performance' }
+  { id: 'analytics', title: 'Analytics', path: '/analytics', icon: '📊', color: 'text-orange-400 hover:bg-orange-100', stats: 'View your content performance', description: 'Track your content engagement and performance' }
 ];
 
 function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {

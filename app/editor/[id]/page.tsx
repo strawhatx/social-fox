@@ -46,6 +46,7 @@ export default function EditorPage() {
 
 
   const addNewEditor = () => {
+    if (thread.length >= 5) return; // Limit to 5 tweets
     const newEditorId = `editor-${thread.length + 1}`;
     setThread([...thread, { id: newEditorId, content: '', attachments: [] }]);
   };
@@ -139,10 +140,11 @@ export default function EditorPage() {
                 variant="outline"
                 size="sm"
                 onClick={addNewEditor}
-                className="w-full border-dashed border-2 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 py-6"
+                disabled={thread.length >= 5}
+                className="w-full border-dashed border-2 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 py-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <MessageSquarePlus className="w-5 h-5 mr-2" />
-                Add another tweet to thread
+                {thread.length >= 5 ? 'Thread limit reached (5 tweets max)' : 'Add another tweet to thread'}
               </Button>
             </div>
 

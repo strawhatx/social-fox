@@ -58,6 +58,7 @@ model ContentPost {
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
   items       ContentPostItem[]
+  analyticsSnapshots AnalyticsSnapshot[]
 
    @@map("content_posts")
 }
@@ -74,6 +75,7 @@ model ContentPostItem {
   metadata  Json              @default(dbgenerated("'{}'::jsonb"))
   createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  analyticsSnapshots AnalyticsSnapshot[]
 
    @@map("content_post_items")
 }
@@ -133,4 +135,23 @@ model UserUsage {
 
   @@unique([userId, feature, periodStart, periodEnd])
   @@map("user_usage")
+}
+
+model AnalyticsSnapshot {
+  id             String     @id @default(uuid()) @db.Uuid
+  postId         String     @map("post_id") @db.Uuid
+  post           ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  itemId         String?    @map("item_id") @db.Uuid
+  item           ContentPostItem? @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  snapshotDate   DateTime   @map("snapshot_date") @db.Date
+  likes          Int        @default(0)
+  retweets       Int        @default(0)
+  replies        Int        @default(0)
+  impressions    Int?       @default(0)
+  engagementRate Float?     @map("engagement_rate")
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([postId, itemId, snapshotDate])
+  @@map("analytics_snapshots")
 }

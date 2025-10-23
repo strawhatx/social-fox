@@ -25,7 +25,7 @@ const Demo = () => {
         
         <div className="text-center mt-8">
           <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-            Start Your Free Beta
+           Schedule my content now
           </button>
         </div>
       </div>

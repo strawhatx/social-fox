@@ -1,29 +1,26 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import Hero from '@/components/landing/hero';
-import Results from '@/components/landing/results';
 import Features from '@/components/landing/features';
 import Pricing from '@/components/landing/pricing';
 import Footer from '@/components/landing/footer';
+import Demo from '@/components/landing/demo';
 
 export const metadata: Metadata = {
-  title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-  description:
-    'Social Fox is your AI co‑pilot for Twitter (X). Like ChatGPT for tweets, it helps founders & creators write better posts and threads—faster.',
+  title: 'Social Fox — Automate Twitter Content & Grow Engagement',
+  description: 'Transform your tweets into high‑engagement threads. Plan, automate, and track performance with Social Fox.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     url: 'https://socialfox.dev/',
-    title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-    description:
-      'Like ChatGPT for tweets: write better posts & threads faster with Social Fox.',
-    images: [{ url: '/twitter-image.jpeg', width: 1200, height: 630, alt: 'Social Fox – AI Copilot for Twitter (X)' }]
+    title: 'Social Fox — Automate Twitter Content & Grow Engagement',
+    description: 'Transform your tweets into high‑engagement threads. Plan, automate, and track performance with Social Fox.',
+    images: [{ url: '/twitter-image.jpeg', width: 1200, height: 630, alt: 'Social Fox — Content Planner for X' }]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-    description:
-      'Like ChatGPT for tweets: write better posts & threads faster with Social Fox.',
+    title: 'Social Fox — Automate Twitter Content & Grow Engagement',
+    description: 'Transform your tweets into high‑engagement threads. Plan, automate, and track performance with Social Fox.',
     images: ['/twitter-image.jpeg']
   }
 };
@@ -32,7 +29,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <Results />
+      <Demo />
       <Features />
       <Pricing />
       <Footer />

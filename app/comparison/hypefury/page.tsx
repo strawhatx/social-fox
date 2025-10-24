@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, CheckCircle, X } from 'lucide-react'
+import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
-  title: 'Social Fox vs Hypefury — Operator‑First X Planner Comparison',
-  description: 'See how Social Fox compares to Hypefury on threads, analytics, and automation.'
+  title: 'Social Fox vs Hypefury — Compare Thread Scheduling & Planning for Operators',
+  description: 'Compare Social Fox and Hypefury for thread planning, scheduling, and consistent publishing. See why operators choose Social Fox for repeatable content workflows.'
 }
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-32 overflow-hidden">
         {/* Background Elements */}
@@ -21,15 +23,15 @@ export default function Page() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Comparison</span>
+              <span>Social Fox vs Hypefury — Operator Edition</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              Social Fox vs Hypefury. Which runs the operation?
+              Scheduling is table stakes. Social Fox turns planning into a repeatable system for builders.
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Scheduling is table stakes. Social Fox gives operators playbooks, analytics, and automation to scale outputs with clarity.
+              Switch to a workflow that keeps your threads moving — from idea → draft → schedule — all in one place.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -37,7 +39,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Switch to an operator-first stack
+                Get started with Social Fox today — stop switching tools and start operating efficiently.
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -77,33 +79,28 @@ export default function Page() {
                 <tbody>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
                     <td className="p-6 font-medium">Thread Planner / Editor</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Structured editor with AI scaffolding</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Structured editor with hooks + section scaffolds</td>
                     <td className="p-6 text-muted-foreground">Standard drafting</td>
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
                     <td className="p-6 font-medium">Content Scheduler / Calendar</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Operator calendar with batching and status</td>
-                    <td className="p-6 text-muted-foreground">Basic calendar</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Weekly calendar with batching + draft status</td>
+                    <td className="p-6 text-muted-foreground">Basic calendar only</td>
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
                     <td className="p-6 font-medium">Analytics Dashboard</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Format-level insights and consistency metrics</td>
-                    <td className="p-6 text-muted-foreground">Post metrics</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Post-level stats now; roadmap: cadence + format insights</td>
+                    <td className="p-6 text-muted-foreground">Post metrics only</td>
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
-                    <td className="p-6 font-medium">Automation / AI Workflow</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Playbook automations + AI drafting</td>
-                    <td className="p-6 text-muted-foreground">Limited automations</td>
+                    <td className="p-6 font-medium">Playbooks & Templates</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Templates for repeatable weekly systems</td>
+                    <td className="p-6 text-muted-foreground">Limited templates</td>
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
-                    <td className="p-6 font-medium">Repurpose & Variants</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">One-click singles and variant hooks</td>
+                    <td className="p-6 font-medium">Repurposing & Variants</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Turn threads into singles + variant hooks</td>
                     <td className="p-6 text-muted-foreground">Manual variants</td>
-                  </tr>
-                  <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
-                    <td className="p-6 font-medium">Cadence Coaching</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Streaks, reminders, and goal tracking</td>
-                    <td className="p-6 text-muted-foreground">Not emphasized</td>
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
                     <td className="p-6 font-medium">Operator Focus</td>
@@ -112,11 +109,125 @@ export default function Page() {
                   </tr>
                   <tr className="border-t border-orange-200/30 dark:border-orange-800/30">
                     <td className="p-6 font-medium">Workflow Speed</td>
-                    <td className="p-6 text-green-600 dark:text-green-400">Draft → plan → schedule in one flow</td>
+                    <td className="p-6 text-green-600 dark:text-green-400">Draft → plan → schedule in one integrated flow</td>
                     <td className="p-6 text-muted-foreground">Multi-step, tool-switched</td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
+                Why operators choose Social Fox
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Three key advantages that make the difference for serious content creators.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Speed</h3>
+                  </div>
+                  <p className="text-muted-foreground">Draft, plan, and schedule in one flow</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Consistency</h3>
+                  </div>
+                  <p className="text-muted-foreground">Templates + batching = repeatable content</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Clarity</h3>
+                  </div>
+                  <p className="text-muted-foreground">Single workspace to manage threads & posts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon Section */}
+      <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
+                Coming Soon Features
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Clearly labeled to generate anticipation without overpromising.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Cadence coaching</h3>
+                  </div>
+                  <p className="text-muted-foreground">AI-powered consistency guidance</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Format insights</h3>
+                  </div>
+                  <p className="text-muted-foreground">Data-driven content optimization</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">AI automations</h3>
+                  </div>
+                  <p className="text-muted-foreground">Smart workflow enhancements</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -132,15 +243,15 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Ready to make the switch?</span>
+              <span>Ready to build your weekly content rhythm?</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Hypefury is a scheduler. Social Fox is an operating system for X
+              Get started with Social Fox today — stop switching tools and start operating efficiently.
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Playbooks, analytics, and automations that compound output and outcomes.
+              Build a repeatable system that scales with your growth.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -148,7 +259,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Get started with Social Fox
+                Start Your Free Trial
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 

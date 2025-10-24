@@ -25,15 +25,14 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       '30 scheduled posts/mo',
       'Up to 4 threads',
       'Limited analytics',
-      'Basic automation',
       'Access to content library (view only)'
     ],
     limits: {
       scheduledPosts: 30,
       threads: 4,
-      analytics: 'basic',
+      analytics: true,
       automation: false,
-      contentLibrary: 'view_only',
+      contentLibrary: true,
       aiGeneration: false
     }
   },
@@ -56,10 +55,10 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     limits: {
       scheduledPosts: 60,
       threads: 8,
-      analytics: 'advanced',
-      automation: 'partial',
-      contentLibrary: 'full',
-      aiGeneration: 'assist'
+      analytics: true,
+      automation: true,
+      contentLibrary: true,
+      aiGeneration: true
     }
   },
   scale: {
@@ -83,10 +82,10 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     limits: {
       scheduledPosts: 150,
       threads: 15,
-      analytics: 'advanced',
-      automation: 'full',
-      contentLibrary: 'full',
-      aiGeneration: 'unlimited',
+      analytics: true,
+      automation: true,
+      contentLibrary: true,
+      aiGeneration: true,
       teamAccess: true,
       prioritySupport: true
     }

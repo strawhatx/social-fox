@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Dynamic marketing pages
-    const marketingPages = await prisma.marketingPage.findMany({
+    const blogPages = await prisma.blogPages.findMany({
       where: { published: true },
       select: {
         type: true,
@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    const dynamicPages: MetadataRoute.Sitemap = marketingPages.map((page) => ({
+    const dynamicPages: MetadataRoute.Sitemap = blogPages.map((page) => ({
       url: `${baseUrl}/${page.type}/${page.slug}`,
       lastModified: page.updatedAt,
       changeFrequency: 'monthly',

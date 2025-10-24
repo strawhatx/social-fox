@@ -88,6 +88,30 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Remove all focus rings globally */
+  *:focus,
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: 0 !important;
+  }
+  
+  /* Remove focus rings from all interactive elements */
+  button:focus,
+  button:focus-visible,
+  input:focus,
+  input:focus-visible,
+  textarea:focus,
+  textarea:focus-visible,
+  select:focus,
+  select:focus-visible,
+  a:focus,
+  a:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: 0 !important;
+  }
 }
 
 .gradient-bg {

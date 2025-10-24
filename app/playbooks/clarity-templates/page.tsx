@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles } from 'lucide-react'
+import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
-  title: 'Viral X Post Formats — Proven Templates and Playbooks',
-  description: 'Publish with high-signal formats—hooks, proof, frameworks—built for X performance.'
+  title: 'Twitter Post Templates That Make Publishing Easier',
+  description: 'Stop overthinking your Twitter content. Social Fox gives builders simple templates to post faster and stay consistent.'
 }
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-32 overflow-hidden">
         {/* Background Elements */}
@@ -21,15 +23,15 @@ export default function Page() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Proven Playbook</span>
+              <span>Clarity Templates</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              Use the formats the timeline rewards
+              Ship sharper, faster posts without overthinking
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Stop guessing what performs. Run high-signal formats—proof-driven singles, frameworks, mini-essays—built to earn engagement on X.
+              Templates designed for builders who want to communicate clearly — not waste time trying to be creative every day.
             </p>
             
             <div className="mb-12 relative">
@@ -46,7 +48,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Run a viral format today
+              Try a clarity template today
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -67,22 +69,22 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Everything you need to go viral
+                What's true today
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Stop guessing what works. Use proven formats that consistently drive engagement and reach.
+                Simple templates that remove the hardest part of posting: getting started.
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Target className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Winning Templates</h3>
-                  <p className="text-muted-foreground leading-relaxed">Hooks, proof patterns, and narrative frames that consistently hit the algorithm sweet spot.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Hook Starters</h3>
+                  <p className="text-muted-foreground leading-relaxed">Write scroll-stopping openings without staring at the cursor.</p>
                 </div>
               </div>
               
@@ -92,8 +94,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <BarChart3 className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Format Switchboard</h3>
-                  <p className="text-muted-foreground leading-relaxed">Pick the right format for your goal: authority building, demand generation, or viral reach.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Thread Blueprints</h3>
+                  <p className="text-muted-foreground leading-relaxed">Move from idea → structured thread in minutes.</p>
                 </div>
               </div>
               
@@ -103,8 +105,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Zap className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Swipe + Adapt</h3>
-                  <p className="text-muted-foreground leading-relaxed">Borrow proven structures and tailor them to your unique message and audience.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Single Post Templates</h3>
+                  <p className="text-muted-foreground leading-relaxed">Turn lessons learned into thoughtful posts.</p>
                 </div>
               </div>
               
@@ -114,19 +116,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <TrendingUp className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Testing Loop</h3>
-                  <p className="text-muted-foreground leading-relaxed">A/B test hooks and CTAs to ship the highest-likelihood variant every time.</p>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg md:col-span-2 lg:col-span-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Playbook Library</h3>
-                  <p className="text-muted-foreground leading-relaxed">Save what works and standardize your publishing process for consistent results.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Repurpose Outlines</h3>
+                  <p className="text-muted-foreground leading-relaxed">Extract multiple singles from one thread.</p>
                 </div>
               </div>
             </div>
@@ -140,10 +131,10 @@ export default function Page() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Ship high-signal posts consistently
+                Why builders love templates
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Each template comes with hook starters, body scaffolding, and CTA suggestions.
+                Simple benefits that make posting feel less like work and more like building.
               </p>
             </div>
             
@@ -155,9 +146,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                       <Target className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Proof-driven singles</h3>
+                    <h3 className="text-lg font-bold text-foreground">Removes the hardest part: starting</h3>
                   </div>
-                  <p className="text-muted-foreground">Lead with evidence, follow with insight. Perfect for building authority and trust.</p>
+                  <p className="text-muted-foreground">No more blank page paralysis. Templates give you a clear starting point every time.</p>
                 </div>
               </div>
               
@@ -168,9 +159,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <BarChart3 className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Mini-essays with teaching arc</h3>
+                    <h3 className="text-lg font-bold text-foreground">Keeps ideas aligned with your message</h3>
                   </div>
-                  <p className="text-muted-foreground">Structure complex ideas into digestible, shareable content that educates and engages.</p>
+                  <p className="text-muted-foreground">Templates help you stay on-brand and communicate your core ideas clearly.</p>
                 </div>
               </div>
               
@@ -181,9 +172,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                       <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Framework explainers</h3>
+                    <h3 className="text-lg font-bold text-foreground">Reduces the mental load of daily posting</h3>
                   </div>
-                  <p className="text-muted-foreground">Break down methodologies into actionable steps that your audience can immediately apply.</p>
+                  <p className="text-muted-foreground">Less decision fatigue. More time for building and creating.</p>
                 </div>
               </div>
               
@@ -194,9 +185,31 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                       <TrendingUp className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Before/after narratives</h3>
+                    <h3 className="text-lg font-bold text-foreground">Publishing becomes a habit, not a chore</h3>
                   </div>
-                  <p className="text-muted-foreground">Show transformation through compelling storytelling that demonstrates real results.</p>
+                  <p className="text-muted-foreground">When posting is easier, you do it more consistently.</p>
+                </div>
+            </div>
+            </div>
+            
+            <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-950/20 dark:to-blue-950/20 border border-orange-200/50 dark:border-orange-800/50 mt-16">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Outcome we can promise:</h3>
+              <div className="grid md:grid-cols-4 gap-4 text-lg">
+                <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span>✅ More output</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <span>✅ More clarity</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-purple-600 dark:text-purple-400">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <span>✅ More consistency</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-orange-600 dark:text-orange-400">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                  <span>✅ More time building</span>
                 </div>
               </div>
             </div>
@@ -204,89 +217,6 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Social Proof Section */}
-      <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Join creators who've gone viral
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                See how these formats have helped creators build massive followings and drive real business results.
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold">
-                      S
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">Sarah Chen</h4>
-                      <p className="text-sm text-muted-foreground">@sarahbuilds</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground italic mb-4">
-                    "Used the proof-driven format and my thread about startup mistakes went from 200 to 50K views. The structure just works."
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                    <TrendingUp className="w-4 h-4" />
-                    <span>50K+ views</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                      M
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">Marcus Rodriguez</h4>
-                      <p className="text-sm text-muted-foreground">@marcuswrites</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground italic mb-4">
-                    "The framework explainer format helped me break down my methodology. Now I get DMs asking for my course daily."
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                    <TrendingUp className="w-4 h-4" />
-                    <span>25K+ followers</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                      A
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">Alex Kim</h4>
-                      <p className="text-sm text-muted-foreground">@alexbuilds</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground italic mb-4">
-                    "Before/after narratives are gold. My transformation story got 100K+ views and brought in 3 new clients."
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                    <TrendingUp className="w-4 h-4" />
-                    <span>100K+ views</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-orange-500/5 via-background to-blue-500/5 relative overflow-hidden">
@@ -298,15 +228,15 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Ready to go viral?</span>
+              <span>See how easy posting becomes</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Ready to publish with confidence?
+              Try a clarity template today
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Start from formats that already win on X. Join thousands of creators who've stopped guessing and started performing.
+              Stop overthinking your content. Start with templates that make posting feel effortless.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -314,7 +244,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Run a viral format today
+              Try a clarity template today
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 

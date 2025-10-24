@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, MessageSquare, Bot } from 'lucide-react'
+import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
-  title: 'Thread Planner & Editor for X — Plan, Draft, and Schedule',
-  description: 'Structure threads, test hooks, and schedule in one flow. Analytics and automation built in.'
+  title: 'Thread Planner for Twitter — Structure & Schedule Threads Easily',
+  description: 'Plan and write Twitter threads with a structured editor and scheduling calendar. Create hooks, sections, and CTAs to publish consistently with clarity.'
 }
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-32 overflow-hidden">
         {/* Background Elements */}
@@ -21,15 +23,15 @@ export default function Page() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Thread Planner Feature</span>
+              <span>🧵 Thread Planner</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              Plan threads that perform. Edit like a pro.
+              Plan threads with structure. Edit with clarity.
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Structure beats improvisation. Design your thread arc, test hooks, and ship with confidence—fully integrated with calendar, analytics, and automation.
+              Stop improvising. Build your thread arc, test hooks, and publish with confidence — directly from your content calendar.
             </p>
             
             <div className="mb-12 relative">
@@ -46,7 +48,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Plan your next thread now
+                Plan your next thread
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -67,10 +69,10 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Everything you need to plan and publish threads
+                🛠️ Plan, write, and schedule threads in one flow
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                From structure to scheduling, all in one integrated workflow.
+                Structured tools that help you think clearly and publish consistently.
               </p>
             </div>
             
@@ -81,8 +83,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Thread Planner / Editor</h3>
-                  <p className="text-muted-foreground leading-relaxed">Build hooks, sections, and CTAs with a structured editor that keeps readers moving.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Structured Thread Builder</h3>
+                  <p className="text-muted-foreground leading-relaxed">Break your ideas into hooks, sections, and CTAs — so every thread reads clean and intentional.</p>
                 </div>
               </div>
               
@@ -90,10 +92,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Calendar className="w-6 h-6 text-white" />
+                    <Target className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Content Scheduler / Calendar</h3>
-                  <p className="text-muted-foreground leading-relaxed">Batch threads and drop them into a clean weekly calendar with precise timing.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Multiple Hook Variations</h3>
+                  <p className="text-muted-foreground leading-relaxed">Try different openings to see what feels strongest before scheduling.</p>
                 </div>
               </div>
               
@@ -101,10 +103,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <BarChart3 className="w-6 h-6 text-white" />
+                    <Calendar className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Analytics Dashboard</h3>
-                  <p className="text-muted-foreground leading-relaxed">See which arcs, hooks, and formats drive reach, saves, and follows.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Unified Content Calendar</h3>
+                  <p className="text-muted-foreground leading-relaxed">Draft, batch, and place threads into your weekly schedule with precise timing.</p>
                 </div>
               </div>
               
@@ -112,10 +114,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Bot className="w-6 h-6 text-white" />
+                    <CheckCircle className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Automation / AI-Assisted Workflow</h3>
-                  <p className="text-muted-foreground leading-relaxed">Generate first drafts, suggest hooks, and get nudges to keep cadence tight.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Draft Status Tracking</h3>
+                  <p className="text-muted-foreground leading-relaxed">See what's ready, what needs edits, and what's scheduled — at a glance.</p>
                 </div>
               </div>
               
@@ -123,12 +125,89 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="w-6 h-6 text-white" />
+                    <Zap className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Version & Variants</h3>
-                  <p className="text-muted-foreground leading-relaxed">Spin multiple hooks and openings—publish the winner.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Repurpose Outlines</h3>
+                  <p className="text-muted-foreground leading-relaxed">Turn a thread into singles and micro-ideas for more mileage.</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
+                Why structure matters
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Clear benefits that make thread planning feel less chaotic and more intentional.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-16">
+              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Removes the fear of a blank page</h3>
+                  </div>
+                  <p className="text-muted-foreground">Start with structure instead of staring at an empty editor.</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Helps you communicate clearly</h3>
+                  </div>
+                  <p className="text-muted-foreground">Structure guides your thinking and makes your message more compelling.</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Keeps publishing consistent</h3>
+                  </div>
+                  <p className="text-muted-foreground">When planning is easier, you publish more regularly.</p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50/30 to-transparent dark:from-purple-950/10 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Saves brain cycles for bigger thinking</h3>
+                  </div>
+                  <p className="text-muted-foreground">Less time on formatting, more time on ideas and strategy.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-950/20 dark:to-blue-950/20 border border-orange-200/50 dark:border-orange-800/50">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Structure → clarity → consistency → growth opportunities</h3>
+              <p className="text-lg text-muted-foreground">
+                When your content is structured and consistent, you create more opportunities for connection and growth.
+              </p>
             </div>
           </div>
         </div>
@@ -144,15 +223,15 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Structure → clarity → performance</span>
+              <span>Ready to publish with purpose?</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Plan the arc, write clean, and ship on time
+              Plan better threads. Ship on schedule.
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Then learn from results to raise the next one.
+              Stop improvising. Start with structure that makes your ideas clearer and your publishing more consistent.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -160,7 +239,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Plan your next thread now
+                Plan your next thread
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 

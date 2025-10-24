@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ArrowRight, FileText, Shield, CreditCard, AlertTriangle, CheckCircle } from 'lucide-react'
+import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
         {/* Background Elements */}

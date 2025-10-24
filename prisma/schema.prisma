@@ -156,7 +156,7 @@ model AnalyticsSnapshot {
   @@map("analytics_snapshots")
 }
 
-model MarketingPage {
+model BlogPage {
   id              String   @id @default(uuid()) @db.Uuid
   slug            String   @unique
   type            String   // 'blog', 'comparison', 'integration', 'feature'
@@ -174,5 +174,5 @@ model MarketingPage {
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@map("marketing_pages")
+  @@map("blog_pages")
 }

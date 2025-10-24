@@ -2,55 +2,25 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Github, Linkedin, Zap, User, Twitter, ArrowRight, Sparkles, TrendingUp, Clock } from 'lucide-react';
+import { Github, Linkedin, Zap, ArrowRight, Sparkles, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useUser } from "@clerk/nextjs";
+import Navigation from '@/components/landing/navigation';
 
 const Hero = () => {
-  const { user } = useUser();
 
   return (
-    <section className="relative py-32 overflow-hidden bg-gradient-to-b from-background via-background to-muted/30">
+    <section className="relative  overflow-hidden bg-gradient-to-b from-background via-background to-muted/30">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-blue-500/5" />
       <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-        {/* Navigation Header */}
-        <div className="flex justify-end items-center mb-8">
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon" asChild className="border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:border-orange-800 dark:hover:border-orange-700">
-              <a
-                href="https://twitter.com/heynathanielj"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Twitter: @heynathanielj"
-              >
-                <Twitter className="w-4 h-4 text-orange-500 fill-orange-500" />
-              </a>
-            </Button>
-            <Link href={user ? "/calendar" : "/sign-up"}>
-              <Button variant="outline" className="flex items-center space-x-2 border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:border-orange-800 dark:hover:border-orange-700">
-                <User className="w-4 h-4" />
-                <span>{user ? "Dashboard" : "Get Started"}</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <Navigation />
         
         <div className="text-center py-6 md:py-12">
-          <div className="flex justify-center items-center mb-12">
-            <div className="relative group">
-              <div className="w-32 h-32 bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl flex items-center justify-center shadow-2xl transform -rotate-3 group-hover:rotate-0 transition-transform duration-500">
-                <Image src="/fox-logo.png" alt="Fox Logo" width={50} height={50} />
-              </div>
-              <div className="absolute -top-3 -right-3 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-            </div>
-          </div>
+   
 
           <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
             <Sparkles className="w-4 h-4" />

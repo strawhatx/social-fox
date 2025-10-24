@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { slug } = params;
 
-    const page = await prisma.marketingPage.findUnique({
+    const page = await prisma.blogPage.findUnique({
       where: { slug }
     });
 
@@ -32,7 +32,7 @@ export async function PUT(
     const body = await request.json();
 
     // Check if page exists
-    const existingPage = await prisma.marketingPage.findUnique({
+    const existingPage = await prisma.blogPage.findUnique({
       where: { slug }
     });
 
@@ -57,7 +57,7 @@ export async function PUT(
     // If publishing for the first time, set publishedAt
     const shouldSetPublishedAt = published && !existingPage.published;
 
-    const page = await prisma.marketingPage.update({
+    const page = await prisma.blogPage.update({
       where: { slug },
       data: {
         ...(type && { type }),
@@ -89,7 +89,7 @@ export async function DELETE(
   try {
     const { slug } = params;
 
-    const page = await prisma.marketingPage.findUnique({
+    const page = await prisma.blogPage.findUnique({
       where: { slug }
     });
 
@@ -97,7 +97,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     }
 
-    await prisma.marketingPage.delete({
+    await prisma.blogPage.delete({
       where: { slug }
     });
 

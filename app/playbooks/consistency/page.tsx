@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, Repeat } from 'lucide-react'
+import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
-  title: 'X Content Consistency Playbook for Operators | Social Fox',
-  description: 'Build a repeatable X posting habit with playbooks, planner, and automation.'
+  title: 'Consistency Playbook — Stay Consistent on X with Social Fox',
+  description: 'Stay consistent on X without burnout. Use Social Fox\'s planner and playbooks to organize, draft, and schedule your posts in minutes.'
 }
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-32 overflow-hidden">
         {/* Background Elements */}
@@ -25,11 +27,12 @@ export default function Page() {
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              Consistency on X, without the burnout
+              Consistency on X — without the burnout
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Operators win with repeatable systems. Social Fox turns your ideas into a weekly publishing rhythm with playbooks, prompts, and a calendar that keeps you shipping.
+              Creators don't fail from lack of ideas — they fail from lack of structure.<br />
+              Social Fox helps you stay consistent with a simple planner and weekly system that keeps you shipping.
             </p>
             
             <div className="mb-12 relative">
@@ -46,7 +49,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-              Build your weekly X cadence
+              Build Your Weekly X Cadence
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -67,22 +70,22 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Build a system that ships consistently
+                🚀 Build Your Weekly X Cadence
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Replace one-off inspiration with a weekly system built for operators.
+                Replace chaotic, one-off posting with a repeatable rhythm designed for growth.
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Repeat className="w-6 h-6 text-white" />
+                    <Calendar className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Weekly Cadence Engine</h3>
-                  <p className="text-muted-foreground leading-relaxed">Lock a posting rhythm that compounds growth—no more feast-or-famine content.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Content Calendar</h3>
+                  <p className="text-muted-foreground leading-relaxed">Plan your tweets, threads, and updates for the week in one focused view.</p>
                 </div>
               </div>
               
@@ -92,8 +95,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Target className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Proven Playbooks</h3>
-                  <p className="text-muted-foreground leading-relaxed">Plug-and-play prompts for hooks, intros, and CTAs to publish fast and well.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Thread Planner + Editor</h3>
+                  <p className="text-muted-foreground leading-relaxed">Draft and format threads fast — no switching tabs, no broken flows.</p>
                 </div>
               </div>
               
@@ -101,10 +104,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Calendar className="w-6 h-6 text-white" />
+                    <Zap className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Planner + Calendar</h3>
-                  <p className="text-muted-foreground leading-relaxed">Map the week, batch drafts, and schedule in one focused view.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Idea Vault</h3>
+                  <p className="text-muted-foreground leading-relaxed">Save tweet ideas as you go, ready to slot into your schedule.</p>
                 </div>
               </div>
               
@@ -112,23 +115,12 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="w-6 h-6 text-white" />
+                    <Repeat className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Automation Nudges</h3>
-                  <p className="text-muted-foreground leading-relaxed">Smart reminders and status checks so nothing slips through.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Weekly Cadence Templates</h3>
+                  <p className="text-muted-foreground leading-relaxed">Use proven posting structures that build consistency and engagement.</p>
                 </div>
               </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg md:col-span-2 lg:col-span-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <BarChart3 className="w-6 h-6 text-white" />
-            </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Track Your Streak</h3>
-                  <p className="text-muted-foreground leading-relaxed">See consistency metrics and win the game of daily outputs.</p>
-            </div>
-            </div>
             </div>
           </div>
         </div>
@@ -140,14 +132,14 @@ export default function Page() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                Ship on schedule, without guesswork
+                🧩 How it Works — The Consistency System
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Consistency compounds. Social Fox replaces one-off inspiration with a weekly system built for operators.
-            </p>
+                Simple cadence removes decision fatigue and keeps your pipeline full.
+              </p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
@@ -155,22 +147,11 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                       <Calendar className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">What you'll run each week</h3>
+                    <h3 className="text-lg font-bold text-foreground">Monday: Capture ideas + draft hooks</h3>
                   </div>
-                  <ul className="space-y-3 text-muted-foreground">
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                      <span>Monday: Idea sweep and hook drafts</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      <span>Midweek: Thread build and singles from the thread</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span>Friday: Schedule and QA</span>
-                    </li>
-            </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Start the week by collecting ideas and drafting compelling hooks that grab attention.
+                  </p>
                 </div>
               </div>
               
@@ -181,30 +162,71 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Why it works</h3>
+                    <h3 className="text-lg font-bold text-foreground">Wednesday: Build threads + singles</h3>
                   </div>
-                  <ul className="space-y-3 text-muted-foreground">
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      <span>Clear cadence and templates reduce decision fatigue</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                      <span>Automation and reminders keep drafts moving</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span>Streak tracking turns momentum into a habit</span>
-                    </li>
-            </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Develop your ideas into full threads and create standalone tweets from the content.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Friday: Schedule the week ahead</h3>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Plan and schedule your content for the upcoming week to maintain momentum.
+                  </p>
                 </div>
               </div>
             </div>
             
-            <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-950/20 dark:to-blue-950/20 border border-orange-200/50 dark:border-orange-800/50">
-              <p className="text-lg font-semibold text-foreground">
-                Outcome: steady, high-signal posting that builds trust, reach, and demand.
-              </p>
+            <div className="grid md:grid-cols-2 gap-8 mb-16">
+              <div className="group relative p-8 rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50/30 to-transparent dark:from-purple-950/10 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Why it Works</h3>
+                  </div>
+                  <ul className="space-y-3 text-muted-foreground">
+                    <li className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                      <span>Simple cadence removes decision fatigue</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <span>Calendar clarity keeps your pipeline full</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      <span>Fast drafting = more reps = better results</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Outcome</h3>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Steady posting that compounds reach and makes consistency effortless.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -220,15 +242,15 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Ready to get consistent?</span>
+              <span>💡 Ready to get consistent?</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Ready to get consistent?
+              Stop restarting. Start shipping.
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Open the planner, follow the play, hit publish.
+              Plan your next week on Social Fox today.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -236,14 +258,14 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-              Build your weekly X cadence
+              Build Your Weekly X Cadence
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
                 href="/playbooks" 
                 className="inline-flex items-center gap-2 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors border border-muted-foreground/20 hover:border-muted-foreground/40 rounded-lg"
               >
-                Explore all playbooks
+                Explore All Playbooks
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>

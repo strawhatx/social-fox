@@ -7,7 +7,7 @@ import { Check, ArrowRight, Star, Zap, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 
-interface MarketingPage {
+interface BlogPage {
   id: string;
   slug: string;
   type: string;
@@ -26,11 +26,11 @@ interface MarketingPage {
   updatedAt: string;
 }
 
-interface MarketingPageTemplateProps {
-  page: MarketingPage;
+interface BlogPageTemplateProps {
+  page: BlogPage;
 }
 
-export default function MarketingPageTemplate({ page }: MarketingPageTemplateProps) {
+export default function BlogPageTemplate({ page }: BlogPageTemplateProps) {
   const router = useRouter();
 
   const handleCTAClick = () => {

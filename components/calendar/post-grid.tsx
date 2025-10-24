@@ -1,5 +1,4 @@
-import SchedulePicker from "../editor/schedule-picker";
-import { Clock } from "lucide-react";
+import { Clock, Plus } from "lucide-react";
 import { ContentPost } from "@/lib/types/content_posts";
 
 interface DayPostProps {
@@ -69,12 +68,16 @@ export default function PostGrid({ posts, isCurrentMonth, isToday, days, onSelec
                                         );
                                     })}
 
-                                    {/* Add post - uses SchedulePicker */}
+                                    {/* Add post button */}
                                     {isCurrentMonthDay && (
-                                        <SchedulePicker
-                                            scheduledAt={date}
-                                            onConfirm={(dt) => handleAddPost(dt)}
-                                        />
+                                        <button
+                                            onClick={() => handleAddPost(date)}
+                                            className="w-full text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-2 py-1.5 rounded-md transition-colors flex items-center gap-1"
+                                            title="Add new post"
+                                        >
+                                            <Plus className="w-3 h-3" />
+                                            Add post
+                                        </button>
                                     )}
                                 </div>
                             </div>

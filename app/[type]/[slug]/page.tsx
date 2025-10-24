@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db/prisma';
-import MarketingPageTemplate from '@/components/blog/page-template';
+import BlogPageTemplate from '@/components/blog/page-template';
 
 interface PageProps {
   params: { type: string; slug: string };
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function MarketingPage({ params }: PageProps) {
+export default async function BlogPage({ params }: PageProps) {
   try {
     const page = await prisma.blogPage.findUnique({
       where: { 
@@ -56,7 +56,7 @@ export default async function MarketingPage({ params }: PageProps) {
       notFound();
     }
 
-    return <MarketingPageTemplate page={page} />;
+    return <BlogPageTemplate page={page} />;
   } catch (error) {
     console.error('Error fetching marketing page:', error);
     notFound();

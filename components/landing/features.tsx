@@ -14,10 +14,10 @@ const Features = () => {
     },
     {
       icon: Zap,
-      title: "30‑Day AI Drafts",
-      description: "Generate high‑engagement posts in seconds — optimized for virality.",
+      title: "AI Rewriter Drafts",
+      description: "Rewrite your posts with AI to make them more engaging and viral.",
       color: "blue",
-      link: "/features/thread-planner"
+      link: "#"
     },
     {
       icon: BarChart3,
@@ -31,7 +31,7 @@ const Features = () => {
       title: "Threads",
       description: "Plan and publish multi‑tweet threads with clean structure and CTAs.",
       color: "purple",
-      link: "#"
+      link: "/features/thread-planner"
     }
   ];
   

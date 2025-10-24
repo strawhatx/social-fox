@@ -1,21 +1,22 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, forwardRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
 // Simple tweet composer
-export function TweetComposer({
-    value,
-    onChange,
-    placeholder,
-    registerInserter
-}: {
+export const TweetComposer = forwardRef<HTMLTextAreaElement, {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
     registerInserter?: (fn: (text: string) => void) => void;
-}) {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+}>(function TweetComposer({
+    value,
+    onChange,
+    placeholder,
+    registerInserter
+}, ref) {
+    const internalRef = useRef<HTMLTextAreaElement>(null);
+    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
     const insertAtCursor = (text: string) => {
         const textarea = textareaRef.current;
@@ -56,9 +57,9 @@ export function TweetComposer({
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full min-h-[150px] bg-white border border-gray-200 rounded-md resize-none focus-visible:ring-0 text-base leading-relaxed p-0"
+                className="w-full bg-white border-none rounded-md resize-none text-base leading-relaxed p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 maxLength={280}
             />
         </div>
     );
-}
+});

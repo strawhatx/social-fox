@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     if (slug) {
       // Get single page by slug
-      const page = await prisma.marketingPage.findUnique({
+      const page = await prisma.blogPage.findUnique({
         where: { slug }
       });
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     if (type) where.type = type;
     if (published) where.published = true;
 
-    const pages = await prisma.marketingPage.findMany({
+    const pages = await prisma.blogPage.findMany({
       where,
       orderBy: { createdAt: 'desc' }
     });
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if slug already exists
-    const existingPage = await prisma.marketingPage.findUnique({
+    const existingPage = await prisma.blogPage.findUnique({
       where: { slug }
     });
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const page = await prisma.marketingPage.create({
+    const page = await prisma.blogPage.create({
       data: {
         slug,
         type,

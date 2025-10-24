@@ -10,6 +10,8 @@ import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
 import { ContentPost } from "@/lib/types/content_posts";
 import PostGrid from "@/components/calendar/post-grid";
 import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
+import TweetModal from "@/components/editor/tweet-modal";
+import { toast } from "@/hooks/use-toast";
 
 interface DashboardProps {
     posts: ContentPost[];
@@ -20,6 +22,8 @@ interface DashboardProps {
 function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
     const router = useRouter();
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [showTweetModal, setShowTweetModal] = useState(false);
+    const [editingPost, setEditingPost] = useState<ContentPost | null>(null);
     const today = new Date();
 
     const handleAddPost = async (scheduled: Date): Promise<void> => {
@@ -49,14 +53,22 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
             const data = await response.json();
             const post = data.data as ContentPost;
 
-            router.push(`/editor/${post.id}`);
+            // Open modal with new post
+            setEditingPost(post);
+            setShowTweetModal(true);
         } catch (error) {
             console.error('Error adding post:', error);
+            toast({
+                title: "Error",
+                description: "Failed to create new post",
+                variant: "destructive"
+            });
         }
     };
 
     const onSelectPost = (post: ContentPost) => {
-        router.push(`/editor/${post.id}`);
+        setEditingPost(post);
+        setShowTweetModal(true);
     };
 
     const monthNames = [
@@ -137,6 +149,86 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded"></div><span className="text-gray-600">Scheduled</span></div>
                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded"></div><span className="text-gray-600">Draft</span></div>
             </div>
+
+            {/* Tweet Modal */}
+            <TweetModal
+                isOpen={showTweetModal}
+                onClose={() => {
+                    setShowTweetModal(false);
+                    setEditingPost(null);
+                }}
+                initialContent={editingPost?.items?.[0]?.content || ""}
+                initialAttachments={editingPost?.items?.[0]?.media || []}
+                onSave={async (content: string, attachments: any[]) => {
+                    if (!editingPost) return;
+                    try {
+                        const response = await fetch(`/api/content-posts/${editingPost.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                items: [{
+                                    id: editingPost.items[0]?.id || '1',
+                                    content,
+                                    media: attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
+                                }]
+                            }),
+                        });
+                        if (!response.ok) throw new Error('Failed to save post');
+                        toast({
+                            title: "Saved!",
+                            description: "Your post has been saved"
+                        });
+                        // Refresh posts
+                        onMonthChange?.(currentDate.getMonth() + 1, currentDate.getFullYear());
+                    } catch (error) {
+                        toast({
+                            title: "Error",
+                            description: "Failed to save post",
+                            variant: "destructive"
+                        });
+                    }
+                }}
+                onPublish={async (content: string, attachments: any[]) => {
+                    if (!editingPost) return;
+                    try {
+                        // Save the post first
+                        await fetch(`/api/content-posts/${editingPost.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                items: [{
+                                    id: editingPost.items[0]?.id || '1',
+                                    content,
+                                    media: attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
+                                }]
+                            }),
+                        });
+                        
+                        // Publish the post
+                        const publishResponse = await fetch(`/api/content-posts/${editingPost.id}/publish`, {
+                            method: 'POST',
+                        });
+                        
+                        if (!publishResponse.ok) throw new Error('Failed to publish post');
+                        
+                        toast({
+                            title: "Published!",
+                            description: "Your post has been published"
+                        });
+                        
+                        setShowTweetModal(false);
+                        setEditingPost(null);
+                        // Refresh posts
+                        onMonthChange?.(currentDate.getMonth() + 1, currentDate.getFullYear());
+                    } catch (error) {
+                        toast({
+                            title: "Error",
+                            description: "Failed to publish post",
+                            variant: "destructive"
+                        });
+                    }
+                }}
+            />
         </div>
     );
 }

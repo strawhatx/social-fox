@@ -13,6 +13,12 @@ import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
 import TweetModal from "@/components/editor/tweet-modal";
 import { toast } from "@/hooks/use-toast";
 
+interface ThreadTweet {
+    id: number;
+    content: string;
+    attachments: any[];
+}
+
 interface DashboardProps {
     posts: ContentPost[];
     onExport: (audience: string, subject: string, tone: string, goals: string) => void;
@@ -157,20 +163,19 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                     setShowTweetModal(false);
                     setEditingPost(null);
                 }}
-                initialContent={editingPost?.items?.[0]?.content || ""}
-                initialAttachments={editingPost?.items?.[0]?.media || []}
-                onSave={async (content: string, attachments: any[]) => {
+                thread={editingPost?.items || [{ id: "1", postId: "1", parentId: null, metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), content: "", media: [] }]}
+                onSave={async (threadTweets: ThreadTweet[]) => {
                     if (!editingPost) return;
                     try {
                         const response = await fetch(`/api/content-posts/${editingPost.id}`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                items: [{
+                                items: threadTweets.map(tweet => ({
                                     id: editingPost.items[0]?.id || '1',
-                                    content,
-                                    media: attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
-                                }]
+                                    content: tweet.content,
+                                    media: tweet.attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
+                                }))
                             }),
                         });
                         if (!response.ok) throw new Error('Failed to save post');
@@ -184,46 +189,6 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                         toast({
                             title: "Error",
                             description: "Failed to save post",
-                            variant: "destructive"
-                        });
-                    }
-                }}
-                onPublish={async (content: string, attachments: any[]) => {
-                    if (!editingPost) return;
-                    try {
-                        // Save the post first
-                        await fetch(`/api/content-posts/${editingPost.id}`, {
-                            method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                items: [{
-                                    id: editingPost.items[0]?.id || '1',
-                                    content,
-                                    media: attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
-                                }]
-                            }),
-                        });
-                        
-                        // Publish the post
-                        const publishResponse = await fetch(`/api/content-posts/${editingPost.id}/publish`, {
-                            method: 'POST',
-                        });
-                        
-                        if (!publishResponse.ok) throw new Error('Failed to publish post');
-                        
-                        toast({
-                            title: "Published!",
-                            description: "Your post has been published"
-                        });
-                        
-                        setShowTweetModal(false);
-                        setEditingPost(null);
-                        // Refresh posts
-                        onMonthChange?.(currentDate.getMonth() + 1, currentDate.getFullYear());
-                    } catch (error) {
-                        toast({
-                            title: "Error",
-                            description: "Failed to publish post",
                             variant: "destructive"
                         });
                     }

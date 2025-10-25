@@ -25,7 +25,8 @@ import {
     ChevronDown,
     Upload,
     Gift,
-    MapPin
+    MapPin,
+    PlusCircle
 } from "lucide-react";
 import { TweetComposer } from "./tweet-composer";
 import EmojiPicker from "./emoji-picker";
@@ -34,40 +35,42 @@ import ImageUploader from "./image-uploader";
 import { AIContentGenerator } from "./ai-content-generator";
 import { toast } from "@/hooks/use-toast";
 import { AttachmentItem } from "@/lib/types/attachments";
+import { ContentPostItem } from "@/lib/types/content_posts";
+
+interface ThreadTweet {
+    id: number;
+    content: string;
+    attachments: AttachmentItem[];
+}
 
 interface TweetModalProps {
     isOpen: boolean;
     onClose: () => void;
-    initialContent?: string;
-    initialAttachments?: AttachmentItem[];
-    onSave?: (content: string, attachments: AttachmentItem[]) => void;
-    onPublish?: (content: string, attachments: AttachmentItem[]) => void;
-    isEditing?: boolean;
-    scheduledAt?: string | null;
-    onScheduleChange?: (date: string | null) => void;
+    thread: ContentPostItem[];
+    onSave?: (threadTweets: ThreadTweet[]) => void;
+    onPublish?: (threadTweets: ThreadTweet[]) => void;
 }
 
 export default function TweetModal({
     isOpen,
     onClose,
-    initialContent = "",
-    initialAttachments = [],
+    thread,
     onSave,
-    onPublish,
-    isEditing = false,
-    scheduledAt,
-    onScheduleChange
+    onPublish
 }: TweetModalProps) {
     const { user } = useUser();
-    const [content, setContent] = useState(initialContent);
-    const [attachments, setAttachments] = useState<AttachmentItem[]>(initialAttachments);
-    const [activeTab, setActiveTab] = useState<"post" | "thread">("post");
-    const [audience, setAudience] = useState("Everyone");
-    const [replySetting, setReplySetting] = useState("Everyone can reply");
+    const [threadTweets, setThreadTweets] = useState<ThreadTweet[]>(
+        thread?.length > 0
+            ? thread.map((item, index) => ({
+                id: index + 1,
+                content: item.content,
+                attachments: item.media || []
+            }))
+            : [{ id: 1, content: "", attachments: [] }]
+    );
     const [isSaving, setIsSaving] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
-    const [showSchedule, setShowSchedule] = useState(false);
-    const [threadTweets, setThreadTweets] = useState([{ id: 1, content: initialContent, attachments: initialAttachments || [] }]);
+    const [focusedTweetId, setFocusedTweetId] = useState<number>(1);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
@@ -75,19 +78,26 @@ export default function TweetModal({
     // Reset state when modal opens/closes
     useEffect(() => {
         if (isOpen) {
-            setContent(initialContent);
-            setAttachments(initialAttachments);
+            setThreadTweets(
+                thread.length > 0
+                    ? thread.map((item, index) => ({
+                        id: index + 1,
+                        content: item.content,
+                        attachments: item.media || []
+                    }))
+                    : [{ id: 1, content: "", attachments: [] }]
+            );
             // Focus textarea after modal opens
             setTimeout(() => {
                 textareaRef.current?.focus();
             }, 100);
         }
-    }, [isOpen, initialContent, initialAttachments]);
+    }, [isOpen, thread]);
 
     // Handle clicking on dialog content to focus textarea
     const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const target = e.target as HTMLElement;
-        
+
         // Don't focus if clicking on interactive elements
         if (
             target.tagName === 'BUTTON' ||
@@ -102,7 +112,7 @@ export default function TweetModal({
         ) {
             return;
         }
-        
+
         // Focus the textarea
         textareaRef.current?.focus();
     };
@@ -112,10 +122,10 @@ export default function TweetModal({
 
         setIsSaving(true);
         try {
-            await onSave(content, attachments);
+            await onSave(threadTweets);
             toast({
                 title: "Saved!",
-                description: "Your post has been saved as a draft"
+                description: `Your thread with ${threadTweets.length} tweet${threadTweets.length === 1 ? '' : 's'} has been saved as a draft`
             });
         } catch (error) {
             toast({
@@ -133,10 +143,10 @@ export default function TweetModal({
 
         setIsPublishing(true);
         try {
-            await onPublish(content, attachments);
+            await onPublish(threadTweets);
             toast({
                 title: "Published!",
-                description: "Your post has been published"
+                description: "Your thread has been published"
             });
             onClose();
         } catch (error) {
@@ -150,70 +160,6 @@ export default function TweetModal({
         }
     };
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(content);
-        toast({
-            title: "Copied!",
-            description: "Content copied to clipboard"
-        });
-    };
-
-    const handleImageUpload = (items: any[]) => {
-        const incoming = (items || []).map(it => ({
-            url: it.url,
-            file: it.file,
-            type: it.type || null,
-            key: it.key
-        })).filter(Boolean as any);
-
-        const hasGif = attachments.some(a => a.type === 'image/gif');
-        const hasVideo = attachments.some(a => (a.type || '').startsWith('video/'));
-        const imageCount = attachments.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif').length;
-
-        if (hasGif) {
-            toast({ title: 'Limit reached', description: 'Cannot add images or videos when a GIF is attached.' });
-            return;
-        }
-        if (hasVideo) {
-            toast({ title: 'Limit reached', description: 'Cannot add images or GIFs when a video is attached.' });
-            return;
-        }
-
-        const incomingVideo = incoming.find(a => (a.type || '').startsWith('video/'));
-        if (incomingVideo) {
-            if (attachments.length > 0) {
-                toast({ title: 'Only one video allowed', description: 'Remove other attachments before adding a video.' });
-                return;
-            }
-            setAttachments([...attachments, incomingVideo]);
-            return;
-        }
-
-        const incomingImages = incoming.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif');
-        const remaining = Math.max(0, 4 - imageCount);
-        const allowed = incomingImages.slice(0, remaining);
-        if (allowed.length < incomingImages.length) {
-            toast({ title: 'Image limit', description: 'You can attach up to 4 images.' });
-        }
-        if (!allowed.length) return;
-        setAttachments([...attachments, ...allowed]);
-    };
-
-    const handleGifSelect = (gifUrl: string) => {
-        const hasAny = attachments.length > 0;
-        if (hasAny) {
-            toast({ title: 'Only one GIF allowed', description: 'Remove other attachments before adding a GIF.' });
-            return;
-        }
-        const gifAttachment = { url: gifUrl, file: null, type: 'image/gif' };
-        setAttachments([...attachments, gifAttachment]);
-    };
-
-    const handleEmojiInsert = (emoji: string) => {
-        const addition = (content?.endsWith(' ') || content?.length === 0) ? emoji : ` ${emoji}`;
-        const next = content + addition;
-        if (next.length <= 280) setContent(next);
-    };
 
     const addThreadTweet = () => {
         const newId = Math.max(...threadTweets.map(t => t.id)) + 1;
@@ -227,13 +173,84 @@ export default function TweetModal({
     };
 
     const updateThreadTweet = (id: number, content: string, attachments: AttachmentItem[]) => {
-        setThreadTweets(threadTweets.map(t => 
+        setThreadTweets(threadTweets.map(t =>
             t.id === id ? { ...t, content, attachments } : t
         ));
     };
 
-    const removeAttachment = async (index: number) => {
-        const target = attachments[index];
+    // Get the currently focused tweet
+    const getFocusedTweet = () => {
+        return threadTweets.find(t => t.id === focusedTweetId) || threadTweets[0];
+    };
+
+    // Handle image upload for focused tweet
+    const handleImageUpload = (items: any[]) => {
+        const focusedTweet = getFocusedTweet();
+        const incoming = (items || []).map(it => ({
+            url: it.url,
+            file: it.file,
+            type: it.type || null,
+            key: it.key
+        })).filter(Boolean as any);
+
+        const hasGif = focusedTweet.attachments.some(a => a.type === 'image/gif');
+        const hasVideo = focusedTweet.attachments.some(a => (a.type || '').startsWith('video/'));
+        const imageCount = focusedTweet.attachments.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif').length;
+
+        if (hasGif) {
+            toast({ title: 'Limit reached', description: 'Cannot add images or videos when a GIF is attached.' });
+            return;
+        }
+        if (hasVideo) {
+            toast({ title: 'Limit reached', description: 'Cannot add images or GIFs when a video is attached.' });
+            return;
+        }
+
+        const incomingVideo = incoming.find(a => (a.type || '').startsWith('video/'));
+        if (incomingVideo) {
+            if (focusedTweet.attachments.length > 0) {
+                toast({ title: 'Only one video allowed', description: 'Remove other attachments before adding a video.' });
+                return;
+            }
+            updateThreadTweet(focusedTweetId, focusedTweet.content, [...focusedTweet.attachments, incomingVideo]);
+            return;
+        }
+
+        const incomingImages = incoming.filter(a => (a.type || '').startsWith('image/') && a.type !== 'image/gif');
+        const remaining = Math.max(0, 4 - imageCount);
+        const allowed = incomingImages.slice(0, remaining);
+        if (allowed.length < incomingImages.length) {
+            toast({ title: 'Image limit', description: 'You can attach up to 4 images.' });
+        }
+        if (!allowed.length) return;
+        updateThreadTweet(focusedTweetId, focusedTweet.content, [...focusedTweet.attachments, ...allowed]);
+    };
+
+    const handleGifSelect = (gifUrl: string) => {
+        const focusedTweet = getFocusedTweet();
+        const hasAny = focusedTweet.attachments.length > 0;
+        if (hasAny) {
+            toast({ title: 'Only one GIF allowed', description: 'Remove other attachments before adding a GIF.' });
+            return;
+        }
+        const gifAttachment = { url: gifUrl, file: null, type: 'image/gif' };
+        updateThreadTweet(focusedTweetId, focusedTweet.content, [...focusedTweet.attachments, gifAttachment]);
+    };
+
+    const handleEmojiInsert = (emoji: string) => {
+        const focusedTweet = getFocusedTweet();
+        const addition = (focusedTweet.content?.endsWith(' ') || focusedTweet.content?.length === 0) ? emoji : ` ${emoji}`;
+        const next = focusedTweet.content + addition;
+        if (next.length <= 280) {
+            updateThreadTweet(focusedTweetId, next, focusedTweet.attachments);
+        }
+    };
+
+    const removeAttachment = async (tweetId: number, index: number) => {
+        const tweet = threadTweets.find(t => t.id === tweetId);
+        if (!tweet) return;
+
+        const target = tweet.attachments[index];
         if (target?.key) {
             try {
                 await fetch('/api/s3/delete', {
@@ -243,12 +260,14 @@ export default function TweetModal({
                 });
             } catch { }
         }
-        setAttachments(attachments.filter((_, i) => i !== index));
+        const updatedAttachments = tweet.attachments.filter((_, i) => i !== index);
+        updateThreadTweet(tweetId, tweet.content, updatedAttachments);
     };
+
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose} >
-            <DialogContent 
+            <DialogContent
                 ref={dialogContentRef}
                 onClick={handleDialogClick}
                 className="max-w-2xl w-full max-h-[90vh] overflow-hidden p-0 bg-white dark:bg-background focus:outline-none focus:ring-0"
@@ -257,7 +276,7 @@ export default function TweetModal({
                     <DialogTitle>Compose Tweet</DialogTitle>
                     <DialogDescription>Write and publish your tweet</DialogDescription>
                 </DialogHeader>
-                
+
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                     <div className="flex items-center gap-3">
@@ -281,7 +300,7 @@ export default function TweetModal({
                                     variant="outline"
                                     className="text-xs px-2 py-1 border-blue-200 text-blue-600 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 dark:text-blue-400"
                                 >
-                                    {audience}
+                                    Everyone
                                 </Badge>
                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                     <ChevronDown className="h-3 w-3" />
@@ -301,206 +320,168 @@ export default function TweetModal({
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 space-y-4">
-                        {/* Text Input */}
-                        <div className="space-y-2">
-                            <TweetComposer
-                                ref={textareaRef}
-                                value={content}
-                                onChange={setContent}
-                                placeholder="What's happening?"
-                                registerInserter={(fn) => {
-                                    (window as any).__insertIntoTweet = fn;
-                                }}
-                            />
-
-                            {/* Media Preview */}
-                            {attachments.length > 0 && (
-                                <div className="grid grid-cols-2 gap-2 mt-4">
-                                    {attachments.map((att, idx) => (
-                                        <div key={idx} className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                            {att.type && att.type?.startsWith('image/') ? (
-                                                <img src={att.url} alt="attachment" className="w-full h-32 object-cover" />
-                                            ) : att.type && att.type?.startsWith('video/') ? (
-                                                <video src={att.url} className="w-full h-32 object-cover" muted />
-                                            ) : (
-                                                <img src={att.url} alt="GIF" className="w-full h-32 object-cover" />
-                                            )}
-                                            <button
-                                                type="button"
-                                                className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={() => removeAttachment(idx)}
-                                            >
-                                                Remove
-                                            </button>
+                        {/* Thread Display */}
+                        {threadTweets.map((tweet, index) => (
+                            <div
+                                key={tweet.id}
+                                className={`border rounded-lg p-4 cursor-pointer transition-colors ${focusedTweetId === tweet.id
+                                    ? 'border-orange-300 bg-white dark:bg-gray-800'
+                                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 opacity-60'
+                                    }`}
+                                onClick={() => setFocusedTweetId(tweet.id)}
+                            >
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${focusedTweetId === tweet.id
+                                            ? 'bg-orange-600'
+                                            : 'bg-gradient-to-br from-orange-500 to-orange-600'
+                                            }`}>
+                                            <span className="text-white text-sm font-semibold">
+                                                {index + 1}
+                                            </span>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <TweetComposer
+                                            value={tweet.content}
+                                            onChange={(value) => updateThreadTweet(tweet.id, value, tweet.attachments)}
+                                            placeholder={`Tweet ${index + 1} of ${threadTweets.length}`}
+                                        />
+
+                                        {/* Media Preview */}
+                                        {tweet.attachments.length > 0 && (
+                                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                                {tweet.attachments.map((att, idx) => (
+                                                    <div key={idx} className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                                        {att.type && att.type?.startsWith('image/') ? (
+                                                            <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
+                                                        ) : att.type && att.type?.startsWith('video/') ? (
+                                                            <video src={att.url} className="w-full h-24 object-cover" muted />
+                                                        ) : (
+                                                            <img src={att.url} alt="GIF" className="w-full h-24 object-cover" />
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="absolute top-1 right-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                removeAttachment(tweet.id, idx);
+                                                            }}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {threadTweets.length > 1 && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeThreadTweet(tweet.id);
+                                            }}
+                                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-
-
-
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div className="flex px-4 items-center justify-between">
-                    {/* Left Actions */}
-                    <div className="flex items-center gap-2">
-                        {/* Formatting Tools */}
-                        <div className="flex items-center gap-1 border-r border-border pr-2 mr-2">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-                                <Bold className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-                                <Italic className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-                                <List className="h-4 w-4" />
-                            </Button>
-                        </div>
-
-                        {/* Media Tools */}
-                        <ImageUploader
-                            onSelect={handleImageUpload}
-                            multiple
-                        />
-
-                        <GiphyPicker
-                            onSelect={handleGifSelect}
-                        />
-
-                        <EmojiPicker
-                            onInsert={handleEmojiInsert}
-                        />
-
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-                            <MapPin className="h-4 w-4" />
-                        </Button>
-
-                        <div className="w-px h-6 bg-border mx-2" />
-
-                        <AIContentGenerator
-                            currentContent={content}
-                            onApplyContent={setContent}
-                        />
-                    </div>
-
-                    {/* Character Count */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <span className={`text-sm ${content?.length > 250 ? 'text-red-500' : 'text-gray-500'}`}>
-                                {content?.length || 0} / 280
-                            </span>
-                            {content && (
-                                <div className="flex items-center gap-1">
-                                    <span className="text-green-600 text-sm">saved</span>
-                                    <span className="text-green-600">✓</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
 
                 {/* Bottom Action Bar */}
                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4">
                     <div className="flex items-center justify-between">
-                        {/* Left Side - Media Tools */}
+                        {/* Left Side - Tools */}
                         <div className="flex items-center gap-3">
-                            <ImageUploader
-                                onSelect={handleImageUpload}
-                                multiple
-                            />
-                            <GiphyPicker
-                                onSelect={handleGifSelect}
-                            />
-                            <EmojiPicker
-                                onInsert={handleEmojiInsert}
-                            />
-                            
-                            {/* Add Tweet Button */}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={addThreadTweet}
-                                className="bg-white hover:bg-gray-50 text-gray-700 border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                            >
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add Tweet
-                            </Button>
-                        </div>
-
-                        {/* Right Side - Actions */}
-                        <div className="flex items-center gap-3">
-                            {/* Preview */}
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                            >
-                                <Globe className="h-4 w-4" />
-                            </Button>
-
-                            {/* Save Draft Button */}
-                            {onSave && (
-                                <div className="flex items-center">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleSave}
-                                        disabled={isSaving}
-                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 border-gray-300 rounded-l-md rounded-r-none px-3 py-1.5 text-sm focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                                    >
-                                        {isSaving ? 'Saving...' : 'Save draft'}
+                            <div className="flex items-center gap-2">
+                                {/* Formatting Tools */}
+                                <div className="flex items-center gap-1 border-r border-border pr-2 mr-2">
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                                        <Bold className="h-4 w-4" />
                                     </Button>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 border-gray-300 border-l-0 rounded-l-none rounded-r-md px-2 py-1.5 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                                            >
-                                                <ChevronDown className="h-3 w-3" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-48">
-                                            <DropdownMenuItem onClick={handleSave}>
-                                                <Calendar className="h-4 w-4 mr-2" />
-                                                Save as draft
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setShowSchedule(true)}>
-                                                <Calendar className="h-4 w-4 mr-2" />
-                                                Schedule
-                                            </DropdownMenuItem>
-                                            {onPublish && (
-                                                <DropdownMenuItem onClick={handlePublish}>
-                                                    <Send className="h-4 w-4 mr-2" />
-                                                    Publish
-                                                </DropdownMenuItem>
-                                            )}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                                        <Italic className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                                        <List className="h-4 w-4" />
+                                    </Button>
                                 </div>
-                            )}
-                        </div>
-                    </div>
 
-                    {/* Schedule Input */}
-                    {showSchedule && onScheduleChange && (
-                        <div className="mt-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div className="flex items-center gap-3">
-                                <Calendar className="h-4 w-4 text-gray-500" />
-                                <input
-                                    type="datetime-local"
-                                    className="flex-1 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-0"
-                                    value={scheduledAt ? new Date(scheduledAt).toISOString().slice(0, 16) : ''}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        onScheduleChange(val ? new Date(val).toISOString() : null);
+                                {/* Media Tools */}
+                                <ImageUploader
+                                    onSelect={handleImageUpload}
+                                    multiple
+                                />
+
+                                <GiphyPicker
+                                    onSelect={handleGifSelect}
+                                />
+
+                                <EmojiPicker
+                                    onInsert={handleEmojiInsert}
+                                />
+
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <MapPin className="h-4 w-4" />
+                                </Button>
+
+                                <div className="w-px h-6 bg-border mx-2" />
+
+                                <AIContentGenerator
+                                    currentContent={getFocusedTweet().content}
+                                    onApplyContent={(content) => {
+                                        const focusedTweet = getFocusedTweet();
+                                        updateThreadTweet(focusedTweetId, content, focusedTweet.attachments);
                                     }}
                                 />
                             </div>
                         </div>
-                    )}
+
+                        {/* Right Side - Actions */}
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={addThreadTweet}
+                                className="bg-white hover:bg-gray-50 text-gray-700 border-gray-300 px-3 py-1.5 text-sm"
+                            >
+                                <PlusCircle className="h-4 w-4 mr-1" />
+                            </Button>
+
+                            {/* Save Draft Button */}
+                            {onSave && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 border-gray-300 px-3 py-1.5 text-sm"
+                                >
+                                    {isSaving ? 'Saving...' : 'Save draft'}
+                                </Button>
+                            )}
+
+                            {/* Publish Button */}
+                            {onPublish && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={handlePublish}
+                                    disabled={isPublishing}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 text-sm"
+                                >
+                                    {isPublishing ? 'Publishing...' : 'Publish'}
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
             </DialogContent>

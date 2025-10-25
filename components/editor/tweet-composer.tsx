@@ -51,13 +51,24 @@ export const TweetComposer = forwardRef<HTMLTextAreaElement, {
     }
 
     return (
-        <div className="prose prose-sm max-w-none mb-6">
+        <div className="prose prose-sm max-w-none">
             <Textarea
                 ref={textareaRef}
                 placeholder={placeholder}
                 value={value}
+                rows={1}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full bg-white border-none rounded-md resize-none text-base leading-relaxed p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="w-full bg-white border-none rounded-md resize-none text-base leading-relaxed p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[1.5rem]"
+                style={{ 
+                    height: 'auto',
+                    minHeight: '1.5rem',
+                    maxHeight: '200px'
+                }}
+                onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = 'auto';
+                    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+                }}
                 maxLength={280}
             />
         </div>

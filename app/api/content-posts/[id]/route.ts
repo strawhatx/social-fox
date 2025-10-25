@@ -75,14 +75,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       for (const it of existingItems) {
         try {
           const md = (it.metadata as any) || {};
-          const atts = Array.isArray(md.attachments) ? md.attachments : [];
+          const atts = Array.isArray(md.media) ? md.media : [];
           for (const a of atts) if (a?.key) existingKeys.add(a.key);
         } catch {}
       }
 
       const incomingKeys = new Set<string>();
       for (const it of items) {
-        for (const a of (it.attachments || [])) if (a?.key) incomingKeys.add(a.key);
+        for (const a of (it.media || [])) if (a?.key) incomingKeys.add(a.key);
       }
 
       const keysToDelete = Array.from(existingKeys).filter((k) => !incomingKeys.has(k));
@@ -105,8 +105,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
               postId: id,
               parentId: parentId,
               content: (it.content || '').trim(),
-              media: [],
-              metadata: { attachments: (it.attachments || []).map((a: any) => ({ url: a.url, type: a.type, key: a.key })) },
+              media: (it.media || []).map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
+              metadata: it.metadata || {}
             },
           });
           parentId = created.id;

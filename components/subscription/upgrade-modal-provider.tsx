@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Crown } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { getPriceId } from '@/lib/utils';
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 interface UpgradeModalContextValue {
   showUpgrade: (reason?: string) => void;
@@ -78,9 +79,7 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
     };
   }, [showUpgrade]);
 
-  const handleUpgrade = useCallback((planId: 'explore' | 'creator') => {
-
-
+  const handleUpgrade = useCallback((planId: 'launch' | 'grow' | 'scale') => {
     const priceId = getPriceId(planId);
     if (!priceId) return;
 
@@ -118,51 +117,48 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
             )}
           </DialogHeader>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="border-orange-200">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Explore</span>
-                  <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
-                </CardTitle>
-                <CardDescription>
-                  <span className="text-2xl font-bold text-orange-600">$5</span>
-                  <span className="text-orange-500">/month</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />20 Content Copilot drafts</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />10 scheduled posts per month</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Starter Library</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Basic support</li>
-                </ul>
-                <Button onClick={() => handleUpgrade('explore')} className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">Choose Explore</Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-orange-300 bg-orange-50">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Creative</span>
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">Best Value</Badge>
-                </CardTitle>
-                <CardDescription>
-                  <span className="text-2xl font-bold text-orange-600">$29</span>
-                  <span className="text-orange-500">/month</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Everything in Explore</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />150 Content Copilot drafts per month</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />100 scheduled posts per month</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Custom Library</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" />Priority support</li>
-                </ul>
-                <Button onClick={() => handleUpgrade('creator')} className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">Choose Creative</Button>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-3">
+            {Object.values(SUBSCRIPTION_PLANS).map((plan) => (
+              <Card 
+                key={plan.id} 
+                className={`${
+                  plan.popular 
+                    ? 'border-orange-300 bg-orange-50' 
+                    : 'border-orange-200'
+                }`}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{plan.name}</span>
+                    {plan.popular && (
+                      <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                        Popular
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    <span className="text-2xl font-bold text-orange-600">${plan.price}</span>
+                    <span className="text-orange-500">/{plan.interval}</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2 text-sm">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    onClick={() => handleUpgrade(plan.action as 'launch' | 'grow' | 'scale')} 
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

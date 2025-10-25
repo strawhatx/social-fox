@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, DivideCircle, Zap } from 'lucide-react';
 import useSubscription from '@/hooks/use-subscription';
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 export default function SubscriptionManager() {
   const { subscription, loading, upgrade, openBillingPortal } = useSubscription();
 
   const handleUpgrade = async (action: string) => {
-    await upgrade(action as 'explore' | 'creator');
+    await upgrade(action as 'launch' | 'grow' | 'scale');
   }
 
   const handleManageSubscription = async () => {
@@ -84,46 +85,30 @@ export default function SubscriptionManager() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4">
-                {/* Explore Plan */}
-                <div className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Explore</h3>
-                    <span className="text-lg font-bold">$9/month</span>
-                  </div>
-                  <ul className="text-sm space-y-1">
-                    <li>• 30 drafts(10 ideas x 3  variations)</li>
-                    <li>• 10 scheduled posts per month</li>
-                    <li>• Starter Library</li>
-                    <li>• Basic support</li>
-                  </ul>
-                  <Button
-                    onClick={() => handleUpgrade('explore')}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                {Object.values(SUBSCRIPTION_PLANS).map((plan) => (
+                  <div 
+                    key={plan.id} 
+                    className={`border rounded-lg p-4 space-y-3 ${
+                      plan.popular ? 'border-orange-200 bg-orange-50' : ''
+                    }`}
                   >
-                    Upgrade to Explore
-                  </Button>
-                </div>
-
-                {/* Creator Plan */}
-                <div className="border rounded-lg p-4 space-y-3 border-orange-200 bg-orange-50">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Creative</h3>
-                    <span className="text-lg font-bold">$29/month</span>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold">{plan.name}</h3>
+                      <span className="text-lg font-bold">${plan.price}/{plan.interval}</span>
+                    </div>
+                    <ul className="text-sm space-y-1">
+                      {plan.features.map((feature, index) => (
+                        <li key={index}>• {feature}</li>
+                      ))}
+                    </ul>
+                    <Button
+                      onClick={() => handleUpgrade(plan.action)}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                    >
+                      {plan.buttonText}
+                    </Button>
                   </div>
-                  <ul className="text-sm space-y-1">
-                    <li>• Everything in Explore</li>
-                    <li>• 120 drafts(40 ideas x 3 variations)</li>
-                    <li>• 75 scheduled posts</li>
-                    <li>• Custom Library</li>
-                    <li>• Priority support</li>
-                  </ul>
-                  <Button
-                    onClick={() => handleUpgrade('creator')}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                  >
-                    Upgrade to Creative
-                  </Button>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>

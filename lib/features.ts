@@ -3,8 +3,9 @@ export interface QuotaFeature {
   name: string;
   description: string;
   limits: {
-    explore: number;
-    creator: number;
+    launch: number;
+    grow: number;
+    scale: number;
   };
 }
 
@@ -12,82 +13,129 @@ export interface BinaryFeature {
   name: string;
   description: string;
   enabled: {
-    explore: boolean;
-    creator: boolean;
+    launch: boolean;
+    grow: boolean;
+    scale: boolean;
   };
 }
 
 export interface UserPlan {
   id: string;
-  name: 'explore' | 'creator';
+  name: 'launch' | 'grow' | 'scale';
   displayName: string;
   price: number;
 }
 
 // Quota-based features (with usage limits)
 export const QUOTA_FEATURES: Record<string, QuotaFeature> = {
-  copilotDrafts: {
-    name: 'Copilot Drafts',
-    description: 'Generate AI-powered social media posts with Copilot',
-    limits: {
-      explore: 30,
-      creator: 150
-    }
-  },
   scheduledPosts: {
     name: 'Scheduled Posts',
     description: 'Schedule posts for future publishing',
     limits: {
-      explore: 10,
-      creator: 100
+      launch: 30,
+      grow: 60,
+      scale: 150
+    }
+  },
+  threads: {
+    name: 'Threads',
+    description: 'Create multi-tweet thread content',
+    limits: {
+      launch: 4,
+      grow: 8,
+      scale: 15
     }
   }
 };
 
 // Binary features (enabled/disabled)
 export const BINARY_FEATURES: Record<string, BinaryFeature> = {
-  starterTemplates: {
-    name: 'Starter Templates',
-    description: 'Use starter templates to get started',
+  analytics: {
+    name: 'Analytics',
+    description: 'Track post performance and engagement',
     enabled: {
-      explore: true,
-      creator: true
+      launch: true,
+      grow: true,
+      scale: true
     }
   },
-  customTemplates: {
-    name: 'Custom Templates',
-    description: 'Create and manage custom templates',
+  automation: {
+    name: 'AI Automation',
+    description: 'Automated content generation and optimization',
     enabled: {
-      explore: false,
-      creator: true
+      launch: false,
+      grow: true,
+      scale: true
+    }
+  },
+  contentLibrary: {
+    name: 'Content Library',
+    description: 'Save, remix, and auto-fill winning posts',
+    enabled: {
+      launch: true,
+      grow: true,
+      scale: true
+    }
+  },
+  aiGeneration: {
+    name: 'AI Generation',
+    description: 'AI-powered content creation',
+    enabled: {
+      launch: false,
+      grow: true,
+      scale: true
+    }
+  },
+  teamAccess: {
+    name: 'Team Access',
+    description: 'Collaborate with team members',
+    enabled: {
+      launch: false,
+      grow: false,
+      scale: true
+    }
+  },
+  prioritySupport: {
+    name: 'Priority Support',
+    description: 'Priority customer support',
+    enabled: {
+      launch: false,
+      grow: false,
+      scale: true
     }
   }
 };
 
 // Plan definitions
 export const PLANS: Record<string, UserPlan> = {
-  explore: {
-    id: 'explore',
-    name: 'explore',
-    displayName: 'Explore',
-    price: 5
+  launch: {
+    id: 'launch',
+    name: 'launch',
+    displayName: 'Launch',
+    price: 19
   },
-  creator: {
-    id: 'creator',
-    name: 'creator',
-    displayName: 'Creator',
-    price: 15
+  grow: {
+    id: 'grow',
+    name: 'grow',
+    displayName: 'Grow',
+    price: 49
+  },
+  scale: {
+    id: 'scale',
+    name: 'scale',
+    displayName: 'Scale',
+    price: 99
   }
 };
 
 // Utility functions
-export function getFeatureLimit(featureName: string, planName: 'explore' | 'creator'): number {
+export function getFeatureLimit(featureName: string, planName: 'launch' | 'grow' | 'scale'): number {
   const feature = QUOTA_FEATURES[featureName];
   if (!feature) return 0;
   return feature.limits[planName] || 0;
 }
 
-export function isFeatureEnabled(featureName: string, planName: 'explore' | 'creator'): boolean {
+export function isFeatureEnabled(featureName: string, planName: 'launch' | 'grow' | 'scale'): boolean {
   const feature = BINARY_FEATURES[featureName];
   if (!feature) return false;
   return feature.enabled[planName] || false;
@@ -97,7 +145,7 @@ export function getFeatureConfig(featureName: string): QuotaFeature | null {
   return QUOTA_FEATURES[featureName] || null;
 }
 
-export function getAllFeaturesForPlan(planName: 'explore' | 'creator'): Record<string, { enabled: boolean; limit: number }> {
+export function getAllFeaturesForPlan(planName: 'launch' | 'grow' | 'scale'): Record<string, { enabled: boolean; limit: number }> {
   const result: Record<string, { enabled: boolean; limit: number }> = {};
   
   Object.keys(QUOTA_FEATURES).forEach(featureName => {
@@ -113,7 +161,7 @@ export function getAllFeaturesForPlan(planName: 'explore' | 'creator'): Record<s
 // Check if user can use a feature
 export function canUseFeature(
   featureName: string, 
-  planName: 'explore' | 'creator', 
+  planName: 'launch' | 'grow' | 'scale', 
   currentUsage: number
 ): { canUse: boolean; reason?: string } {
   const feature = QUOTA_FEATURES[featureName];
@@ -135,18 +183,21 @@ export function canUseFeature(
 
 // Plan limits mapping for easy access
 export const planLimits = {
-  explore: Object.fromEntries(
-    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.explore])
+  launch: Object.fromEntries(
+    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.launch])
   ),
-  creator: Object.fromEntries(
-    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.creator])
+  grow: Object.fromEntries(
+    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.grow])
+  ),
+  scale: Object.fromEntries(
+    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.scale])
   )
 };
 
 // Get upgrade suggestions
 export function getUpgradeSuggestions(
   featureName: string,
-  currentPlan: 'explore' | 'creator'
+  currentPlan: 'launch' | 'grow' | 'scale'
 ): { plan: string; limit: number }[] {
   const feature = QUOTA_FEATURES[featureName];
   if (!feature) return [];

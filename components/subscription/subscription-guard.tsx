@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Lock } from 'lucide-react';
 import useSubscription from '@/hooks/use-subscription';
 import { useUser } from '@clerk/nextjs';
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
   }, [subscription]);
 
   const handleUpgrade = async (planId: string) => {
-    await upgrade(planId as 'explore' | 'creator');
+    await upgrade(planId as 'launch' | 'grow' | 'scale');
   };
 
   const handleManageSubscription = async () => {
@@ -82,90 +83,44 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Explore Plan */}
-              <Card className="border-orange-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Explore</span>
-                    <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    <span className="text-2xl font-bold text-orange-600">$9</span>
-                    <span className="text-orange-500">/month</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      30 Content Copilot drafts
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      10 scheduled posts per month
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Starter Library
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Basic support
-                    </li>
-                  </ul>
-                  <Button 
-                    onClick={() => handleUpgrade('explore')}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                  >
-                    Choose Explore
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Creative Plan */}
-              <Card className="border-orange-300 bg-orange-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Creative</span>
-                    <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">Best Value</Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    <span className="text-2xl font-bold text-orange-600">$29</span>
-                    <span className="text-orange-500">/month</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Everything in Explore
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      120 Content Copilot drafts per month
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      75 scheduled posts per month
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Custom Library
-                    </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500" />
-                      Priority support
-                    </li>
-                  </ul>
-                  <Button 
-                    onClick={() => handleUpgrade('creator')}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                  >
-                    Choose Creative
-                  </Button>
-                </CardContent>
-              </Card>
+            <div className="grid gap-6 md:grid-cols-3">
+              {Object.values(SUBSCRIPTION_PLANS).map((plan) => (
+                <Card 
+                  key={plan.id} 
+                  className={`border-orange-200 ${plan.popular ? 'border-orange-300 bg-orange-50' : ''}`}
+                >
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>{plan.name}</span>
+                      {plan.popular && (
+                        <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                          Popular
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>
+                      <span className="text-2xl font-bold text-orange-600">${plan.price}</span>
+                      <span className="text-orange-500">/{plan.period}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <ul className="space-y-2">
+                      {plan.features.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm">
+                          <Check className="h-4 w-4 text-green-500" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button 
+                      onClick={() => handleUpgrade(plan.id)}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
             {/* Current Status */}

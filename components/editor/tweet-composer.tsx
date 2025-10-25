@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, forwardRef } from 'react';
+import { useRef, forwardRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
 // Simple tweet composer
@@ -50,6 +50,20 @@ export const TweetComposer = forwardRef<HTMLTextAreaElement, {
         registerInserter(insertAtCursor);
     }
 
+    // Auto-resize function
+    const autoResize = () => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+    };
+
+    // Auto-resize when value changes
+    useEffect(() => {
+        autoResize();
+    }, [value]);
+
     return (
         <div className="prose prose-sm max-w-none">
             <Textarea
@@ -64,11 +78,7 @@ export const TweetComposer = forwardRef<HTMLTextAreaElement, {
                     minHeight: '1.5rem',
                     maxHeight: '200px'
                 }}
-                onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
-                }}
+                onInput={autoResize}
                 maxLength={280}
             />
         </div>

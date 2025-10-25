@@ -447,10 +447,10 @@ export default function TweetModal({
                         {/* Right Side - Actions */}
                         <div className="flex items-center gap-3">
                             <Button
-                                variant="outline"
+                                variant="ghost"
                                 size="sm"
                                 onClick={addThreadTweet}
-                                className="bg-white hover:bg-gray-50 text-gray-700 border-gray-300 px-3 py-1.5 text-sm"
+                                className=" text-gray-700 text-sm"
                             >
                                 <PlusCircle className="h-4 w-4 mr-1" />
                             </Button>
@@ -464,7 +464,7 @@ export default function TweetModal({
                                     disabled={isSaving}
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 border-gray-300 px-3 py-1.5 text-sm"
                                 >
-                                    {isSaving ? 'Saving...' : 'Save draft'}
+                                    {isSaving ? 'Saving...' : 'Save'}
                                 </Button>
                             )}
 

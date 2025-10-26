@@ -270,7 +270,7 @@ export default function TweetModal({
             <DialogContent
                 ref={dialogContentRef}
                 onClick={handleDialogClick}
-                className="max-w-2xl w-full max-h-[90vh] overflow-hidden p-0 bg-white dark:bg-background focus:outline-none focus:ring-0"
+                className="max-w-2xl w-full max-h-[90vh] flex flex-col p-0 bg-white dark:bg-background focus:outline-none focus:ring-0"
             >
                 <DialogHeader className="sr-only">
                     <DialogTitle>Compose Tweet</DialogTitle>
@@ -318,7 +318,7 @@ export default function TweetModal({
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto min-h-0">
                     <div className="p-4 space-y-4">
                         {/* Thread Display */}
                         {threadTweets.map((tweet, index) => (
@@ -396,7 +396,7 @@ export default function TweetModal({
 
 
                 {/* Bottom Action Bar */}
-                <div className="bg-gray-50 dark:bg-gray-800/50 p-4">
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-4 flex-shrink-0">
                     <div className="flex items-center justify-between">
                         {/* Left Side - Tools */}
                         <div className="flex items-center gap-3">

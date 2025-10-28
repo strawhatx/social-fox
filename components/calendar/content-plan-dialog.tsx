@@ -57,7 +57,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                 <DialogTrigger asChild>
                     <Button
                         variant="default"
-                        className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm"
+                        className="bg-black hover:bg-black/90 text-white px-6 py-2 rounded-lg shadow-sm"
                         onClick={() => setOpen(true)}
                     >
                         <Plus className="w-4 h-4 mr-2" />
@@ -67,7 +67,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                 <DialogContent className="sm:max-w-[550px]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-teal-600" />
+                            <Sparkles className="w-5 h-5 text-orange-600" />
                             Generate Your 30-Day Content Plan
                         </DialogTitle>
                         <DialogDescription>
@@ -86,7 +86,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                                 onChange={(e) => setPlanSubject(e.target.value)}
                                 className="resize-none h-20"
                             />
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                                 Be specific about your niche, topics, or expertise you want to share.
                             </p>
                         </div>
@@ -149,7 +149,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                                 </SelectContent>
                             </Select>
                             {subscription && (
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-muted-foreground">
                                     {subscription.planDetails?.name}: {availableMediaTypes.filter(t => !t.disabled).map(t => t.label).join(' + ')}
                                 </p>
                             )}
@@ -169,13 +169,13 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                         </div>
 
                         {planSubject && (
-                            <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 mt-2">
-                                <p className="text-sm text-teal-900">
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+                                <p className="text-sm text-foreground">
                                     <span className="font-medium">✨ We'll generate:</span>
                                     <br />
                                     30 unique post ideas tailored to "{planSubject}" with your selected {planTone} tone.
                                     <br />
-                                    <span className="text-xs text-teal-700">
+                                    <span className="text-xs text-muted-foreground">
                                         Media type: {mediaMode === 'text' ? 'Text only' : mediaMode === 'images' ? 'With images' : 'With GIFs'}
                                     </span>
                                 </p>
@@ -192,7 +192,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                         </Button>
                         <Button
                             type="button"
-                            className="bg-teal-600 hover:bg-teal-700 text-white"
+                            className="bg-orange-600 hover:bg-orange-700 text-white"
                             onClick={handleGeneratePlan}
                             disabled={!planSubject.trim()}
                         >

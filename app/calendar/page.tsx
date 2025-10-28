@@ -11,7 +11,7 @@ import PostGrid from "@/components/calendar/post-grid";
 import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
 import TweetModal from "@/components/editor/tweet-modal";
 import { toast } from "@/hooks/use-toast";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, rectIntersection } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, rectIntersection, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 
 interface ThreadTweet {
     id: number;
@@ -33,8 +33,20 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
     const [activePost, setActivePost] = useState<ContentPost | null>(null);
     const today = new Date();
 
+    // Configure sensor so tiny movements don't trigger drag (enable click-to-edit)
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    );
+
     const handleAddPost = async (scheduled: Date): Promise<void> => {
         try {
+            // Block creating posts in the past (by day)
+            const scheduled0 = new Date(scheduled.getFullYear(), scheduled.getMonth(), scheduled.getDate());
+            const today0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            if (scheduled0 < today0) {
+                toast({ title: 'Not allowed', description: 'Cannot create posts in the past', variant: 'destructive' });
+                return;
+            }
             const y = scheduled.getFullYear();
             const m = scheduled.getMonth();
             const d = scheduled.getDate();
@@ -74,6 +86,14 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
     };
 
     const onSelectPost = (post: ContentPost) => {
+        // Block editing posted posts or posts scheduled on past days
+        if (post.status === 'posted') return;
+        if (post.scheduledAt) {
+            const dt = new Date(post.scheduledAt);
+            const d0 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            if (d0 < t0) return;
+        }
         setEditingPost(post);
         setShowTweetModal(true);
     };
@@ -150,6 +170,11 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
 
         if (!targetDate) return;
 
+        // Disallow moving to past days
+        const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const target0 = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+        if (target0 < t0) return;
+
         // ✅ Call parent handler to update DB + local state
         onMovePost?.(postId, targetDate);
     }
@@ -157,6 +182,8 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
     const onMovePost = async (postId: string, newDate: Date) => {
         // Preserve the original time if present, else default to 9:00
         const original = posts.find(p => p.id === postId);
+        // Prevent moving posted posts
+        if (original?.status === 'posted') return;
         const originalDt = original?.scheduledAt ? new Date(original.scheduledAt) : null;
         const hours = originalDt ? originalDt.getHours() : 9;
         const minutes = originalDt ? originalDt.getMinutes() : 0;
@@ -179,6 +206,21 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
             // Revert on failure
             setPosts((prev: ContentPost[]) => prev.map(p => p.id === postId ? { ...p, scheduledAt: prevScheduledAt || p.scheduledAt } : p));
             toast({ title: 'Error', description: 'Failed to move post', variant: 'destructive' });
+        }
+    };
+
+    const onDeletePost = async (postId: string) => {
+        const previous = posts;
+        // Optimistic remove
+        setPosts((prev: ContentPost[]) => prev.filter(p => p.id !== postId));
+        try {
+            const res = await fetch(`/api/content-posts/${postId}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete');
+            toast({ title: 'Deleted', description: 'Post deleted successfully' });
+        } catch (e) {
+            // Revert
+            setPosts(previous);
+            toast({ title: 'Error', description: 'Failed to delete post', variant: 'destructive' });
         }
     };
 
@@ -220,7 +262,7 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
         <div className="p-6 max-w-none overflow-auto h-full">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <p className="text-gray-600">Plan and track your content.</p>
+                    <p className="text-muted-foreground">Plan and track your content.</p>
                 </div>
 
                 <ContentPlanDialog onGeneratePlan={onExport} />
@@ -229,24 +271,25 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" onClick={goToPreviousMonth} className="p-2"><ChevronLeft className="w-4 h-4" /></Button>
-                    <h2 className="text-xl font-medium text-gray-900 min-w-[200px] text-center">{monthNames[currentMonth]} {currentYear}</h2>
+                    <h2 className="text-xl font-medium text-foreground min-w-[200px] text-center">{monthNames[currentMonth]} {currentYear}</h2>
                     <Button variant="outline" size="sm" onClick={goToNextMonth} className="p-2"><ChevronRight className="w-4 h-4" /></Button>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                     {posts.filter(p => p.status === 'posted').length} published • {posts.filter(p => p.status === 'scheduled').length} scheduled • {posts.filter(p => p.status === 'draft').length} drafts
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <div className="grid grid-cols-7 border-b border-gray-200">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="grid grid-cols-7 border-b border-border">
                     {dayNames.map((day) => (
                         <div key={day} className="p-4 text-center">
-                            <span className="text-sm font-medium text-gray-600">{day}</span>
+                            <span className="text-sm font-medium text-muted-foreground">{day}</span>
                         </div>
                     ))}
                 </div>
 
                 <DndContext
+                    sensors={sensors}
                     collisionDetection={closestCenter}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
@@ -259,11 +302,12 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
                         onSelectPost={onSelectPost}
                         handleAddPost={handleAddPost}
                         onMovePost={onMovePost}
+                        onDeletePost={onDeletePost}
                     />
 
                     <DragOverlay>
                         {activePost ? (
-                            <div className="text-xs text-white px-3 py-2 rounded-lg bg-blue-600 shadow-2xl border border-blue-400 transform rotate-2 scale-105">
+                            <div className="text-xs text-white px-3 py-2 rounded-lg bg-orange-600 shadow-2xl border border-orange-400 transform rotate-2 scale-105">
                                 <div className="flex items-center gap-2 mb-1">
                                     <GripVertical className="w-3 h-3 opacity-80" />
                                     {activePost.scheduledAt && (
@@ -288,9 +332,9 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
             </div>
 
             <div className="flex items-center gap-6 mt-6 text-sm">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-600 rounded"></div><span className="text-gray-600">Published</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded"></div><span className="text-gray-600">Scheduled</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded"></div><span className="text-gray-600">Draft</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-600 rounded"></div><span className="text-muted-foreground">Published</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-600 rounded"></div><span className="text-muted-foreground">Scheduled</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded"></div><span className="text-muted-foreground">Draft</span></div>
             </div>
 
             {/* Tweet Modal */}

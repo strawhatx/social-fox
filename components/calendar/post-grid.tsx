@@ -1,4 +1,4 @@
-import { Clock, Plus, GripVertical } from "lucide-react";
+import { Clock, Plus, GripVertical, Trash2 } from "lucide-react";
 import { ContentPost } from "@/lib/types/content_posts";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -11,17 +11,20 @@ interface DayPostProps {
     onSelectPost: (post: ContentPost) => void;
     handleAddPost: (date: Date) => void;
     onMovePost?: (postId: string, newDate: Date, newHour?: number) => void;
+    onDeletePost: (postId: string) => void;
 }
 
 interface DraggablePostProps {
     post: ContentPost;
     onSelectPost: (post: ContentPost) => void;
     getStatusColor: (status: string) => string;
+    onDeletePost: (postId: string) => void;
 }
 
-function DraggablePost({ post, onSelectPost, getStatusColor }: DraggablePostProps) {
+function DraggablePost({ post, onSelectPost, getStatusColor, onDeletePost }: DraggablePostProps) {
     const postId = `post-${post.id}`;
     console.log('DraggablePost setup:', { postId, post: post.id });
+    const isPosted = post.status === 'posted';
     
     const {
         attributes,
@@ -34,11 +37,12 @@ function DraggablePost({ post, onSelectPost, getStatusColor }: DraggablePostProp
         data: {
             post,
         },
+        disabled: isPosted,
     });
 
     const style = {
         transform: CSS.Translate.toString(transform),
-        opacity: isDragging ? 0.5 : 1,
+        opacity: isDragging || isPosted ? 0.5 : 1,
     };
 
     const scheduled = post.scheduledAt ? new Date(post.scheduledAt) : null;
@@ -51,15 +55,33 @@ function DraggablePost({ post, onSelectPost, getStatusColor }: DraggablePostProp
             style={style}
             {...attributes}
             {...listeners}
-            className={`text-xs text-white px-2 py-1.5 rounded-md cursor-grab active:cursor-grabbing hover:opacity-80 transition-all duration-200 ${getStatusColor(post.status)} ${
-                isDragging ? 'z-50 scale-105 shadow-lg' : 'hover:scale-105'
+            className={`relative text-xs text-white px-2 py-1.5 rounded-md transition-all duration-200 ${getStatusColor(post.status)} ${
+                isDragging ? 'z-50 scale-105 shadow-lg' : isPosted ? 'cursor-not-allowed' : 'hover:scale-105 cursor-grab active:cursor-grabbing'
             }`}
             onClick={(e) => {
+                if (isDragging || isPosted) return; // don't open editor after a drag or when disabled
                 e.stopPropagation();
                 onSelectPost(post);
             }}
             title={`${timeLabel} ${preview}`.trim()}
         >
+            {/* Delete button */}
+            {!isPosted && (
+                <button
+                    type="button"
+                    aria-label="Delete post"
+                    className="absolute top-1 right-1 p-1 rounded hover:bg-white/20 focus:outline-none"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Delete this post?')) {
+                            onDeletePost(String(post.id));
+                        }
+                    }}
+                >
+                    <Trash2 className="w-3 h-3 opacity-90" />
+                </button>
+            )}
             <div className="flex items-center gap-1 mb-0.5">
                 <GripVertical className="w-3 h-3 opacity-70" />
                 {timeLabel && (
@@ -84,7 +106,8 @@ interface DroppableCellProps {
     onSelectPost: (post: ContentPost) => void;
     handleAddPost: (date: Date) => void;
     getStatusColor: (status: string) => string;
-    onMovePost?: (postId: number, newDate: Date, newHour?: number) => void;
+    onMovePost?: (postId: string, newDate: Date, newHour?: number) => void;
+    onDeletePost: (postId: string) => void;
 }
 
 function DroppableCell({ 
@@ -95,11 +118,17 @@ function DroppableCell({
     onSelectPost, 
     handleAddPost, 
     getStatusColor,
-    onMovePost 
+    onMovePost,
+    onDeletePost
 }: DroppableCellProps) {
     // Create a consistent date string that avoids timezone issues
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const dayId = `day-${dateString}`;
+    // Determine if this day is in the past (by day, ignoring time)
+    const now = new Date();
+    const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const date0 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const isPastDay = date0 < today0;
     
     console.log('DroppableCell setup:', { 
         date: date.toLocaleDateString(), 
@@ -113,21 +142,22 @@ function DroppableCell({
         data: {
             date,
         },
+        disabled: isPastDay,
     });
 
     return (
         <div
             ref={setNodeRef}
             className={`min-h-[120px] border-r border-b border-gray-100 p-3 relative ${
-                !isCurrentMonthDay ? 'bg-gray-50' : 'bg-white'
-            } hover:bg-gray-50 transition-all duration-200 ${
-                isOver ? 'bg-blue-50 border-blue-300 border-2 shadow-inner' : ''
+                !isCurrentMonthDay ? 'bg-gray-50' : isPastDay ? 'bg-gray-50' : 'bg-white'
+            } ${isPastDay ? 'opacity-80' : 'hover:bg-gray-50'} transition-all duration-200 ${
+                isOver ? 'bg-orange-50 border-orange-300 border-2 shadow-inner' : ''
             }`}
         >
             {/* Drop zone indicator */}
             {isOver && (
-                <div className="absolute inset-0 border-2 border-dashed border-blue-400 bg-blue-50 bg-opacity-50 rounded-md flex items-center justify-center">
-                    <div className="text-blue-600 text-sm font-medium">
+                <div className="absolute inset-0 border-2 border-dashed border-orange-300 bg-orange-50 bg-opacity-50 rounded-md flex items-center justify-center">
+                    <div className="text-orange-600 text-sm font-medium">
                         Drop post here
                     </div>
                 </div>
@@ -138,9 +168,11 @@ function DroppableCell({
                     className={`text-sm font-medium ${
                         isTodayDate
                             ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
-                            : isCurrentMonthDay
-                                ? 'text-gray-900'
-                                : 'text-gray-400'
+                            : isPastDay
+                                ? 'text-gray-400'
+                                : isCurrentMonthDay
+                                    ? 'text-gray-900'
+                                    : 'text-gray-400'
                     }`}
                 >
                     {date.getDate()}
@@ -155,11 +187,12 @@ function DroppableCell({
                         post={post}
                         onSelectPost={onSelectPost}
                         getStatusColor={getStatusColor}
+                        onDeletePost={onDeletePost}
                     />
                 ))}
 
                 {/* Add post button */}
-                {isCurrentMonthDay && (
+                {isCurrentMonthDay && !isPastDay && (
                     <button
                         onClick={() => handleAddPost(date)}
                         className="w-full text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-2 py-1.5 rounded-md transition-colors flex items-center gap-1"
@@ -174,9 +207,9 @@ function DroppableCell({
     );
 }
 
-export default function PostGrid({ posts, isCurrentMonth, isToday, days, onSelectPost, handleAddPost, onMovePost }: DayPostProps) {
+export default function PostGrid({ posts, isCurrentMonth, isToday, days, onSelectPost, handleAddPost, onMovePost, onDeletePost }: DayPostProps) {
     
-    const getStatusColor = (status: string) => status === 'posted' ? 'bg-emerald-600' : status === 'scheduled' ? 'bg-blue-600' : 'bg-amber-500';
+    const getStatusColor = (status: string) => status === 'posted' ? 'bg-emerald-600' : status === 'scheduled' ? 'bg-orange-500' : 'bg-amber-500';
     
     return (
         <div className="grid grid-cols-7">
@@ -200,6 +233,7 @@ export default function PostGrid({ posts, isCurrentMonth, isToday, days, onSelec
                         handleAddPost={handleAddPost}
                         getStatusColor={getStatusColor}
                         onMovePost={onMovePost}
+                        onDeletePost={onDeletePost}
                     />
                 );
             })}

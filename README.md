@@ -498,7 +498,7 @@ npm run dev
   - `NETLIFY_AUTH_TOKEN`
   - `NETLIFY_SITE_ID`
 - Build-time envs forwarded by the workflow (set as repo secrets as needed):
-  - `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GIPHY_API_KEY`, `DATABASE_URL`, `SITE_URL`, `STRIPE_SECRET_KEY`, `GEMINI_KEY`, `OPENAI_API_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
+  - `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GIPHY_API_KEY`, `PEXELS_API_KEY`, `DATABASE_URL`, `SITE_URL`, `STRIPE_SECRET_KEY`, `GEMINI_KEY`, `OPENAI_API_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
 
 Troubleshooting:
 - If you see `ENOENT: no such file or directory, lstat '.../out'`, ensure the workflow uses Netlify CLI and that `publish = ".next"` is set in `netlify.toml` (this app does not use `next export`).
@@ -529,6 +529,7 @@ AWS_SECRET_ACCESS_KEY=...
 
 # Social Media
 NEXT_PUBLIC_GIPHY_API_KEY=...
+PEXELS_API_KEY=...
 ```
 
 ### Database Migration

@@ -118,13 +118,13 @@ export const PLANS: Record<string, UserPlan> = {
     id: 'grow',
     name: 'grow',
     displayName: 'Grow',
-    price: 49
+    price: 39
   },
   scale: {
     id: 'scale',
     name: 'scale',
     displayName: 'Scale',
-    price: 99
+    price: 79
   }
 };
 

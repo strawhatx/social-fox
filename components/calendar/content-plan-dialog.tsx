@@ -4,11 +4,13 @@ import { Label } from "../ui/label"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Button } from "../ui/button"
-import { Plus, Sparkles } from "lucide-react"
+import { Plus, Sparkles, Lock } from "lucide-react"
 import { useState } from "react"
+import { useSubscription } from "@/hooks/use-subscription"
+import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans"
 
 interface ContentPlanDialogProps {
-    onGeneratePlan: (audience: string, subject: string, tone: string, goals: string) => void;
+    onGeneratePlan: (audience: string, subject: string, tone: string, goals: string, mediaMode: 'text' | 'images' | 'gifs') => void;
 }
 
 export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogProps): JSX.Element {
@@ -17,25 +19,51 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
     const [planAudience, setPlanAudience] = useState('');
     const [planTone, setPlanTone] = useState('');
     const [planGoals, setPlanGoals] = useState('');
+    const [mediaMode, setMediaMode] = useState<'text' | 'images' | 'gifs'>('text');
+    const { subscription, loading } = useSubscription();
 
     const handleGeneratePlan = async () => {
-        onGeneratePlan(planAudience, planSubject, planTone, planGoals);
+        onGeneratePlan(planAudience, planSubject, planTone, planGoals, mediaMode);
     };
+
+    // Get available media types based on subscription plan
+    const getAvailableMediaTypes = () => {
+        if (loading || !subscription) return [{ value: 'text', label: 'Text Only', disabled: false }];
+        
+        const plan = subscription.plan as 'launch' | 'grow' | 'scale';
+        const planDetails = SUBSCRIPTION_PLANS[plan];
+        const mediaTypesLimit = planDetails?.limits?.mediaTypes;
+        const allowedMediaTypes = Array.isArray(mediaTypesLimit) ? mediaTypesLimit : ['text'];
+        
+        const allMediaTypes = [
+            { value: 'text', label: 'Text Only' },
+            { value: 'images', label: 'Images' },
+            { value: 'gifs', label: 'GIFs' }
+        ];
+        
+        return allMediaTypes.map(type => ({
+            ...type,
+            disabled: !allowedMediaTypes.includes(type.value as 'text' | 'images' | 'gifs')
+        }));
+    };
+
+    const availableMediaTypes = getAvailableMediaTypes();
 
     return (
         <>
 
 
-            <Dialog open={open} onOpenChange={setOpen}>   <DialogTrigger asChild>
-                <Button
-                    variant="default"
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm"
-                    onClick={() => setOpen(true)}
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Generate 30 Day Plan
-                </Button>
-            </DialogTrigger>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                    <Button
+                        variant="default"
+                        className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-sm"
+                        onClick={() => setOpen(true)}
+                    >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Generate 30 Day Plan
+                    </Button>
+                </DialogTrigger>
                 <DialogContent className="sm:max-w-[550px]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
@@ -95,6 +123,39 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                         </div>
 
                         <div className="space-y-2">
+                            <Label htmlFor="mediaMode" className="text-sm font-medium">
+                                Media type
+                            </Label>
+                            <Select value={mediaMode} onValueChange={(value: 'text' | 'images' | 'gifs') => setMediaMode(value)}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableMediaTypes.map((type) => (
+                                        <SelectItem 
+                                            key={type.value} 
+                                            value={type.value}
+                                            disabled={type.disabled}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                {type.value === 'text' && <span>📝</span>}
+                                                {type.value === 'images' && <span>🖼️</span>}
+                                                {type.value === 'gifs' && <span>🎬</span>}
+                                                {type.label}
+                                                {type.disabled && <Lock className="h-3 w-3 text-gray-400" />}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {subscription && (
+                                <p className="text-xs text-gray-500">
+                                    {subscription.planDetails?.name}: {availableMediaTypes.filter(t => !t.disabled).map(t => t.label).join(' + ')}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
                             <Label htmlFor="goals" className="text-sm font-medium">
                                 Content goals (optional)
                             </Label>
@@ -113,6 +174,10 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                                     <span className="font-medium">✨ We'll generate:</span>
                                     <br />
                                     30 unique post ideas tailored to "{planSubject}" with your selected {planTone} tone.
+                                    <br />
+                                    <span className="text-xs text-teal-700">
+                                        Media type: {mediaMode === 'text' ? 'Text only' : mediaMode === 'images' ? 'With images' : 'With GIFs'}
+                                    </span>
                                 </p>
                             </div>
                         )}

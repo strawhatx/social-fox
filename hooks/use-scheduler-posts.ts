@@ -84,6 +84,7 @@ export function useSchedulerPosts() {
 
   return {
     items,
+    setPosts,
     loading,
     refetch: fetchScheduled,
     refetchForMonthYear: fetchScheduledFor,

@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Clock } from "lucide-react";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
 import { useSchedulerPosts, } from "@/hooks/use-scheduler-posts";
@@ -12,6 +11,7 @@ import PostGrid from "@/components/calendar/post-grid";
 import ContentPlanDialog from "@/components/calendar/content-plan-dialog";
 import TweetModal from "@/components/editor/tweet-modal";
 import { toast } from "@/hooks/use-toast";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, rectIntersection } from "@dnd-kit/core";
 
 interface ThreadTweet {
     id: number;
@@ -21,15 +21,16 @@ interface ThreadTweet {
 
 interface DashboardProps {
     posts: ContentPost[];
-    onExport: (audience: string, subject: string, tone: string, goals: string) => void;
+    setPosts: React.Dispatch<React.SetStateAction<ContentPost[]>>;
+    onExport: (audience: string, subject: string, tone: string, goals: string, mediaMode: 'text' | 'images' | 'gifs') => void;
     onMonthChange?: (month: number, year: number) => void;
 }
 
-function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
-    const router = useRouter();
+function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [showTweetModal, setShowTweetModal] = useState(false);
     const [editingPost, setEditingPost] = useState<ContentPost | null>(null);
+    const [activePost, setActivePost] = useState<ContentPost | null>(null);
     const today = new Date();
 
     const handleAddPost = async (scheduled: Date): Promise<void> => {
@@ -77,6 +78,111 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
         setShowTweetModal(true);
     };
 
+    const handleDragStart = (event: DragStartEvent) => {
+        const { active } = event;
+        const postId = String(active.id);
+        console.log('Drag start:', { postId, active: active.id });
+        if (postId.startsWith('post-')) {
+            const id = postId.replace('post-', '');
+            const post = posts.find(p => p.id === id);
+            console.log('Found post for drag:', { id, post: !!post });
+            if (post) {
+                setActivePost(post);
+            }
+        }
+    };
+
+    const getNextAvailableHour = (targetDate: Date) => {
+        // Get all posts for the target date
+        const dayPosts = posts.filter((p) => {
+            if (!p.scheduledAt) return false;
+            const t = new Date(p.scheduledAt);
+            return t.getFullYear() === targetDate.getFullYear() &&
+                t.getMonth() === targetDate.getMonth() &&
+                t.getDate() === targetDate.getDate();
+        });
+
+        // Get all occupied hours
+        const occupiedHours = new Set(
+            dayPosts.map(p => {
+                const scheduled = new Date(p.scheduledAt!);
+                return scheduled.getHours();
+            })
+        );
+
+        // Find next available hour (9 AM to 9 PM)
+        for (let hour = 9; hour <= 21; hour++) {
+            if (!occupiedHours.has(hour)) {
+                return hour;
+            }
+        }
+
+        // Default to 9 AM if all hours are taken
+        return 9;
+    };
+
+    function handleDragEnd(event: any) {
+        const { active, over } = event;
+        setActivePost(null); // clear overlay
+
+        if (!over) return;
+
+        const postId = String(active.id).replace("post-", "");
+
+        // Resolve target date robustly
+        let targetDate: Date | null = null;
+        const overId = String(over.id);
+        const dataDate = over?.data?.current?.date as Date | undefined;
+        if (dataDate instanceof Date) {
+            targetDate = new Date(dataDate);
+        } else if (overId.startsWith('day-')) {
+            const dateStr = overId.replace('day-', '');
+            const [y, m, d] = dateStr.split('-').map(Number);
+            targetDate = new Date(y, (m || 1) - 1, d || 1);
+        } else if (overId.startsWith('post-')) {
+            const overPostId = overId.replace('post-', '');
+            const overPost = posts.find(p => p.id === overPostId);
+            if (overPost?.scheduledAt) {
+                const dt = new Date(overPost.scheduledAt);
+                targetDate = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            }
+        }
+
+        if (!targetDate) return;
+
+        // ✅ Call parent handler to update DB + local state
+        onMovePost?.(postId, targetDate);
+    }
+    // ✅ Define the handler in the parent component
+    const onMovePost = async (postId: string, newDate: Date) => {
+        // Preserve the original time if present, else default to 9:00
+        const original = posts.find(p => p.id === postId);
+        const originalDt = original?.scheduledAt ? new Date(original.scheduledAt) : null;
+        const hours = originalDt ? originalDt.getHours() : 9;
+        const minutes = originalDt ? originalDt.getMinutes() : 0;
+
+        const newScheduledAt = new Date(newDate);
+        newScheduledAt.setHours(hours, minutes, 0, 0);
+
+        // Optimistic update
+        const prevScheduledAt = original?.scheduledAt;
+        setPosts((prev: ContentPost[]) => prev.map(p => p.id === postId ? { ...p, scheduledAt: newScheduledAt.toISOString() } : p));
+
+        try {
+            const res = await fetch(`/api/content-posts/${postId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scheduled_at: newScheduledAt.toISOString() }),
+            });
+            if (!res.ok) throw new Error('Failed to persist move');
+        } catch (e) {
+            // Revert on failure
+            setPosts((prev: ContentPost[]) => prev.map(p => p.id === postId ? { ...p, scheduledAt: prevScheduledAt || p.scheduledAt } : p));
+            toast({ title: 'Error', description: 'Failed to move post', variant: 'destructive' });
+        }
+    };
+
+
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
@@ -116,7 +222,7 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                 <div>
                     <p className="text-gray-600">Plan and track your content.</p>
                 </div>
-            
+
                 <ContentPlanDialog onGeneratePlan={onExport} />
             </div>
 
@@ -140,14 +246,45 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
                     ))}
                 </div>
 
-                <PostGrid 
-                    posts={posts} 
-                    isCurrentMonth={isCurrentMonth} 
-                    isToday={isToday} 
-                    days={days} 
-                    onSelectPost={onSelectPost} 
-                    handleAddPost={handleAddPost} 
-                />
+                <DndContext
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <PostGrid
+                        posts={posts}
+                        isCurrentMonth={isCurrentMonth}
+                        isToday={isToday}
+                        days={days}
+                        onSelectPost={onSelectPost}
+                        handleAddPost={handleAddPost}
+                        onMovePost={onMovePost}
+                    />
+
+                    <DragOverlay>
+                        {activePost ? (
+                            <div className="text-xs text-white px-3 py-2 rounded-lg bg-blue-600 shadow-2xl border border-blue-400 transform rotate-2 scale-105">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <GripVertical className="w-3 h-3 opacity-80" />
+                                    {activePost.scheduledAt && (
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="w-3 h-3" />
+                                            <span className="opacity-90">
+                                                {new Date(activePost.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="truncate font-medium max-w-[200px]">
+                                    {Array.isArray(activePost.items) && activePost.items.length > 0 ? activePost.items[0].content : 'New post'}
+                                </div>
+                                <div className="text-xs opacity-75 mt-1">
+                                    Moving to new date...
+                                </div>
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
             </div>
 
             <div className="flex items-center gap-6 mt-6 text-sm">
@@ -199,23 +336,22 @@ function Dashboard({ posts, onExport, onMonthChange }: DashboardProps) {
 }
 
 export default function CalendarPage() {
-    const { items, refetch, refetchForMonthYear } = useSchedulerPosts();
+    const { items, setPosts, refetch, refetchForMonthYear } = useSchedulerPosts();
 
-
-
-    const handleExport = async (audience: string, subject: string, tone: string, goals: string) => {
+    const handleExport = async (audience: string, subject: string, tone: string, goals: string, mediaMode: 'text' | 'images' | 'gifs') => {
         const start = new Date();
 
-        await fetch('/api/content-posts/bulk', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ 
-                startDate: start.toISOString(), 
-                audience, 
+        await fetch('/api/content-posts/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                startDate: start.toISOString(),
+                audience,
                 subject,
                 tone,
-                goals
-            }) 
+                goals,
+                mediaMode
+            })
         });
         await refetch();
     };
@@ -225,6 +361,7 @@ export default function CalendarPage() {
             <SubscriptionGuard>
                 <Dashboard
                     posts={items}
+                    setPosts={setPosts}
                     onExport={handleExport}
                     onMonthChange={(month, year) => refetchForMonthYear(month, year)}
                 />

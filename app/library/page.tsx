@@ -6,15 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import TweetModal from "@/components/editor/tweet-modal";
-import { Copy, RefreshCw, Sparkles, Heart, MessageCircle, Repeat2, Edit3, Plus, BookOpen, User, Bot, Wand2, ArrowRight, TrendingUp, Target, Zap, MessageSquare } from "lucide-react";
+import { Copy, RefreshCw, Sparkles, Edit3, Plus, BookOpen, User, Bot, Wand2, ArrowRight, TrendingUp, Target, Zap, MessageSquare } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
+
+interface ThreadTweet {
+  id: number;
+  content: string;
+  attachments: any[];
+}
 
 interface TweetTemplate {
   id: string;
@@ -641,11 +645,11 @@ export default function LibraryPage() {
           setShowTweetModal(false);
           setNewTemplate({ text: "", category: "", hashtags: [], isViralReady: false });
         }}
-        initialContent={newTemplate.text}
-        onSave={async (content: string, attachments: any[]) => {
+        thread={[{ id: "1", postId: "1", parentId: null, metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), content: newTemplate.text, media: [] }]}
+        onSave={async (threadTweets: ThreadTweet[]) => {
           // Save as template
           const templateToSave = {
-            text: content,
+            text: threadTweets[0].content,
             category: newTemplate.category || "Custom",
             hashtags: newTemplate.hashtags,
             isViralReady: newTemplate.isViralReady
@@ -676,16 +680,7 @@ export default function LibraryPage() {
             });
           }
         }}
-        onPublish={async (content: string, attachments: any[]) => {
-          // Handle publishing logic here
-          console.log('Publishing:', content, attachments);
-          toast({
-            title: "Published!",
-            description: "Your tweet has been published"
-          });
-          setShowTweetModal(false);
-          setNewTemplate({ text: "", category: "", hashtags: [], isViralReady: false });
-        }}
+        
       />
     </SidebarLayout>
   );

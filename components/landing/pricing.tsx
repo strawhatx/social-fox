@@ -70,20 +70,20 @@ const Pricing = () => {
                 check: 'text-green-500'
               };
               if (planId === 'grow') return {
+                border: 'border-orange-200/50 dark:border-orange-800/50',
+                hoverBorder: 'hover:border-orange-300 dark:hover:border-orange-700',
+                bg: 'bg-gradient-to-br from-orange-50/30 to-transparent dark:from-orange-950/10',
+                iconBg: 'bg-gradient-to-br from-orange-500 to-orange-600',
+                button: 'bg-orange-500 hover:bg-orange-600 text-white',
+                check: 'text-orange-500'
+              };
+              if (planId === 'scale') return {
                 border: 'border-blue-200/50 dark:border-blue-800/50',
                 hoverBorder: 'hover:border-blue-300 dark:hover:border-blue-700',
                 bg: 'bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10',
                 iconBg: 'bg-gradient-to-br from-blue-500 to-blue-600',
                 button: 'bg-blue-500 hover:bg-blue-600 text-white',
                 check: 'text-blue-500'
-              };
-              if (planId === 'scale') return {
-                border: 'border-red-200/50 dark:border-red-800/50',
-                hoverBorder: 'hover:border-red-300 dark:hover:border-red-700',
-                bg: 'bg-gradient-to-br from-red-50/30 to-transparent dark:from-red-950/10',
-                iconBg: 'bg-gradient-to-br from-red-500 to-red-600',
-                button: 'bg-red-500 hover:bg-red-600 text-white',
-                check: 'text-red-500'
               };
               return {
                 border: 'border-orange-200/50 dark:border-orange-800/50',
@@ -110,13 +110,13 @@ const Pricing = () => {
                   </div>
                 )}
 
-                <div className={`absolute inset-0 bg-gradient-to-br from-${plan.id === 'launch' ? 'green' : plan.id === 'grow' ? 'blue' : 'red'}-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                <div className={`absolute inset-0 bg-gradient-to-br from-${plan.id === 'launch' ? 'green' : plan.id === 'grow' ? 'orange' : 'blue'}-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
                 <CardHeader className="text-center pb-6 relative z-10">
                   <div className="flex items-center justify-center mb-4">
                     <div className={`w-4 h-4 rounded-full mr-3 ${colors.iconBg.replace('bg-gradient-to-br from-', 'bg-').replace(' to-', '-')}`}></div>
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {plan.id === 'launch' ? 'Tier 1' : plan.id === 'grow' ? 'Tier 2' : 'Tier 3'}
+                      {plan.id === 'launch' ? 'Starter' : plan.id === 'grow' ? 'Most Popular' : 'Power Operators'}
                     </span>
                   </div>
                   <CardTitle className="text-2xl font-bold mb-4">{plan.name}</CardTitle>
@@ -125,9 +125,9 @@ const Pricing = () => {
                     <span className="text-muted-foreground ml-2 text-lg">/{plan.period}</span>
                   </div>
                   <CardDescription className="text-base text-muted-foreground italic leading-relaxed">
-                    {plan.id === 'launch' && "Plan a month of content in one afternoon."}
-                    {plan.id === 'grow' && "Plan a month with AI assistance and data-backed scheduling."}
-                    {plan.id === 'scale' && "Plan your entire month in minutes and automate everything."}
+                    {plan.id === 'launch' && "For builders who are just starting consistent posting."}
+                    {plan.id === 'grow' && "For creators who want consistent content output and growth."}
+                    {plan.id === 'scale' && "For creators treating growth as a system."}
                   </CardDescription>
                 </CardHeader>
 
@@ -161,11 +161,11 @@ const Pricing = () => {
               <span>Secure payment processing</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
+              <div className="w-2 h-2 bg-orange-500 rounded-full" />
               <span>Instant credit activation</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full" />
+              <div className="w-2 h-2 bg-blue-500 rounded-full" />
               <span>Upgrade anytime</span>
             </div>
           </div>

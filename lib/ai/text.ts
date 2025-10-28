@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
-import { generateImagesFromPrompt } from './image';
+import { searchGiphy } from '@/lib/giphy';
+import { searchPexels } from '@/lib/pexels';
 
 
 function stripFences(text: string): string {
@@ -110,7 +111,15 @@ export async function getBestTimeToPost(): Promise<{ time: string }> {
   return { time: parsedResponse.time || '2:00 PM' };
 }
 
-export async function bulkPostGeneration(audience: string, subject: string, tone: string, goals: string ): Promise<{ posts: { text: string; image?: string }[] }> {
+type MediaMode = 'text' | 'gifs' | 'images';
+
+export async function bulkPostGeneration(
+  audience: string, 
+  subject: string, 
+  tone: string, 
+  goals: string, 
+  mediaMode: MediaMode = 'gifs'
+): Promise<{ posts: { text: string; image?: string }[] }> {
   const prompts = [
     { role: "system", content: `You are a viral Twitter ghostwriter who writes engaging, high-converting posts for ${audience}.` },
     { role: "user", content: `Generate 30 short posts about ${subject}. Return JSON in the format: { posts: [{ text: string }] }` },
@@ -128,7 +137,12 @@ export async function bulkPostGeneration(audience: string, subject: string, tone
     return { posts: [] };
   }
 
-  // Step 2: Generate all images in parallel (with throttling)
+  // Step 2: Add media based on mode
+  if (mediaMode === 'text') {
+    return { posts: posts.map((post: any) => ({ text: post.text, image: "" })) };
+  }
+
+  // Search for relevant media (GIFs or images)
   const concurrency = 5; // limit to 5 at a time to avoid rate limits
   const results: { text: string; image?: string }[] = [];
 
@@ -136,16 +150,24 @@ export async function bulkPostGeneration(audience: string, subject: string, tone
     const chunk = posts.slice(i, i + concurrency);
     const chunkResults = await Promise.allSettled(
       chunk.map(async (post: any) => {
-        const prompt = `Generate a relevant image for this post: "${post.text}"`;
-        const images = await generateImagesFromPrompt([{ role: "user", content: prompt }], { count: 1 });
-        return { text: post.text, image: images?.[0] || "" };
+        // Create a search query based on the post content
+        const searchQuery = `${subject} ${tone} ${post.text.substring(0, 50)}`.trim();
+        
+        let mediaUrls: string[] = [];
+        if (mediaMode === 'gifs') {
+          mediaUrls = await searchGiphy(searchQuery, 1);
+        } else if (mediaMode === 'images') {
+          mediaUrls = await searchPexels(searchQuery, 1);
+        }
+        
+        return { text: post.text, image: mediaUrls[0] || "" };
       })
     );
 
     results.push(
       ...chunkResults.map((r, i) => {
         if (r.status === "fulfilled") return r.value;
-        console.error(`❌ Image failed for post ${i}:`, r.reason);
+        console.error(`❌ ${mediaMode} search failed for post ${i}:`, r.reason);
         return { text: chunk[i].text, image: "" };
       })
     );

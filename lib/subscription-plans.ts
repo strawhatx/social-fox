@@ -8,24 +8,28 @@ export interface SubscriptionPlan {
   action: string;
   buttonText: string;
   features: string[];
-  limits: Record<string, number | boolean>;
+  limits: Record<string, number | boolean | string | string[]>;
 }
 
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   launch: {
     id: 'launch',
-    name: 'Never Miss a Post Again',
+    name: 'Launch — Starter',
     price: 19,
     popular: false,
     interval: 'month',
     period: 'month',
     action: 'launch',
-    buttonText: 'Choose Tier 1',
+    buttonText: 'Choose Launch',
     features: [
-      '30 scheduled posts/mo',
-      'Up to 4 threads',
-      'Limited analytics',
-      'Access to content library (view only)'
+      'Schedule + publish to X',
+      'Basic analytics',
+      '1 connected X account',
+      'Threads & singles',
+      'AI post cleanup & 1 text generation / month',
+      '30 posts / month',
+      '4 threads / month',
+      'Support: Standard'
     ],
     limits: {
       scheduledPosts: 30,
@@ -33,61 +37,77 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       analytics: true,
       automation: false,
       contentLibrary: true,
-      aiGeneration: false
+      aiGeneration: 1,
+      connectedAccounts: 1,
+      support: 'standard',
+      mediaTypes: ['text']
     }
   },
   grow: {
     id: 'grow',
-    name: 'Grow Your Reach',
-    price: 49,
+    name: 'Grow — Most Popular',
+    price: 39,
     popular: true,
     interval: 'month',
     period: 'month',
     action: 'grow',
-    buttonText: 'Choose Tier 2',
+    buttonText: 'Choose Grow',
     features: [
-      '60 scheduled posts/mo',
-      '8 threads',
-      'Analytics included',
-      'Partial AI automation',
-      'Full content library access'
+      'Everything in Launch, plus:',
+      'AI content generation (text + static images)',
+      'Analytics insights & post history',
+      'More scheduling power',
+      '120 posts / month',
+      '9 threads / month',
+      '5 AI text generations / month',
+      'Unlimited rewrites in editor',
+      'Support: Priority'
     ],
     limits: {
-      scheduledPosts: 60,
-      threads: 8,
+      scheduledPosts: 120,
+      threads: 9,
       analytics: true,
       automation: true,
       contentLibrary: true,
-      aiGeneration: true
+      aiGeneration: 5,
+      aiImages: true,
+      connectedAccounts: 1,
+      support: 'priority',
+      mediaTypes: ['text', 'images']
     }
   },
   scale: {
     id: 'scale',
-    name: 'Set It & Forget It',
-    price: 99,
+    name: 'Scale — Power Operators',
+    price: 79,
     popular: false,
     interval: 'month',
     period: 'month',
     action: 'scale',
-    buttonText: 'Choose Tier 3',
+    buttonText: 'Choose Scale',
     features: [
-      '150 scheduled posts/mo',
-      '15 threads',
-      'Full AI automation + all features',
-      'Full analytics',
-      'Team access',
-      'Content library (save, remix, and auto-fill winning posts)',
-      'Priority support'
+      'Everything in Grow, plus:',
+      'AI posts with images + GIFs',
+      'Advanced performance stats',
+      'Bulk scheduling & workflow tools',
+      '250 posts / month',
+      '20 threads / month',
+      '12 AI text generations / month',
+      'Support: Dedicated'
     ],
     limits: {
-      scheduledPosts: 150,
-      threads: 15,
+      scheduledPosts: 250,
+      threads: 20,
       analytics: true,
       automation: true,
       contentLibrary: true,
-      aiGeneration: true,
-      teamAccess: true,
-      prioritySupport: true
+      aiGeneration: 12,
+      aiImages: true,
+      aiGifs: true,
+      bulkScheduling: true,
+      connectedAccounts: 1,
+      support: 'dedicated',
+      mediaTypes: ['text', 'images', 'gifs']
     }
   }
 };

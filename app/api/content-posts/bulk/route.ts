@@ -19,17 +19,27 @@ export async function POST(req: Request) {
     if (!appUserId) return json({ error: 'User not found' }, { status: 404 });
 
     const body = await req.json();
-    const { startDate, audience, subject, tone, goals } = body as { startDate: string; audience: string; subject: string; tone: string; goals: string; };
+    const { startDate, audience, subject, tone, goals, mediaMode = 'gifs' } = body as { 
+      startDate: string; 
+      audience: string; 
+      subject: string; 
+      tone: string; 
+      goals: string; 
+      mediaMode?: 'text' | 'gifs' | 'images';
+    };
     if (!startDate || !audience || !subject) {
       return json({ error: 'Missing required fields: startDate, audience, subject' }, { status: 400 });
     }
 
-    const { posts } = await bulkPostGeneration(audience, subject, tone, goals);
+    const { posts } = await bulkPostGeneration(audience, subject, tone, goals, mediaMode);
     if (!Array.isArray(posts) || posts.length === 0) {
       return json({ error: 'No posts generated' }, { status: 400 });
     }
 
+    // Start scheduling the day after the requested date at 9 AM
     let currentDate = new Date(startDate);
+    currentDate.setDate(currentDate.getDate() + 1); // Start the day after
+    currentDate.setHours(9, 0, 0, 0); // Set to 9:00 AM
 
     // Create posts and items transactionally, maintaining item ordering via parentId
     const createdIds = await prisma.$transaction(async (tx) => {
@@ -56,6 +66,7 @@ export async function POST(req: Request) {
 
         ids.push(createdPost.id);
         currentDate.setDate(currentDate.getDate() + 1); // stagger schedule by 1 day
+        currentDate.setHours(9, 0, 0, 0); // Ensure next day is also at 9 AM
       }
       return ids;
     });

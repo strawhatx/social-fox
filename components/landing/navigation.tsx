@@ -8,13 +8,6 @@ import { User, Twitter, ChevronDown, Menu, X, Home } from 'lucide-react';
 import { useUser } from "@clerk/nextjs";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu as HeadlessMenu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
-const navigation = [
-    { name: 'Playbooks', href: '/playbooks', current: false },
-    { name: 'Features', href: '/features', current: false },
-    { name: 'Integrations', href: '/integrations', current: false },
-    { name: 'Compare', href: '/comparison', current: false },
-];
-
 const playbooks = [
     { name: 'Consistency Playbook', href: '/playbooks/consistency' },
     { name: 'AI Threads Playbook', href: '/playbooks/ai-threads' },
@@ -72,6 +65,14 @@ const Navigation = () => {
                         {/* Desktop Navigation */}
                         <div className="hidden md:ml-6 md:block">
                             <div className="flex space-x-4">
+                                {/* Pricing Link */}
+                                <Link
+                                    href="/pricing"
+                                    className="text-gray-700 hover:text-gray-900 rounded-md px-3 py-2 text-sm font-medium"
+                                >
+                                    Pricing
+                                </Link>
+
                                 {/* Playbooks Dropdown */}
                                 <HeadlessMenu as="div" className="relative">
                                     <MenuButton className="text-gray-700 hover:text-gray-900 rounded-md px-3 py-2 text-sm font-medium flex items-center gap-1">
@@ -184,6 +185,14 @@ const Navigation = () => {
             {/* Mobile Menu */}
             <DisclosurePanel className="md:hidden">
                 <div className="space-y-1 px-2 pt-2 pb-3">
+                    {/* Pricing Mobile */}
+                    <Link
+                        href="/pricing"
+                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    >
+                        Pricing
+                    </Link>
+
                     {/* Playbooks Mobile */}
                     <div>
                         <div className="text-gray-700 block rounded-md px-3 py-2 text-base font-medium mb-2">

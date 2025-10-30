@@ -34,11 +34,18 @@ export default function ImageUploader({
 
       const form = new FormData();
       Object.entries(fields || {}).forEach(([k, v]) => form.append(k, String(v)));
-      form.append('Content-Type', file.type);
       form.append('file', file);
 
       const uploadRes = await fetch(url, { method: 'POST', body: form });
-      if (!uploadRes.ok) return null;
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text().catch(() => '');
+        console.error('S3 upload failed', {
+          status: uploadRes.status,
+          statusText: uploadRes.statusText,
+          body: errText,
+        });
+        return null;
+      }
 
       return { url: publicUrl, file, type: file.type, key };
     } catch {

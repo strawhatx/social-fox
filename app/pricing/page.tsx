@@ -193,7 +193,7 @@ const PricingPage = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Compare Plans</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              See exactly what's included in each plan to choose the right one for your needs.
+              See exactly what&apos;s included in each plan to choose the right one for your needs.
             </p>
           </div>
 
@@ -274,7 +274,7 @@ const PricingPage = () => {
               <CardContent>
                 <p className="text-muted-foreground">
                   Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, 
-                  and we'll prorate any billing differences.
+                  and we&apos;ll prorate any billing differences.
                 </p>
               </CardContent>
             </Card>
@@ -285,7 +285,7 @@ const PricingPage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  We'll notify you when you're approaching your limits. You can upgrade your plan 
+                  We&apos;ll notify you when you&apos;re approaching your limits. You can upgrade your plan 
                   or wait until your next billing cycle when limits reset.
                 </p>
               </CardContent>

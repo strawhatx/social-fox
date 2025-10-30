@@ -6,24 +6,25 @@ import { Badge } from '@/components/ui/badge';
 import { Check, ArrowRight, Star, Zap, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import Image from 'next/image';
 
 interface BlogPage {
   id: string;
   slug: string;
   type: string;
   title: string;
-  subtitle?: string;
-  heroImage?: string;
+  subtitle?: string | null;
+  heroImage?: string | null;
   features?: any[];
   ctaText: string;
   ctaLink: string;
   content: string;
-  metaTitle?: string;
-  metaDescription?: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   published: boolean;
-  publishedAt?: string;
-  createdAt: string;
-  updatedAt: string;
+  publishedAt?: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 interface BlogPageTemplateProps {
@@ -60,10 +61,13 @@ export default function BlogPageTemplate({ page }: BlogPageTemplateProps) {
             )}
             {page.heroImage && (
               <div className="mb-8">
-                <img
+                <Image
                   src={page.heroImage}
                   alt={page.title}
+                  width={1200}
+                  height={675}
                   className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
+                  unoptimized
                 />
               </div>
             )}

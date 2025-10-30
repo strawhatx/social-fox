@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import type { Prisma } from '@prisma/client';
 
 export interface SnapshotData {
   likes: number;
@@ -13,6 +14,55 @@ export interface CreateSnapshotParams {
   itemId?: string; // Optional - if provided, creates snapshot for specific item
   snapshotDate: Date;
   data: SnapshotData;
+}
+
+/**
+ * Create or update an analytics snapshot for a post (and optional item)
+ */
+export async function createAnalyticsSnapshot(
+  postId: string,
+  snapshotDate: Date,
+  data: SnapshotData,
+  itemId?: string
+) {
+  const totalInteractions = data.likes + data.retweets + data.replies;
+  const engagementRate = data.impressions && data.impressions > 0
+    ? (totalInteractions / data.impressions) * 100
+    : null;
+
+  const existing = await prisma.analyticsSnapshot.findFirst({
+    where: {
+      postId,
+      snapshotDate,
+      itemId: itemId ? { equals: itemId } : { equals: null },
+    },
+  });
+
+  if (existing) {
+    return prisma.analyticsSnapshot.update({
+      where: { id: existing.id },
+      data: {
+        likes: data.likes,
+        retweets: data.retweets,
+        replies: data.replies,
+        impressions: data.impressions ?? 0,
+        engagementRate: engagementRate ?? undefined,
+      },
+    });
+  }
+
+  return prisma.analyticsSnapshot.create({
+    data: {
+      postId,
+      itemId: itemId ?? null,
+      snapshotDate,
+      likes: data.likes,
+      retweets: data.retweets,
+      replies: data.replies,
+      impressions: data.impressions ?? 0,
+      engagementRate: engagementRate ?? undefined,
+    },
+  });
 }
 
 /**
@@ -124,6 +174,7 @@ export async function getAggregatedAnalytics(
       },
     },
     include: {
+      items: true,
       analyticsSnapshots: {
         where: {
           snapshotDate: {

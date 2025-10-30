@@ -10,8 +10,8 @@ function json(body: unknown, init?: ResponseInit) {
   });
 }
 
-const REGION = process.env.MY_AWS_REGION || process.env.MY_AWS_DEFAULT_REGION;
-const BUCKET = process.env.MY_AWS_S3_BUCKET;
+const REGION = process.env.NEXT_AWS_REGION || process.env.NEXT_AWS_DEFAULT_REGION || process.env.MY_AWS_REGION || process.env.MY_AWS_DEFAULT_REGION;
+const BUCKET = process.env.NEXT_AWS_S3_BUCKET || process.env.MY_AWS_S3_BUCKET;
 
 const s3 = REGION ? new S3Client({ region: REGION }) : null;
 

@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useUser } from "@clerk/nextjs";
 import {
     X,
-    Image,
     Smile,
     Calendar,
     Save,
@@ -283,10 +283,13 @@ export default function TweetModal({
 
                         <div className="flex items-center gap-2 ml-8">
                             {user?.imageUrl ? (
-                                <img
+                                <Image
                                     src={user.imageUrl}
                                     alt={user.fullName || user.firstName || "User"}
-                                    className="w-8 h-8 rounded-full object-cover"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full object-cover"
+                                    unoptimized
                                 />
                             ) : (
                                 <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
@@ -354,11 +357,11 @@ export default function TweetModal({
                                                 {tweet.attachments.map((att, idx) => (
                                                     <div key={idx} className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
                                                         {att.type && att.type?.startsWith('image/') ? (
-                                                            <img src={att.url} alt="attachment" className="w-full h-24 object-cover" />
+                                                            <Image src={att.url} alt="attachment" width={400} height={200} className="w-full h-24 object-cover" unoptimized />
                                                         ) : att.type && att.type?.startsWith('video/') ? (
                                                             <video src={att.url} className="w-full h-24 object-cover" muted />
                                                         ) : (
-                                                            <img src={att.url} alt="GIF" className="w-full h-24 object-cover" />
+                                                            <Image src={att.url} alt="GIF" width={400} height={200} className="w-full h-24 object-cover" unoptimized />
                                                         )}
                                                         <button
                                                             type="button"

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, MessageSquare, Bot, Twitter } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
@@ -37,10 +38,14 @@ export default function Page() {
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <img 
+              <Image 
                 src="/results/x-post-3.jpeg" 
                 alt="Twitter Integration" 
+                width={1200}
+                height={675}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
               />
             </div>
             
@@ -70,7 +75,7 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                What's included today ✅
+                What&apos;s included today ✅
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Core features that make X publishing reliable and operator-friendly.
@@ -166,7 +171,7 @@ export default function Page() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                What's coming next <span className="text-lg text-muted-foreground">(and why it matters)</span> 🚀
+                What&apos;s coming next <span className="text-lg text-muted-foreground">(and why it matters)</span> 🚀
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Transparent, exciting roadmap — without overpromising

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, MessageSquare } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
@@ -31,16 +32,20 @@ export default function Page() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              You don't need a PhD in charts — you just want to know what's landing.<br />
-              Social Fox brings your X analytics into a single workspace so you can spot what's working and repeat it.
+              You don&apos;t need a PhD in charts — you just want to know what&apos;s landing.<br />
+              Social Fox brings your X analytics into a single workspace so you can spot what&apos;s working and repeat it.
             </p>
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <img 
+              <Image 
                 src="/results/x-post-2.jpeg" 
                 alt="Analytics Dashboard" 
+                width={1200}
+                height={675}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
               />
             </div>
             
@@ -149,7 +154,7 @@ export default function Page() {
                     </div>
                     <h3 className="text-lg font-bold text-foreground">No more guessing in different apps</h3>
                   </div>
-                  <p className="text-muted-foreground">See what's working right where you plan your content.</p>
+                  <p className="text-muted-foreground">See what&apos;s working right where you plan your content.</p>
                 </div>
               </div>
               
@@ -205,7 +210,7 @@ export default function Page() {
                 Roadmap Preview <br/><span className="text-lg text-muted-foreground">(transparent & exciting)</span>
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Here's what we're building next — and we're moving fast.
+                Here&apos;s what we&apos;re building next — and we&apos;re moving fast.
               </p>
             </div>
             
@@ -252,7 +257,7 @@ export default function Page() {
             
             <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-950/20 dark:to-blue-950/20 border border-orange-200/50 dark:border-orange-800/50 mt-16">
               <p className="text-lg text-muted-foreground">
-                <strong className="text-foreground">Yes, this is where we're headed — and fast.</strong>
+                <strong className="text-foreground">Yes, this is where we&apos;re headed — and fast.</strong>
               </p>
             </div>
           </div>
@@ -269,7 +274,7 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Ready to see what's working?</span>
+              <span>Ready to see what&apos;s working?</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">

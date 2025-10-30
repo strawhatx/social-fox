@@ -15,7 +15,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { ScrollArea } from "../ui/scroll-area";
 import { Sparkles, Wand2, TrendingUp, Lightbulb, Zap, MessageSquare, Copy, Check } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { generatePrime } from "node:crypto";
 
 interface AIContentGeneratorProps {
   currentContent: string;
@@ -66,10 +65,12 @@ export function AIContentGenerator({
       if (!res.ok) throw new Error(json?.error || 'Rewrite failed');
       const generated = json?.generated || currentContent;
       
-      onApplyContent(generated);
-      toast({ title: 'Content enhanced!' });
+      setGeneratedContent(generated);
+      toast({ title: 'Preview ready' });
     } catch (err: any) {
       toast({ title: 'Rewrite failed', description: err?.message || 'Please try again.' });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -85,6 +86,7 @@ export function AIContentGenerator({
 
     // Call API for rewrite
     try {
+      setIsGenerating(true);
       const res = await fetch('/api/rewrite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,14 +97,15 @@ export function AIContentGenerator({
       if (!res.ok) throw new Error(json?.error || 'Rewrite failed');
       const enhanced = json?.rewritten || currentContent;
       
-      onApplyContent(enhanced);
-      
+      setGeneratedContent(enhanced);
       toast({
-        title: 'Content enhanced!',
+        title: 'Preview ready',
         description: enhancementMap[action] || 'Content has been improved',
       });
     } catch (err: any) {
       toast({ title: 'Rewrite failed', description: err?.message || 'Please try again.' });
+    } finally {
+      setIsGenerating(false);
     }
   };
 

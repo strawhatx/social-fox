@@ -130,7 +130,7 @@ const Features = () => {
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent" />
           <div className="relative z-10">
             <h3 className="text-2xl font-bold mb-4">Ready to automate your content?</h3>
-            <p className="text-lg mb-8 opacity-90">Join thousands of creators who've streamlined their X presence.</p>
+            <p className="text-lg mb-8 opacity-90">Join thousands of creators who&apos;ve streamlined their X presence.</p>
             <a 
               href="/sign-up" 
               className="group inline-flex items-center gap-3 px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"

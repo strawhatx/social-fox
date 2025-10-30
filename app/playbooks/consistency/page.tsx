@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, Repeat } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
@@ -31,16 +32,20 @@ export default function Page() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Creators don't fail from lack of ideas — they fail from lack of structure.<br />
+              Creators don&apos;t fail from lack of ideas — they fail from lack of structure.<br />
               Social Fox helps you stay consistent with a simple planner and weekly system that keeps you shipping.
             </p>
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <img 
+              <Image 
                 src="/twitter-image.jpeg" 
                 alt="Consistency on X" 
+                width={1200}
+                height={675}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
               />
             </div>
             

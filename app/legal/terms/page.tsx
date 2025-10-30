@@ -82,7 +82,7 @@ export default function Page() {
                     <h2 className="text-lg font-bold text-foreground">Liability</h2>
                   </div>
                   <p className="text-muted-foreground">
-                    Social Fox is provided "as is" without warranties. Our liability is limited to the maximum extent permitted by law.
+                    Social Fox is provided &quot;as is&quot; without warranties. Our liability is limited to the maximum extent permitted by law.
                   </p>
                 </div>
               </div>
@@ -93,7 +93,7 @@ export default function Page() {
                 Questions about our terms?
               </p>
               <p className="text-muted-foreground mb-6">
-                We're here to help clarify anything.
+                We&apos;re here to help clarify anything.
               </p>
               <a 
                 href="mailto:support@socialfox.dev" 

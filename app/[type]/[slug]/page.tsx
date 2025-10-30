@@ -26,10 +26,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     return {
       title: page.metaTitle || page.title,
-      description: page.metaDescription || page.subtitle,
+      description: page.metaDescription ?? page.subtitle ?? undefined,
       openGraph: {
         title: page.metaTitle || page.title,
-        description: page.metaDescription || page.subtitle,
+        description: page.metaDescription ?? page.subtitle ?? undefined,
         images: page.heroImage ? [{ url: page.heroImage }] : undefined,
       },
     };
@@ -56,7 +56,21 @@ export default async function BlogPage({ params }: PageProps) {
       notFound();
     }
 
-    return <BlogPageTemplate page={page} />;
+    const normalizedPage = {
+      ...page,
+      subtitle: page.subtitle ?? undefined,
+      heroImage: page.heroImage ?? undefined,
+      metaTitle: page.metaTitle ?? undefined,
+      metaDescription: page.metaDescription ?? undefined,
+      publishedAt: page.publishedAt
+        ? (typeof page.publishedAt === 'string' ? page.publishedAt : page.publishedAt.toISOString())
+        : undefined,
+      createdAt: typeof page.createdAt === 'string' ? page.createdAt : page.createdAt.toISOString(),
+      updatedAt: typeof page.updatedAt === 'string' ? page.updatedAt : page.updatedAt.toISOString(),
+      features: Array.isArray(page.features) ? (page.features as any[]) : undefined,
+    } as const;
+
+    return <BlogPageTemplate page={normalizedPage as any} />;
   } catch (error) {
     console.error('Error fetching marketing page:', error);
     notFound();

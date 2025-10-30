@@ -100,7 +100,7 @@ export default function Page() {
                 Questions about your privacy?
               </p>
               <p className="text-muted-foreground mb-6">
-                We're here to help. Contact us anytime.
+                We&apos;re here to help. Contact us anytime.
               </p>
               <a 
                 href="mailto:support@socialfox.dev" 

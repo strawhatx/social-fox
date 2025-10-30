@@ -74,7 +74,7 @@ export default function SubscriptionManager() {
         // Subscription Selection if not active or missing
         <div>
           <p className="text-sm text-muted-foreground mb-4">
-            You don't have an active subscription. Please select a plan to continue.
+            You don&apos;t have an active subscription. Please select a plan to continue.
           </p>
           <Card className="w-full">
             <CardHeader>

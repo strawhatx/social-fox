@@ -71,7 +71,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                             Generate Your 30-Day Content Plan
                         </DialogTitle>
                         <DialogDescription>
-                            Tell us about your content goals and we'll create a personalized 30-day posting schedule with AI-generated ideas.
+                            Tell us about your content goals and we&apos;ll create a personalized 30-day posting schedule with AI-generated ideas.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
@@ -171,9 +171,9 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                         {planSubject && (
                             <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
                                 <p className="text-sm text-foreground">
-                                    <span className="font-medium">✨ We'll generate:</span>
+                                    <span className="font-medium">✨ We&apos;ll generate:</span>
                                     <br />
-                                    30 unique post ideas tailored to "{planSubject}" with your selected {planTone} tone.
+                                    30 unique post ideas tailored to &quot;{planSubject}&quot; with your selected {planTone} tone.
                                     <br />
                                     <span className="text-xs text-muted-foreground">
                                         Media type: {mediaMode === 'text' ? 'Text only' : mediaMode === 'images' ? 'With images' : 'With GIFs'}

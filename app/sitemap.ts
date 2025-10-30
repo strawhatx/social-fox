@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Dynamic marketing pages
-    const blogPages = await prisma.blogPages.findMany({
+    const blogPages = await prisma.blogPage.findMany({
       where: { published: true },
       select: {
         type: true,

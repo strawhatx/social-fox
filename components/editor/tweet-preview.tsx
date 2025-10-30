@@ -2,6 +2,7 @@
 
 import { AttachmentItem } from "@/lib/types/attachments";
 import { useUser } from '@clerk/nextjs';
+import Image from 'next/image';
 
 interface TweetPreviewProps {
     content: string | null;
@@ -17,7 +18,7 @@ export default function TweetPreview({ content, attachments }: TweetPreviewProps
                 {/* Profile Picture */}
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex-shrink-0">
                     {user?.imageUrl ? (
-                        <img src={user.imageUrl} alt="Profile Picture" className="w-10 h-10 rounded-full object-cover" />
+                        <Image src={user.imageUrl} alt="Profile Picture" width={40} height={40} className="rounded-full object-cover" unoptimized />
                     ) : (
                         'SF'
                     )}
@@ -60,12 +61,12 @@ export default function TweetPreview({ content, attachments }: TweetPreviewProps
                             {attachments.map((att, idx) => (
                                 <div key={idx} className="relative group border border-border rounded-md overflow-hidden bg-muted/20">
                                     {att.type && att.type?.startsWith('image/') ? (
-                                        <img src={att.url} alt="attachment" className="w-full object-cover" />
+                                        <Image src={att.url} alt="attachment" width={800} height={600} className="w-full object-cover" unoptimized />
                                     ) : att.type && att.type?.startsWith('video/') ? (
                                         <video src={att.url} className="w-full object-cover" controls />
                                     ) : (
                                         // GIF from Giphy (no file object)
-                                        <img src={att.url} alt="GIF" className="w-full object-cover" />
+                                        <Image src={att.url} alt="GIF" width={800} height={600} className="w-full object-cover" unoptimized />
                                     )}
 
                                     {/* GIF Badge */}

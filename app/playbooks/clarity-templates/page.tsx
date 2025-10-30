@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
@@ -36,10 +37,14 @@ export default function Page() {
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <img 
+              <Image 
                 src="/results/x-post-2.jpeg" 
                 alt="Viral Formats in Action" 
+                width={1200}
+                height={675}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
               />
             </div>
             
@@ -69,7 +74,7 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                What's true today
+                What&apos;s true today
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Simple templates that remove the hardest part of posting: getting started.

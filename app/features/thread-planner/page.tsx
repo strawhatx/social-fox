@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Calendar, Clock, CheckCircle, MessageSquare, Bot } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
@@ -36,10 +37,14 @@ export default function Page() {
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <img 
+              <Image 
                 src="/results/x-post-1.jpeg" 
                 alt="Thread Planner" 
+                width={1200}
+                height={675}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
               />
             </div>
             
@@ -117,7 +122,7 @@ export default function Page() {
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold mb-4 text-foreground">Draft Status Tracking</h3>
-                  <p className="text-muted-foreground leading-relaxed">See what's ready, what needs edits, and what's scheduled — at a glance.</p>
+                  <p className="text-muted-foreground leading-relaxed">See what&apos;s ready, what needs edits, and what&apos;s scheduled — at a glance.</p>
                 </div>
               </div>
               

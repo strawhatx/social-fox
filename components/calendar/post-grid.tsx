@@ -83,7 +83,6 @@ function DraggablePost({ post, onSelectPost, getStatusColor, onDeletePost }: Dra
                 </button>
             )}
             <div className="flex items-center gap-1 mb-0.5">
-                <GripVertical className="w-3 h-3 opacity-70" />
                 {timeLabel && (
                     <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
@@ -177,6 +176,20 @@ function DroppableCell({
                 >
                     {date.getDate()}
                 </span>
+                {dayPosts.length > 0 && (
+                    <div className="ml-auto flex items-center gap-1.5">
+                        {dayPosts.slice(0, 5).map((p) => (
+                            <span
+                                key={p.id}
+                                className={`inline-block h-2 w-3 rounded-sm ${getStatusColor(p.status)}`}
+                                title={p.status}
+                            />
+                        ))}
+                        {dayPosts.length > 5 && (
+                            <span className="text-[10px] text-gray-500">+{dayPosts.length - 5}</span>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Posts for this day */}

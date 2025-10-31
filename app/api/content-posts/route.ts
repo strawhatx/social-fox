@@ -37,16 +37,24 @@ export async function GET(req: Request) {
     const posts = await prisma.contentPost.findMany({
       where: {
         userId: appUserId,
-        ...(status && { status }),
-        // Return posts scheduled within the requested month
-        scheduledAt: { gte: startOfMonth, lt: startOfNextMonth },
+        ...(status && {
+          status: status.includes(',') ? { in: status.split(',') } : status,
+        }),
+        // Return posts that are scheduled in the month OR were posted in the month
+        OR: [
+          { scheduledAt: { gte: startOfMonth, lt: startOfNextMonth } },
+          { postedAt: { gte: startOfMonth, lt: startOfNextMonth } },
+        ],
       },
       include: {
         items: {
           orderBy: { createdAt: 'asc' },
         },
       },
-      orderBy: [{ scheduledAt: { sort: 'asc', nulls: 'last' } }],
+      orderBy: [
+        { postedAt: { sort: 'asc', nulls: 'last' } },
+        { scheduledAt: { sort: 'asc', nulls: 'last' } },
+      ],
     });
 
     return json({ data: posts });

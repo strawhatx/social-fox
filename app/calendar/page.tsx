@@ -86,9 +86,8 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
     };
 
     const onSelectPost = (post: ContentPost) => {
-        // Block editing posted posts or posts scheduled on past days
-        if (post.status === 'posted') return;
-        if (post.scheduledAt) {
+        // Allow viewing posted posts; block editing scheduled posts on past days
+        if (post.status !== 'posted' && post.scheduledAt) {
             const dt = new Date(post.scheduledAt);
             const d0 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
             const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -345,7 +344,8 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
                     setEditingPost(null);
                 }}
                 thread={editingPost?.items || [{ id: "1", postId: "1", parentId: null, metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), content: "", media: [] }]}
-                onSave={async (threadTweets: ThreadTweet[]) => {
+                readOnly={editingPost?.status === 'posted'}
+                onSave={editingPost?.status === 'posted' ? undefined : async (threadTweets: ThreadTweet[]) => {
                     if (!editingPost) return;
                     try {
                         const response = await fetch(`/api/content-posts/${editingPost.id}`, {

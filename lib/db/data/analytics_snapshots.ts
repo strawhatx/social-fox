@@ -163,7 +163,30 @@ export async function getAggregatedAnalytics(
   startDate: Date,
   endDate: Date
 ) {
-  // Get all posted content posts for the user
+  // Fetch item-level snapshots within range and traverse back to posts
+  const snapshots = await prisma.analyticsSnapshot.findMany({
+    where: {
+      snapshotDate: {
+        gte: startDate,
+        lte: endDate,
+      },
+      item: {
+        post: {
+          userId,
+        },
+      },
+    },
+    include: {
+      item: {
+        include: {
+          post: { include: { items: true } },
+        },
+      },
+    },
+    orderBy: { snapshotDate: 'asc' },
+  });
+
+  // Get all posted content posts for the user (metadata only)
   const posts = await prisma.contentPost.findMany({
     where: {
       userId,
@@ -173,18 +196,7 @@ export async function getAggregatedAnalytics(
         lte: endDate,
       },
     },
-    include: {
-      items: true,
-      analyticsSnapshots: {
-        where: {
-          snapshotDate: {
-            gte: startDate,
-            lte: endDate,
-          },
-        },
-        orderBy: { snapshotDate: 'asc' },
-      },
-    },
+    include: { items: true },
   });
 
   // Calculate totals
@@ -196,15 +208,46 @@ export async function getAggregatedAnalytics(
     totalImpressions: 0,
   };
 
-  // Get the latest snapshot for each post to calculate totals
+  // Build per-post latest totals by aggregating the latest snapshot per item
+  const snapshotsByPost: Record<string, typeof snapshots> = {} as any;
+  for (const s of snapshots) {
+    const item = s.item;
+    const postId = item?.post?.id;
+    if (!item || !postId) continue;
+    if (!snapshotsByPost[postId]) snapshotsByPost[postId] = [] as any;
+    snapshotsByPost[postId].push(s);
+  }
+
+  const perPostLatestTotals: Record<string, { likes: number; retweets: number; replies: number; impressions: number } > = {};
   for (const post of posts) {
-    if (post.analyticsSnapshots.length > 0) {
-      const latestSnapshot = post.analyticsSnapshots[post.analyticsSnapshots.length - 1];
-      totalStats.totalLikes += latestSnapshot.likes;
-      totalStats.totalRetweets += latestSnapshot.retweets;
-      totalStats.totalReplies += latestSnapshot.replies;
-      totalStats.totalImpressions += latestSnapshot.impressions || 0;
+    const postSnapshots = snapshotsByPost[post.id] || [];
+    // Group by itemId, take the latest snapshot per item (snapshots are asc ordered, so last wins)
+    const latestByItem: Record<string, { likes: number; retweets: number; replies: number; impressions: number }> = {};
+    for (const s of postSnapshots) {
+      const item = s.item;
+      if (!item) continue;
+      latestByItem[item.id] = {
+        likes: s.likes,
+        retweets: s.retweets,
+        replies: s.replies,
+        impressions: s.impressions || 0,
+      };
     }
+    const agg = Object.values(latestByItem).reduce(
+      (acc, cur) => {
+        acc.likes += cur.likes;
+        acc.retweets += cur.retweets;
+        acc.replies += cur.replies;
+        acc.impressions += cur.impressions;
+        return acc;
+      },
+      { likes: 0, retweets: 0, replies: 0, impressions: 0 }
+    );
+    perPostLatestTotals[post.id] = agg;
+    totalStats.totalLikes += agg.likes;
+    totalStats.totalRetweets += agg.retweets;
+    totalStats.totalReplies += agg.replies;
+    totalStats.totalImpressions += agg.impressions;
   }
 
   // Calculate engagement rate
@@ -213,51 +256,44 @@ export async function getAggregatedAnalytics(
     ? (totalInteractions / totalStats.totalImpressions) * 100 
     : 0;
 
-  // Group snapshots by date for chart data
+  // Group item-level snapshots by date for chart data
   const engagementByDate: Record<string, any> = {};
   
-  for (const post of posts) {
-    for (const snapshot of post.analyticsSnapshots) {
-      const date = snapshot.snapshotDate.toISOString().split('T')[0];
-      if (!engagementByDate[date]) {
-        engagementByDate[date] = {
-          date,
-          likes: 0,
-          retweets: 0,
-          replies: 0,
-          impressions: 0,
-        };
-      }
-      engagementByDate[date].likes += snapshot.likes;
-      engagementByDate[date].retweets += snapshot.retweets;
-      engagementByDate[date].replies += snapshot.replies;
-      engagementByDate[date].impressions += snapshot.impressions || 0;
+  for (const s of snapshots) {
+    const date = s.snapshotDate.toISOString().split('T')[0];
+    if (!engagementByDate[date]) {
+      engagementByDate[date] = {
+        date,
+        likes: 0,
+        retweets: 0,
+        replies: 0,
+        impressions: 0,
+      };
     }
+    engagementByDate[date].likes += s.likes;
+    engagementByDate[date].retweets += s.retweets;
+    engagementByDate[date].replies += s.replies;
+    engagementByDate[date].impressions += s.impressions || 0;
   }
 
   const chartData = Object.values(engagementByDate).sort((a: any, b: any) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  // Get top performing posts
+  // Get top performing posts using per-post latest totals
   const topPosts = posts
     .map(post => {
-      if (post.analyticsSnapshots.length === 0) return null;
-      
-      const latestSnapshot = post.analyticsSnapshots[post.analyticsSnapshots.length - 1];
-      const totalInteractions = latestSnapshot.likes + latestSnapshot.retweets + latestSnapshot.replies;
-      const engagement = latestSnapshot.impressions && latestSnapshot.impressions > 0 
-        ? (totalInteractions / latestSnapshot.impressions) * 100 
-        : 0;
-
+      const agg = perPostLatestTotals[post.id] || { likes: 0, retweets: 0, replies: 0, impressions: 0 };
+      const totalInteractions = agg.likes + agg.retweets + agg.replies;
+      const engagement = agg.impressions > 0 ? (totalInteractions / agg.impressions) * 100 : 0;
       return {
         id: post.id,
         content: post.items?.[0]?.content || '',
         date: post.postedAt?.toISOString().split('T')[0] || '',
-        likes: latestSnapshot.likes,
-        retweets: latestSnapshot.retweets,
-        replies: latestSnapshot.replies,
-        impressions: latestSnapshot.impressions || 0,
+        likes: agg.likes,
+        retweets: agg.retweets,
+        replies: agg.replies,
+        impressions: agg.impressions,
         engagement: Math.round(engagement * 10) / 10,
       };
     })

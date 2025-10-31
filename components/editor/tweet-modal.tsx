@@ -49,6 +49,7 @@ interface TweetModalProps {
     thread: ContentPostItem[];
     onSave?: (threadTweets: ThreadTweet[]) => void;
     onPublish?: (threadTweets: ThreadTweet[]) => void;
+    readOnly?: boolean;
 }
 
 export default function TweetModal({
@@ -56,7 +57,8 @@ export default function TweetModal({
     onClose,
     thread,
     onSave,
-    onPublish
+    onPublish,
+    readOnly
 }: TweetModalProps) {
     const { user } = useUser();
     const [threadTweets, setThreadTweets] = useState<ThreadTweet[]>(
@@ -88,14 +90,17 @@ export default function TweetModal({
                     : [{ id: 1, content: "", attachments: [] }]
             );
             // Focus textarea after modal opens
-            setTimeout(() => {
-                textareaRef.current?.focus();
-            }, 100);
+            if (!readOnly) {
+                setTimeout(() => {
+                    textareaRef.current?.focus();
+                }, 100);
+            }
         }
-    }, [isOpen, thread]);
+    }, [isOpen, thread, readOnly]);
 
     // Handle clicking on dialog content to focus textarea
     const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (readOnly) return;
         const target = e.target as HTMLElement;
 
         // Don't focus if clicking on interactive elements
@@ -311,13 +316,15 @@ export default function TweetModal({
                             </div>
                         </div>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
-                    >
-                        Drafts
-                    </Button>
+                    {!readOnly && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                        >
+                            Drafts
+                        </Button>
+                    )}
                 </div>
 
                 {/* Main Content Area */}
@@ -349,6 +356,7 @@ export default function TweetModal({
                                             value={tweet.content}
                                             onChange={(value) => updateThreadTweet(tweet.id, value, tweet.attachments)}
                                             placeholder={`Tweet ${index + 1} of ${threadTweets.length}`}
+                                            readOnly={!!readOnly}
                                         />
 
                                         {/* Media Preview */}
@@ -363,22 +371,24 @@ export default function TweetModal({
                                                         ) : (
                                                             <Image src={att.url} alt="GIF" width={400} height={200} className="w-full h-24 object-cover" unoptimized />
                                                         )}
-                                                        <button
-                                                            type="button"
-                                                            className="absolute top-1 right-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                removeAttachment(tweet.id, idx);
-                                                            }}
-                                                        >
-                                                            ×
-                                                        </button>
+                                                        {!readOnly && (
+                                                            <button
+                                                                type="button"
+                                                                className="absolute top-1 right-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    removeAttachment(tweet.id, idx);
+                                                                }}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
                                         )}
                                     </div>
-                                    {threadTweets.length > 1 && (
+                                    {threadTweets.length > 1 && !readOnly && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -399,6 +409,7 @@ export default function TweetModal({
 
 
                 {/* Bottom Action Bar */}
+                {!readOnly && (
                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 flex-shrink-0">
                     <div className="flex items-center justify-between">
                         {/* Left Side - Tools */}
@@ -486,6 +497,7 @@ export default function TweetModal({
                         </div>
                     </div>
                 </div>
+                )}
 
             </DialogContent>
         </Dialog>

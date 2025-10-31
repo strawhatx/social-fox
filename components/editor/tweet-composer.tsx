@@ -9,11 +9,13 @@ export const TweetComposer = forwardRef<HTMLTextAreaElement, {
     onChange: (value: string) => void;
     placeholder: string;
     registerInserter?: (fn: (text: string) => void) => void;
+    readOnly?: boolean;
 }>(function TweetComposer({
     value,
     onChange,
     placeholder,
-    registerInserter
+    registerInserter,
+    readOnly
 }, ref) {
     const internalRef = useRef<HTMLTextAreaElement>(null);
     const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
@@ -72,6 +74,7 @@ export const TweetComposer = forwardRef<HTMLTextAreaElement, {
                 value={value}
                 rows={1}
                 onChange={(e) => onChange(e.target.value)}
+                readOnly={!!readOnly}
                 className="w-full bg-white border-none rounded-md resize-none text-base leading-relaxed p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[1.5rem]"
                 style={{ 
                     height: 'auto',

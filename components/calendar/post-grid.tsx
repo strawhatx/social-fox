@@ -45,8 +45,10 @@ function DraggablePost({ post, onSelectPost, getStatusColor, onDeletePost }: Dra
         opacity: isDragging || isPosted ? 0.5 : 1,
     };
 
-    const scheduled = post.scheduledAt ? new Date(post.scheduledAt) : null;
-    const timeLabel = scheduled ? scheduled.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    const dateForTime = (post.status === 'posted' && post.postedAt)
+        ? new Date(post.postedAt)
+        : (post.scheduledAt ? new Date(post.scheduledAt) : null);
+    const timeLabel = dateForTime ? dateForTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     const preview = Array.isArray(post.items) && post.items.length > 0 ? post.items[0].content : 'New post';
 
     return (
@@ -59,7 +61,7 @@ function DraggablePost({ post, onSelectPost, getStatusColor, onDeletePost }: Dra
                 isDragging ? 'z-50 scale-105 shadow-lg' : isPosted ? 'cursor-not-allowed' : 'hover:scale-105 cursor-grab active:cursor-grabbing'
             }`}
             onClick={(e) => {
-                if (isDragging || isPosted) return; // don't open editor after a drag or when disabled
+                if (isDragging) return; // don't open editor after a drag
                 e.stopPropagation();
                 onSelectPost(post);
             }}
@@ -228,9 +230,11 @@ export default function PostGrid({ posts, isCurrentMonth, isToday, days, onSelec
         <div className="grid grid-cols-7">
             {days.map((date: Date, index: number) => {
                 const dayPosts = posts.filter((p) => {
-                    if (!p.scheduledAt) return false;
-                    const t = new Date(p.scheduledAt);
-                    return t.getFullYear() === date.getFullYear() && t.getMonth() === date.getMonth() && t.getDate() === date.getDate();
+                    const ts = (p.status === 'posted' && p.postedAt)
+                        ? new Date(p.postedAt)
+                        : (p.scheduledAt ? new Date(p.scheduledAt) : null);
+                    if (!ts) return false;
+                    return ts.getFullYear() === date.getFullYear() && ts.getMonth() === date.getMonth() && ts.getDate() === date.getDate();
                 });
                 const isCurrentMonthDay = isCurrentMonth(date);
                 const isTodayDate = isToday(date);

@@ -6,7 +6,7 @@ import Footer from '@/components/landing/footer'
 
 export const metadata: Metadata = {
   title: 'Consistency Playbook — Stay Consistent on X with Social Fox',
-  description: 'Stay consistent on X without burnout. Use Social Fox\'s planner and playbooks to organize, draft, and schedule your posts in minutes.'
+  description: 'Stay consistent on X without burnout. Use Social Fox\'s calendar‑first monthly system to plan, draft, and schedule a full month in minutes.'
 }
 
 export default function Page() {
@@ -33,28 +33,29 @@ export default function Page() {
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               Creators don&apos;t fail from lack of ideas — they fail from lack of structure.<br />
-              Social Fox helps you stay consistent with a simple planner and weekly system that keeps you shipping.
+              Social Fox helps you plan your entire month on a calendar with automation or a single manual session.
             </p>
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
               <Image 
-                src="/twitter-image.jpeg" 
+                src="/assets/gif/calendar-demo-1.gif" 
                 alt="Consistency on X" 
-                width={1200}
-                height={675}
+                width={1400}
+                height={775}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
                 priority
-                sizes="(max-width: 1200px) 100vw, 1200px"
+                unoptimized
+                sizes="(max-width: 1400px) 100vw, 1400px"
               />
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-2">
               <a 
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-              Build Your Weekly X Cadence
+              Plan Your Month on X
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -75,10 +76,10 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                🚀 Build Your Weekly X Cadence
+                🚀 Plan Your Month on X
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Replace chaotic, one-off posting with a repeatable rhythm designed for growth.
+                Create a month-long calendar in minutes — automated, or batched manually in one focused session.
               </p>
             </div>
             
@@ -90,7 +91,7 @@ export default function Page() {
                     <Calendar className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold mb-4 text-foreground">Content Calendar</h3>
-                  <p className="text-muted-foreground leading-relaxed">Plan your tweets, threads, and updates for the week in one focused view.</p>
+                  <p className="text-muted-foreground leading-relaxed">Plan your tweets, threads, and updates for the month in one focused view.</p>
                 </div>
               </div>
               
@@ -111,7 +112,7 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Zap className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Idea Vault</h3>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Template Library</h3>
                   <p className="text-muted-foreground leading-relaxed">Save tweet ideas as you go, ready to slot into your schedule.</p>
                 </div>
               </div>
@@ -122,8 +123,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Repeat className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Weekly Cadence Templates</h3>
-                  <p className="text-muted-foreground leading-relaxed">Use proven posting structures that build consistency and engagement.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">30‑Day Content Generator</h3>
+                  <p className="text-muted-foreground leading-relaxed">Generate a month of threads and singles in one go — ready to schedule.</p>
                 </div>
               </div>
             </div>
@@ -137,10 +138,10 @@ export default function Page() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                🧩 How it Works — The Consistency System
+                🧩 How it Works — Calendar‑First Consistency
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Simple cadence removes decision fatigue and keeps your pipeline full.
+                Plan the entire month on a calendar. Use automation to fill it in minutes — or batch it manually in one focused afternoon.
               </p>
             </div>
             
@@ -152,10 +153,10 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                       <Calendar className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Monday: Capture ideas + draft hooks</h3>
+                    <h3 className="text-lg font-bold text-foreground">Plan the month on the calendar</h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    Start the week by collecting ideas and drafting compelling hooks that grab attention.
+                    Block themes and slots for the whole month. The system distributes content across days.
                   </p>
                 </div>
               </div>
@@ -167,10 +168,10 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Wednesday: Build threads + singles</h3>
+                    <h3 className="text-lg font-bold text-foreground">Automation: generate and schedule</h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    Develop your ideas into full threads and create standalone tweets from the content.
+                    Auto-create threads and singles, slot them across the month, then schedule with one approval.
                   </p>
                 </div>
               </div>
@@ -182,10 +183,10 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                       <Clock className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Friday: Schedule the week ahead</h3>
+                    <h3 className="text-lg font-bold text-foreground">Manual: one focused afternoon</h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    Plan and schedule your content for the upcoming week to maintain momentum.
+                    Draft your content, drag it onto the month view, and queue everything at once.
                   </p>
                 </div>
               </div>
@@ -204,15 +205,15 @@ export default function Page() {
                   <ul className="space-y-3 text-muted-foreground">
                     <li className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                      <span>Simple cadence removes decision fatigue</span>
+                      <span>Month view removes daily decision fatigue</span>
                     </li>
                     <li className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      <span>Calendar clarity keeps your pipeline full</span>
+                      <span>Automation speeds creation; manual keeps full control</span>
                     </li>
                     <li className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span>Fast drafting = more reps = better results</span>
+                      <span>Batch once, publish all month</span>
                     </li>
                   </ul>
                 </div>
@@ -228,7 +229,7 @@ export default function Page() {
                     <h3 className="text-lg font-bold text-foreground">Outcome</h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    Steady posting that compounds reach and makes consistency effortless.
+                    A full month scheduled — in minutes with automation, or an afternoon manually. Consistency becomes effortless.
                   </p>
                 </div>
               </div>

@@ -10,8 +10,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu as HeadlessMenu, Me
 
 const playbooks = [
     { name: 'Consistency Playbook', href: '/playbooks/consistency' },
-    { name: 'AI Threads Playbook', href: '/playbooks/ai-threads' },
-    { name: 'Clarity Templates', href: '/playbooks/clarity-templates' },
+    { name: 'AI Threads Playbook', href: '/playbooks/ai-threads' }
 ];
 
 const features = [

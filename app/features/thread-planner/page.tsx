@@ -24,27 +24,28 @@ export default function Page() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>🧵 Thread Planner</span>
+              <span>⚡ AI Threads in Action</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              Plan threads with structure. Edit with clarity.
+              Plan your next thread in minutes
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Stop improvising. Build your thread arc, test hooks, and publish with confidence — directly from your content calendar.
+              Use AI to outline, expand, and schedule your ideas — without ever leaving the planner.
             </p>
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
               <Image 
-                src="/results/x-post-1.jpeg" 
-                alt="Thread Planner" 
-                width={1200}
-                height={675}
+                src="/assets/gif/thread-demo-1.gif" 
+                alt="AI Threads in Action" 
+                width={1400}
+                height={775}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
                 priority
-                sizes="(max-width: 1200px) 100vw, 1200px"
+                unoptimized
+                sizes="(max-width: 1400px) 100vw, 1400px"
               />
             </div>
             
@@ -74,22 +75,19 @@ export default function Page() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                🛠️ Plan, write, and schedule threads in one flow
+                🧩 Simple Flow for Busy Creators
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Structured tools that help you think clearly and publish consistently.
-              </p>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Structured Thread Builder</h3>
-                  <p className="text-muted-foreground leading-relaxed">Break your ideas into hooks, sections, and CTAs — so every thread reads clean and intentional.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Structure your ideas</h3>
+                  <p className="text-muted-foreground leading-relaxed">Break your post into clear sections or talking points.</p>
                 </div>
               </div>
               
@@ -97,10 +95,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="w-6 h-6 text-white" />
+                    <Sparkles className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Multiple Hook Variations</h3>
-                  <p className="text-muted-foreground leading-relaxed">Try different openings to see what feels strongest before scheduling.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Instant AI suggestions</h3>
+                  <p className="text-muted-foreground leading-relaxed">Get quick prompts to expand or polish each part.</p>
                 </div>
               </div>
               
@@ -110,30 +108,8 @@ export default function Page() {
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Calendar className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Unified Content Calendar</h3>
-                  <p className="text-muted-foreground leading-relaxed">Draft, batch, and place threads into your weekly schedule with precise timing.</p>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <CheckCircle className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Draft Status Tracking</h3>
-                  <p className="text-muted-foreground leading-relaxed">See what&apos;s ready, what needs edits, and what&apos;s scheduled — at a glance.</p>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg md:col-span-2 lg:col-span-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Repurpose Outlines</h3>
-                  <p className="text-muted-foreground leading-relaxed">Turn a thread into singles and micro-ideas for more mileage.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Schedule directly from the planner</h3>
+                  <p className="text-muted-foreground leading-relaxed">Drag your finished thread into the calendar and lock in your posting time.</p>
                 </div>
               </div>
             </div>
@@ -228,15 +204,15 @@ export default function Page() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>Ready to publish with purpose?</span>
+              <span>🚀 From idea → structure → publish</span>
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Plan better threads. Ship on schedule.
+              From idea → structure → publish
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Stop improvising. Start with structure that makes your ideas clearer and your publishing more consistent.
+              Social Fox turns your threads into clear, consistent posts that drive growth — without extra effort.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">

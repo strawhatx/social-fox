@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Bot, MessageSquare, Clock, CheckCircle } from 'lucide-react'
+import { ArrowRight, TrendingUp, Target, Zap, BarChart3, Sparkles, Bot, MessageSquare, Images, CheckCircle } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
 
@@ -24,28 +24,29 @@ export default function Page() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800 rounded-full px-4 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 mb-8">
               <Sparkles className="w-4 h-4" />
-              <span>🧠 AI Threads Playbook</span>
+              <span>🧠 Threads Playbook</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent leading-tight">
-              AI that drafts threads like an operator
+              AI that assists your thread drafting
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               Skip the blank page.<br />
-              Feed Social Fox your angle — get structured, on-brand threads with hooks, flow, and CTAs ready to refine and ship.
+              Feed Social Fox your angle — get on-brand hooks, outlines, and draft suggestions you can refine into a thread.
             </p>
             
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
               <Image 
-                src="/results/x-post-1.jpeg" 
+                src="/assets/gif/thread-demo-1.gif" 
                 alt="AI Threads in Action" 
-                width={1200}
-                height={675}
+                width={1400}
+                height={775}
                 className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
                 priority
-                sizes="(max-width: 1200px) 100vw, 1200px"
+                unoptimized
+                sizes="(max-width: 1400px) 100vw, 1400px"
               />
             </div>
             
@@ -54,7 +55,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Generate Your First AI Thread
+                Start Your First AI‑Assisted Thread
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
@@ -82,15 +83,15 @@ export default function Page() {
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Bot className="w-6 h-6 text-white" />
+                    <MessageSquare className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">AI Thread Builder</h3>
-                  <p className="text-muted-foreground leading-relaxed">Drop your topic and key points. Get a ready-to-edit draft that fits X perfectly.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Thread Builder</h3>
+                  <p className="text-muted-foreground leading-relaxed">Plan and structure multi‑tweet threads with hooks, sections, and CTAs.</p>
                 </div>
               </div>
               
@@ -98,10 +99,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="w-6 h-6 text-white" />
+                    <Bot className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Hook Variations</h3>
-                  <p className="text-muted-foreground leading-relaxed">Instantly test multiple openings that grab attention and stop scrolls.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">AI Assist</h3>
+                  <p className="text-muted-foreground leading-relaxed">Generate from a subject or improve existing copy with one click.</p>
                 </div>
               </div>
               
@@ -120,21 +121,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Clock className="w-6 h-6 text-white" />
+                    <Images className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">One-Click Scheduler</h3>
-                  <p className="text-muted-foreground leading-relaxed">Move from draft to publish inside the same calendar.</p>
-                </div>
-              </div>
-              
-              <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg md:col-span-2 lg:col-span-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">Repurpose Assistant</h3>
-                  <p className="text-muted-foreground leading-relaxed">Turn your best threads into singles, replies, or post series in seconds.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Media Support</h3>
+                  <p className="text-muted-foreground leading-relaxed">Attach GIFs, images, and videos to your posts and threads.</p>
                 </div>
               </div>
             </div>
@@ -151,7 +141,7 @@ export default function Page() {
                 🧩 How it Works — The AI Assist Loop
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Simple 3-step process that eliminates blank-page paralysis and gets you to publish faster.
+                Add a post, tap AI Assist, generate or refine your content — then schedule.
               </p>
             </div>
             
@@ -163,9 +153,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                       <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Step 1: Drop your idea or example thread</h3>
+                    <h3 className="text-lg font-bold text-foreground">Step 1: Add a new post in your calendar</h3>
                   </div>
-                  <p className="text-muted-foreground">Start with your topic, key points, or even a thread you want to improve.</p>
+                  <p className="text-muted-foreground">Start a post and add your subject or paste any notes.</p>
                 </div>
               </div>
               
@@ -176,9 +166,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <BarChart3 className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Step 2: Pick a format or tone</h3>
+                    <h3 className="text-lg font-bold text-foreground">Step 2: Click AI Assist</h3>
                   </div>
-                  <p className="text-muted-foreground">Choose from proven formats that match your brand and audience.</p>
+                  <p className="text-muted-foreground">Use AI to generate a first draft or improve your current content.</p>
                 </div>
               </div>
               
@@ -189,9 +179,9 @@ export default function Page() {
                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                       <Target className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Step 3: Edit + schedule directly in your planner</h3>
+                    <h3 className="text-lg font-bold text-foreground">Step 3: Refine and schedule</h3>
                   </div>
-                  <p className="text-muted-foreground">Refine the draft and schedule it all in one seamless flow.</p>
+                  <p className="text-muted-foreground">Tweak the draft, then put it on the calendar — all in one flow.</p>
                 </div>
               </div>
             </div>
@@ -256,7 +246,7 @@ export default function Page() {
             </div>
             
             <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-foreground via-foreground to-orange-600 bg-clip-text text-transparent">
-              Draft your first AI-powered thread and schedule it today.
+              Draft your first AI‑assisted thread and schedule it today.
             </h2>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
@@ -268,7 +258,7 @@ export default function Page() {
                 href="/sign-up" 
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                Generate Your First AI Thread
+                Start Your First AI‑Assisted Thread
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 

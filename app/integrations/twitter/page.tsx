@@ -39,7 +39,7 @@ export default function Page() {
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
               <Image 
-                src="/results/x-post-3.jpeg" 
+                src="/assets/images/x-post-3.jpeg" 
                 alt="Twitter Integration" 
                 width={1200}
                 height={675}

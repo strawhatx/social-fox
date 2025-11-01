@@ -50,7 +50,7 @@ const Footer = () => {
                 <li><Link href="/" className="hover:text-orange-600">Homepage</Link></li>
                 <li><Link href="/playbooks/consistency" className="hover:text-orange-600">Consistency (Playbook)</Link></li>
                 <li><Link href="/playbooks/ai-threads" className="hover:text-orange-600">AI Threads (Playbook)</Link></li>
-                <li><Link href="/playbooks/clarity-templates" className="hover:text-orange-600">Clarity Templates (Playbook)</Link></li>
+
                 <li><Link href="/features/thread-planner" className="hover:text-orange-600">Thread Planner (Feature)</Link></li>
                 <li><Link href="/features/analytics" className="hover:text-orange-600">Analytics (Feature)</Link></li>
                 <li><Link href="/comparison/typefully" className="hover:text-orange-600">Typefully (Comparison)</Link></li>

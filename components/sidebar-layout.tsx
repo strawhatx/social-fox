@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Home, Menu, CircleDollarSign } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, useUser } from '@clerk/nextjs';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
 import SubscriptionManager from './subscription/subscription-manager';
+import useSubscription from '@/hooks/use-subscription';
+import { isFeatureEnabled, getFeatureLimit } from '@/lib/features';
 
 interface Header {
   page: string;
@@ -21,10 +23,7 @@ interface SidebarLayoutProps {
   header?: Header;
 }
 
-const menuItems = [
-  { id: 'calendar', title: 'Calendar', path: '/calendar', icon: '📆', color: 'text-orange-600 hover:bg-orange-100', stats: 'Plan 30 days', description: 'Plan and schedule posts with a monthly calendar' },
-  { id: 'analytics', title: 'Analytics', path: '/analytics', icon: '📊', color: 'text-orange-400 hover:bg-orange-100', stats: 'View your content performance', description: 'Track your content engagement and performance' }
-];
+// Menu items are now gated by subscription + plan features
 
 function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {
   menuItems: any[];
@@ -109,11 +108,62 @@ export default function SidebarLayout({ children, header = { page: 'Home', left_
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('home');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { subscription } = useSubscription();
+  const { user } = useUser();
+
+  const menuItems = useMemo(() => {
+    const items: any[] = [];
+    const isActive = subscription?.status === 'active';
+    const plan = (subscription?.plan as 'launch' | 'grow' | undefined);
+
+    // Only show app features to active subscribers
+    if (isActive) {
+      // Calendar (quota-based: scheduledPosts)
+      const scheduledLimit = plan ? getFeatureLimit('scheduledPosts', plan)|| 0 : 0;
+      items.push({
+        id: 'calendar',
+        title: 'Calendar',
+        path: '/calendar',
+        icon: '📆',
+        color: 'text-orange-600 hover:bg-orange-100',
+        stats: `Plan ${scheduledLimit} scheduled posts`,
+        description: 'Plan and schedule posts with a monthly calendar'
+      });
+
+      // Library (binary feature: contentLibrary)
+      if (isFeatureEnabled('contentLibrary', plan)) {
+        items.push({
+          id: 'library',
+          title: 'Library',
+          path: '/library',
+          icon: '📚',
+          color: 'text-orange-500 hover:bg-orange-100',
+          stats: plan === 'launch' ? 'Starter library' : 'My library',
+          description: 'Save templates and post faster'
+        });
+      }
+
+      // Analytics (binary feature: analytics)
+      if (isFeatureEnabled('analytics', plan)) {
+        items.push({
+          id: 'analytics',
+          title: 'Analytics',
+          path: '/analytics',
+          icon: '📊',
+          color: 'text-orange-400 hover:bg-orange-100',
+          stats: 'View your content performance',
+          description: 'Track your content engagement and performance'
+        });
+      }
+    }
+
+    return items;
+  }, [subscription, user?.id]);
 
   useEffect(() => {
     const found = menuItems.find((item) => pathname?.startsWith(item.path));
     setActiveTab(found ? found.id : 'home');
-  }, [pathname]);
+  }, [pathname, menuItems]);
 
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((v) => !v);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TweetModal from "@/components/editor/tweet-modal";
-import { Copy, RefreshCw, Sparkles, Edit3, Plus, BookOpen, User, Bot, Wand2, ArrowRight, TrendingUp, Target, Zap, MessageSquare } from "lucide-react";
+import { Copy, RefreshCw, Sparkles, Edit3, Plus, BookOpen, User, Bot, MessageSquare } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
@@ -42,7 +41,6 @@ const templateCategories = [
 ];
 
 export default function LibraryPage() {
-  const router = useRouter();
   const [templates, setTemplates] = useState<TweetTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All Templates");
@@ -142,59 +140,11 @@ export default function LibraryPage() {
     // Open modal with template text
     setNewTemplate({ ...newTemplate, text: templateText });
     setShowTweetModal(true);
-    
+
     toast({
       title: "Opening Editor!",
       description: "Template loaded in editor for enhancement"
     });
-  };
-
-  const generateWithAI = async () => {
-    if (!aiPrompt.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a prompt for AI generation",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setAiGenerating(true);
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt: `Create a viral Twitter post about: ${aiPrompt}. Make it engaging, use hooks, and include relevant hashtags. Format it as a single tweet.` 
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to generate content');
-
-      const data = await response.json();
-      setGeneratedContent(data.generated || '');
-      
-      toast({
-        title: "Generated!",
-        description: "AI content generated successfully"
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate content",
-        variant: "destructive"
-      });
-    } finally {
-      setAiGenerating(false);
-    }
-  };
-
-  const useGeneratedContent = () => {
-    setNewTemplate({ ...newTemplate, text: generatedContent });
-    setShowAIGenerator(false);
-    setShowAddForm(true);
-    setGeneratedContent("");
-    setAiPrompt("");
   };
 
   const saveTemplate = async () => {
@@ -289,40 +239,15 @@ export default function LibraryPage() {
       <SubscriptionGuard>
         <div className="p-6 space-y-6 bg-gradient-to-br from-background via-background to-muted/30 min-h-screen">
           {/* Enhanced Header */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-blue-500/5 rounded-2xl" />
-            <div className="relative p-8 rounded-2xl border border-orange-200/50 bg-white/80 dark:bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-orange-600 bg-clip-text text-transparent">
-                        Template Library
-                      </h1>
-                      <p className="text-muted-foreground text-lg">
-                        Discover, create, and manage your viral tweet templates
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Button 
-                    onClick={() => setShowTweetModal(true)} 
-                    className="gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Tweet Editor
-                  </Button>
-                  <Button onClick={() => setShowAddForm(true)} className="gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0">
-                    <Plus className="h-4 w-4" />
-                    Add Template
-                  </Button>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground text-sm">
+              Discover, create, and manage your viral tweet templates
+            </p>
+
+            <Button onClick={() => setShowAddForm(true)} className="gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0">
+              <Plus className="h-4 w-4" />
+              Add Template
+            </Button>
           </div>
 
           <Tabs value={libraryType} onValueChange={(value) => setLibraryType(value as "starter" | "user")}>
@@ -407,8 +332,8 @@ export default function LibraryPage() {
                         </Button>
                       </div>
                       <div className="flex gap-3">
-                        <Button 
-                          onClick={saveTemplate} 
+                        <Button
+                          onClick={saveTemplate}
                           disabled={!newTemplate.text || !newTemplate.category}
                           className="flex-1 gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0"
                         >
@@ -654,7 +579,7 @@ export default function LibraryPage() {
             hashtags: newTemplate.hashtags,
             isViralReady: newTemplate.isViralReady
           };
-          
+
           try {
             const response = await fetch('/api/library', {
               method: 'POST',
@@ -680,7 +605,7 @@ export default function LibraryPage() {
             });
           }
         }}
-        
+
       />
     </SidebarLayout>
   );

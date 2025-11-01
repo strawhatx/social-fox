@@ -5,7 +5,6 @@ export interface QuotaFeature {
   limits: {
     launch: number;
     grow: number;
-    scale: number;
   };
 }
 
@@ -15,13 +14,12 @@ export interface BinaryFeature {
   enabled: {
     launch: boolean;
     grow: boolean;
-    scale: boolean;
   };
 }
 
 export interface UserPlan {
   id: string;
-  name: 'launch' | 'grow' | 'scale';
+  name: 'launch' | 'grow';
   displayName: string;
   price: number;
 }
@@ -33,8 +31,7 @@ export const QUOTA_FEATURES: Record<string, QuotaFeature> = {
     description: 'Schedule posts for future publishing',
     limits: {
       launch: 30,
-      grow: 60,
-      scale: 150
+      grow: 120
     }
   },
   threads: {
@@ -43,7 +40,6 @@ export const QUOTA_FEATURES: Record<string, QuotaFeature> = {
     limits: {
       launch: 4,
       grow: 8,
-      scale: 15
     }
   }
 };
@@ -55,8 +51,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'Track post performance and engagement',
     enabled: {
       launch: true,
-      grow: true,
-      scale: true
+      grow: true
     }
   },
   automation: {
@@ -64,8 +59,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'Automated content generation and optimization',
     enabled: {
       launch: false,
-      grow: true,
-      scale: true
+      grow: true
     }
   },
   contentLibrary: {
@@ -73,8 +67,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'Save, remix, and auto-fill winning posts',
     enabled: {
       launch: true,
-      grow: true,
-      scale: true
+      grow: true
     }
   },
   aiGeneration: {
@@ -82,8 +75,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'AI-powered content creation',
     enabled: {
       launch: false,
-      grow: true,
-      scale: true
+      grow: true
     }
   },
   teamAccess: {
@@ -91,8 +83,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'Collaborate with team members',
     enabled: {
       launch: false,
-      grow: false,
-      scale: true
+      grow: false
     }
   },
   prioritySupport: {
@@ -100,8 +91,7 @@ export const BINARY_FEATURES: Record<string, BinaryFeature> = {
     description: 'Priority customer support',
     enabled: {
       launch: false,
-      grow: false,
-      scale: true
+      grow: false
     }
   }
 };
@@ -119,23 +109,17 @@ export const PLANS: Record<string, UserPlan> = {
     name: 'grow',
     displayName: 'Grow',
     price: 39
-  },
-  scale: {
-    id: 'scale',
-    name: 'scale',
-    displayName: 'Scale',
-    price: 79
   }
 };
 
 // Utility functions
-export function getFeatureLimit(featureName: string, planName: 'launch' | 'grow' | 'scale'): number {
+export function getFeatureLimit(featureName: string, planName: 'launch' | 'grow'): number {
   const feature = QUOTA_FEATURES[featureName];
   if (!feature) return 0;
   return feature.limits[planName] || 0;
 }
 
-export function isFeatureEnabled(featureName: string, planName: 'launch' | 'grow' | 'scale'): boolean {
+export function isFeatureEnabled(featureName: string, planName: 'launch' | 'grow'): boolean {
   const feature = BINARY_FEATURES[featureName];
   if (!feature) return false;
   return feature.enabled[planName] || false;
@@ -145,7 +129,7 @@ export function getFeatureConfig(featureName: string): QuotaFeature | null {
   return QUOTA_FEATURES[featureName] || null;
 }
 
-export function getAllFeaturesForPlan(planName: 'launch' | 'grow' | 'scale'): Record<string, { enabled: boolean; limit: number }> {
+export function getAllFeaturesForPlan(planName: 'launch' | 'grow'): Record<string, { enabled: boolean; limit: number }> {
   const result: Record<string, { enabled: boolean; limit: number }> = {};
   
   Object.keys(QUOTA_FEATURES).forEach(featureName => {
@@ -161,7 +145,7 @@ export function getAllFeaturesForPlan(planName: 'launch' | 'grow' | 'scale'): Re
 // Check if user can use a feature
 export function canUseFeature(
   featureName: string, 
-  planName: 'launch' | 'grow' | 'scale', 
+  planName: 'launch' | 'grow', 
   currentUsage: number
 ): { canUse: boolean; reason?: string } {
   const feature = QUOTA_FEATURES[featureName];
@@ -188,16 +172,13 @@ export const planLimits = {
   ),
   grow: Object.fromEntries(
     Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.grow])
-  ),
-  scale: Object.fromEntries(
-    Object.entries(QUOTA_FEATURES).map(([key, feature]) => [key, feature.limits.scale])
   )
 };
 
 // Get upgrade suggestions
 export function getUpgradeSuggestions(
   featureName: string,
-  currentPlan: 'launch' | 'grow' | 'scale'
+  currentPlan: 'launch' | 'grow'
 ): { plan: string; limit: number }[] {
   const feature = QUOTA_FEATURES[featureName];
   if (!feature) return [];

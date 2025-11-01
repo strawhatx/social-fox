@@ -12,7 +12,7 @@ import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans";
 const PricingPage = () => {
   const { isSignedIn } = useUser();
   const router = useRouter();
-  const plans = [SUBSCRIPTION_PLANS.launch, SUBSCRIPTION_PLANS.grow, SUBSCRIPTION_PLANS.scale];
+  const plans = [SUBSCRIPTION_PLANS.launch, SUBSCRIPTION_PLANS.grow];
 
   const handlePlanAction = (action: string) => {
     if (!isSignedIn) {
@@ -43,16 +43,16 @@ const PricingPage = () => {
   };
 
   const comparisonFeatures = [
-    { name: 'Scheduler & publishing', launch: true, grow: true, scale: true },
-    { name: 'Basic analytics', launch: true, grow: true, scale: true },
-    { name: 'Threads', launch: true, grow: true, scale: true },
-    { name: 'AI text generation', launch: '1/mo', grow: '5/mo', scale: '12/mo' },
-    { name: 'AI rewrite', launch: true, grow: true, scale: true },
-    { name: 'AI images', launch: false, grow: true, scale: true },
-    { name: 'GIF support', launch: false, grow: false, scale: true },
-    { name: 'Posts / month', launch: '30', grow: '120', scale: '250' },
-    { name: 'Threads / month', launch: '4', grow: '9', scale: '20' },
-    { name: 'Support', launch: 'Standard', grow: 'Priority', scale: 'Dedicated' }
+    { name: 'Scheduler & publishing', launch: true, grow: true },
+    { name: 'Basic analytics', launch: false, grow: true },
+    { name: 'Threads', launch: true, grow: true },
+    { name: 'AI text generation', launch: '1/mo', grow: '5/mo' },
+    { name: 'AI rewrite', launch: true, grow: true },
+    { name: 'AI images', launch: false, grow: true },
+    { name: 'GIF support', launch: false, grow: false },
+    { name: 'Posts / month', launch: '30', grow: '120' },
+    { name: 'Threads / month', launch: '4', grow: '9' },
+    { name: 'Support', launch: 'Standard', grow: 'Priority' }
   ];
 
   return (
@@ -206,7 +206,6 @@ const PricingPage = () => {
                       <th className="text-left p-4 font-semibold">Feature</th>
                       <th className="text-center p-4 font-semibold">Launch</th>
                       <th className="text-center p-4 font-semibold">Grow</th>
-                      <th className="text-center p-4 font-semibold">Scale</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -233,17 +232,6 @@ const PricingPage = () => {
                             )
                           ) : (
                             <span className="font-medium">{feature.grow}</span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {typeof feature.scale === 'boolean' ? (
-                            feature.scale ? (
-                              <Check className="w-5 h-5 text-blue-500 mx-auto" />
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
-                            )
-                          ) : (
-                            <span className="font-medium">{feature.scale}</span>
                           )}
                         </td>
                       </tr>

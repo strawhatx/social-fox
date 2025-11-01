@@ -11,7 +11,7 @@ import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans";
 const Pricing = () => {
   const { isSignedIn } = useUser();
   const router = useRouter();
-  const plans = [SUBSCRIPTION_PLANS.launch, SUBSCRIPTION_PLANS.grow, SUBSCRIPTION_PLANS.scale];
+  const plans = [SUBSCRIPTION_PLANS.launch, SUBSCRIPTION_PLANS.grow];
 
   const handlePlanAction = (action: string) => {
     if (!isSignedIn) {
@@ -77,14 +77,6 @@ const Pricing = () => {
                 button: 'bg-orange-500 hover:bg-orange-600 text-white',
                 check: 'text-orange-500'
               };
-              if (planId === 'scale') return {
-                border: 'border-blue-200/50 dark:border-blue-800/50',
-                hoverBorder: 'hover:border-blue-300 dark:hover:border-blue-700',
-                bg: 'bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10',
-                iconBg: 'bg-gradient-to-br from-blue-500 to-blue-600',
-                button: 'bg-blue-500 hover:bg-blue-600 text-white',
-                check: 'text-blue-500'
-              };
               return {
                 border: 'border-orange-200/50 dark:border-orange-800/50',
                 hoverBorder: 'hover:border-orange-300 dark:hover:border-orange-700',
@@ -127,7 +119,6 @@ const Pricing = () => {
                   <CardDescription className="text-base text-muted-foreground italic leading-relaxed">
                     {plan.id === 'launch' && "For builders who are just starting consistent posting."}
                     {plan.id === 'grow' && "For creators who want consistent content output and growth."}
-                    {plan.id === 'scale' && "For creators treating growth as a system."}
                   </CardDescription>
                 </CardHeader>
 

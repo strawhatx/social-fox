@@ -46,10 +46,10 @@ export function useSubscription() {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  const upgrade = useCallback(async (plan: 'launch' | 'grow' | 'scale') => {
+  const upgrade = useCallback(async (plan: 'launch' | 'grow') => {
     // Prevent duplicate purchases and simple downgrade
     if (subscription && subscription.status === 'active') {
-      if (plan === (subscription.plan as 'launch' | 'grow' | 'scale')) {
+      if (plan === (subscription.plan as 'launch' | 'grow')) {
         toast({
           title: 'Already Subscribed',
           description: `You already have an active ${subscription.plan} subscription.`,

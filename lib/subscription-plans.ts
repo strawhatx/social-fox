@@ -15,7 +15,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   launch: {
     id: 'launch',
     name: 'Launch — Starter',
-    price: 19,
+    price: 16,
     popular: false,
     interval: 'month',
     period: 'month',
@@ -34,7 +34,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     limits: {
       scheduledPosts: 30,
       threads: 4,
-      analytics: true,
+      analytics: false,
       automation: false,
       contentLibrary: true,
       aiGeneration: 1,
@@ -73,43 +73,9 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       aiImages: true,
       connectedAccounts: 1,
       support: 'priority',
-      mediaTypes: ['text', 'images']
-    }
-  },
-  scale: {
-    id: 'scale',
-    name: 'Scale — Power Operators',
-    price: 79,
-    popular: false,
-    interval: 'month',
-    period: 'month',
-    action: 'scale',
-    buttonText: 'Choose Scale',
-    features: [
-      'Everything in Grow, plus:',
-      'AI posts with images + GIFs',
-      'Advanced performance stats',
-      'Bulk scheduling & workflow tools',
-      '250 posts / month',
-      '20 threads / month',
-      '12 AI text generations / month',
-      'Support: Dedicated'
-    ],
-    limits: {
-      scheduledPosts: 250,
-      threads: 20,
-      analytics: true,
-      automation: true,
-      contentLibrary: true,
-      aiGeneration: 12,
-      aiImages: true,
-      aiGifs: true,
-      bulkScheduling: true,
-      connectedAccounts: 1,
-      support: 'dedicated',
       mediaTypes: ['text', 'images', 'gifs']
     }
-  }
+  },
 };
 
 export default SUBSCRIPTION_PLANS;

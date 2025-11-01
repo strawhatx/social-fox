@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       // Check specific feature access using new system
       const sub = await getUserSubscription(user.clerkUserId);
       const access = await canUseFeatureDetailed(user.id, featureName);
-      const planName = sub?.planDetails?.id as ('launch' | 'grow' | 'scale') | undefined;
+      const planName = sub?.planDetails?.id as ('launch' | 'grow') | undefined;
       const limit = planName ? getFeatureLimit(featureName, planName) : 0;
       
       return NextResponse.json({

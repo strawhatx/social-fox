@@ -11,7 +11,7 @@ export default function SubscriptionManager() {
   const { subscription, loading, upgrade, openBillingPortal } = useSubscription();
 
   const handleUpgrade = async (action: string) => {
-    await upgrade(action as 'launch' | 'grow' | 'scale');
+    await upgrade(action as 'launch' | 'grow');
   }
 
   const handleManageSubscription = async () => {

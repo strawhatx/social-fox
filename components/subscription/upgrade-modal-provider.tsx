@@ -79,7 +79,7 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
     };
   }, [showUpgrade]);
 
-  const handleUpgrade = useCallback((planId: 'launch' | 'grow' | 'scale') => {
+  const handleUpgrade = useCallback((planId: 'launch' | 'grow') => {
     const priceId = getPriceId(planId);
     if (!priceId) return;
 
@@ -151,7 +151,7 @@ export default function UpgradeModalProvider({ children }: { children: React.Rea
                     ))}
                   </ul>
                   <Button 
-                    onClick={() => handleUpgrade(plan.action as 'launch' | 'grow' | 'scale')} 
+                    onClick={() => handleUpgrade(plan.action as 'launch' | 'grow')} 
                     className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
                     {plan.buttonText}

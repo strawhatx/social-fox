@@ -27,7 +27,7 @@ export default function SubscriptionGuard({ children, fallback }: SubscriptionGu
   }, [subscription]);
 
   const handleUpgrade = async (planId: string) => {
-    await upgrade(planId as 'launch' | 'grow' | 'scale');
+    await upgrade(planId as 'launch' | 'grow');
   };
 
   const handleManageSubscription = async () => {

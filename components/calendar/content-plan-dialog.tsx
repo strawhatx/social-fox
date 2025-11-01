@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "../ui/dialog"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select"
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
@@ -8,6 +7,7 @@ import { Plus, Sparkles, Lock } from "lucide-react"
 import { useState } from "react"
 import { useSubscription } from "@/hooks/use-subscription"
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 
 interface ContentPlanDialogProps {
     onGeneratePlan: (audience: string, subject: string, tone: string, goals: string, mediaMode: 'text' | 'images' | 'gifs') => void;
@@ -64,7 +64,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                         Generate 30 Day Plan
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[550px]">
+                <DialogContent className="sm:max-w-[550px] max-h-[85vh]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-orange-600" />
@@ -74,7 +74,7 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                             Tell us about your content goals and we&apos;ll create a personalized 30-day posting schedule with AI-generated ideas.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
+                    <div className="space-y-4 py-4 overflow-y-auto max-h-[60vh] pr-1">
                         <div className="space-y-2">
                             <Label htmlFor="subject" className="text-sm font-medium">
                                 What will your posts be about? <span className="text-red-500">*</span>
@@ -107,47 +107,47 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
                             <Label htmlFor="tone" className="text-sm font-medium">
                                 Content tone
                             </Label>
-                            <Select value={planTone} onValueChange={setPlanTone}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="professional">Professional</SelectItem>
-                                    <SelectItem value="casual">Casual & Friendly</SelectItem>
-                                    <SelectItem value="inspirational">Inspirational</SelectItem>
-                                    <SelectItem value="educational">Educational</SelectItem>
-                                    <SelectItem value="humorous">Humorous</SelectItem>
-                                    <SelectItem value="authoritative">Authoritative</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <RadioGroup value={planTone} onValueChange={setPlanTone} className="flex flex-wrap gap-4">
+                                {[
+                                    { value: 'professional', label: 'Professional' },
+                                    { value: 'casual', label: 'Casual & Friendly' },
+                                    { value: 'inspirational', label: 'Inspirational' },
+                                    { value: 'educational', label: 'Educational' },
+                                    { value: 'humorous', label: 'Humorous' },
+                                    { value: 'authoritative', label: 'Authoritative' },
+                                ].map((opt) => (
+                                    <div key={opt.value} className="flex items-center space-x-2">
+                                        <RadioGroupItem id={`tone-${opt.value}`} value={opt.value} />
+                                        <Label htmlFor={`tone-${opt.value}`}>{opt.label}</Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="mediaMode" className="text-sm font-medium">
                                 Media type
                             </Label>
-                            <Select value={mediaMode} onValueChange={(value: 'text' | 'images' | 'gifs') => setMediaMode(value)}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableMediaTypes.map((type) => (
-                                        <SelectItem 
-                                            key={type.value} 
-                                            value={type.value}
-                                            disabled={type.disabled}
-                                        >
-                                            <div className="flex items-center gap-2">
+                            <RadioGroup
+                                value={mediaMode}
+                                onValueChange={(value) => setMediaMode(value as 'text' | 'images' | 'gifs')}
+                                className="flex flex-wrap gap-4"
+                            >
+                                {availableMediaTypes.map((type) => (
+                                    <div key={type.value} className="flex items-center space-x-2">
+                                        <RadioGroupItem id={`media-${type.value}`} value={type.value} disabled={type.disabled} />
+                                        <Label htmlFor={`media-${type.value}`} className={type.disabled ? 'opacity-50' : ''}>
+                                            <span className="inline-flex items-center gap-2">
                                                 {type.value === 'text' && <span>📝</span>}
                                                 {type.value === 'images' && <span>🖼️</span>}
                                                 {type.value === 'gifs' && <span>🎬</span>}
                                                 {type.label}
                                                 {type.disabled && <Lock className="h-3 w-3 text-gray-400" />}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                            </span>
+                                        </Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
                             {subscription && (
                                 <p className="text-xs text-muted-foreground">
                                     {subscription.planDetails?.name}: {availableMediaTypes.filter(t => !t.disabled).map(t => t.label).join(' + ')}

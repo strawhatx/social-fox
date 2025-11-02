@@ -52,6 +52,9 @@ const Footer = () => {
                 <li><Link href="/playbooks/ai-threads" className="hover:text-orange-600">AI Threads (Playbook)</Link></li>
 
                 <li><Link href="/features/thread-planner" className="hover:text-orange-600">Thread Planner (Feature)</Link></li>
+                <li><Link href="/features/calendar-scheduler" className="hover:text-orange-600">Calendar Scheduler (Feature)</Link></li>
+                <li><Link href="/features/template-library" className="hover:text-orange-600">Template Library (Feature)</Link></li>
+                <li><Link href="/features/ai-content" className="hover:text-orange-600">AI Content Generation (Feature)</Link></li>
                 <li><Link href="/features/analytics" className="hover:text-orange-600">Analytics (Feature)</Link></li>
                 <li><Link href="/comparison/typefully" className="hover:text-orange-600">Typefully (Comparison)</Link></li>
                 <li><Link href="/comparison/hypefury" className="hover:text-orange-600">Hypefury (Comparison)</Link></li>

@@ -15,6 +15,9 @@ const playbooks = [
 
 const features = [
     { name: 'Thread Planner', href: '/features/thread-planner' },
+    { name: 'Calendar Scheduler', href: '/features/calendar-scheduler' },
+    { name: 'Template Library', href: '/features/template-library' },
+    { name: 'AI Content Generation', href: '/features/ai-content' },
     { name: 'Analytics', href: '/features/analytics' },
 ];
 

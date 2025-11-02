@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db/prisma';
 import { resolveUserUuid } from '@/lib/db/data/users';
 import { bulkPostGeneration } from '@/lib/ai/text';
+import { ENABLE_THIRTY_DAY_GENERATION } from '@/lib/features';
 
 function json(body: unknown, init?: ResponseInit) {
   return new Response(JSON.stringify(body), {
@@ -14,6 +15,10 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!ENABLE_THIRTY_DAY_GENERATION) {
+      return json({ error: '30-day content generation is temporarily disabled' }, { status: 503 });
+    }
 
     const appUserId = await resolveUserUuid(userId);
     if (!appUserId) return json({ error: 'User not found' }, { status: 404 });

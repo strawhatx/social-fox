@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { ArrowRight, Sparkles, MessageSquare, CheckCircle, Calendar } from 'lucide-react'
 import Navigation from '@/components/landing/navigation'
 import Footer from '@/components/landing/footer'
+import { ENABLE_THIRTY_DAY_GENERATION } from '@/lib/features'
 
 export const metadata: Metadata = {
   title: 'AI Content Generation — Write Posts Faster',
@@ -32,7 +33,9 @@ export default function Page() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Generate from a subject, improve your draft, or auto‑draft a 30‑day plan.
+              {ENABLE_THIRTY_DAY_GENERATION
+                ? 'Generate from a subject, improve your draft, or auto‑draft a 30‑day plan.'
+                : 'Generate from a subject or improve your draft.'}
             </p>
             <div className="mb-12 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
@@ -78,7 +81,7 @@ export default function Page() {
               </h2>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               <div className="group relative p-8 rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50/50 to-transparent dark:from-orange-950/20 dark:border-orange-800/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
@@ -111,23 +114,13 @@ export default function Page() {
                   <p className="text-muted-foreground leading-relaxed">Consistent tone and structure make publishing faster and clearer.</p>
                 </div>
               </div>
-
-              <div className="group relative p-8 rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Calendar className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">30‑Day Content Generation</h3>
-                  <p className="text-muted-foreground leading-relaxed">Auto-draft a month of ideas from your focus topics, ready to refine.</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* 30-Day Content Generation Section */}
+      {ENABLE_THIRTY_DAY_GENERATION && (
       <section id="thirty-day" className="py-24 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -201,6 +194,7 @@ export default function Page() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-orange-500/5 via-background to-blue-500/5 relative overflow-hidden">

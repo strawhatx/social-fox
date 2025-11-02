@@ -193,3 +193,6 @@ export function getUpgradeSuggestions(
 
   return suggestions.sort((a, b) => b.limit - a.limit);
 }
+
+// Global flags (non-plan specific)
+export const ENABLE_THIRTY_DAY_GENERATION = false;

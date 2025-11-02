@@ -23,10 +23,8 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     buttonText: 'Choose Launch',
     features: [
       'Schedule + publish to X',
-      'Basic analytics',
       '1 connected X account',
       'Threads & singles',
-      'AI post cleanup & 1 text generation / month',
       '30 posts / month',
       '4 threads / month',
       'Support: Standard'
@@ -54,12 +52,11 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     buttonText: 'Choose Grow',
     features: [
       'Everything in Launch, plus:',
-      'AI content generation (text + static images)',
+      'AI content generation (text + static images + GIFs)',
       'Analytics insights & post history',
       'More scheduling power',
       '120 posts / month',
       '9 threads / month',
-      '5 AI text generations / month',
       'Unlimited rewrites in editor',
       'Support: Priority'
     ],

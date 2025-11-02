@@ -6,7 +6,7 @@ AI-powered social media content creation platform with intelligent conversation-
 
 ### Core Functionality
 - **AI Copilot**: Interactive chat interface for creating and refining social media content
-- **30-Day Content Calendar**: Visual calendar for planning and scheduling posts with drag & drop
+- **Content Calendar**: Visual calendar for planning and scheduling posts with drag & drop
 - **Thread Planner**: Plan and publish multi-tweet threads with clean structure and CTAs
 - **Analytics Dashboard**: Track which posts are driving followers, replies, and clicks
 - **Content Library**: Save, remix, and auto-fill winning posts

@@ -121,10 +121,10 @@ export default function Page() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Repeat className="w-6 h-6 text-white" />
+                    <BarChart3 className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-foreground">30‑Day Content Generator</h3>
-                  <p className="text-muted-foreground leading-relaxed">Generate a month of threads and singles in one go — ready to schedule.</p>
+                  <h3 className="text-xl font-bold mb-4 text-foreground">Analytics</h3>
+                  <p className="text-muted-foreground leading-relaxed">Track performance and optimize your content cadence with clear metrics.</p>
                 </div>
               </div>
             </div>

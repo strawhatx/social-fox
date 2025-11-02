@@ -8,12 +8,16 @@ import { useState } from "react"
 import { useSubscription } from "@/hooks/use-subscription"
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription-plans"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { ENABLE_THIRTY_DAY_GENERATION } from '@/lib/features'
 
 interface ContentPlanDialogProps {
     onGeneratePlan: (audience: string, subject: string, tone: string, goals: string, mediaMode: 'text' | 'images' | 'gifs') => void;
 }
 
 export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogProps): JSX.Element {
+    if (!ENABLE_THIRTY_DAY_GENERATION) {
+        return <></>;
+    }
     const [open, setOpen] = useState(false);
     const [planSubject, setPlanSubject] = useState('');
     const [planAudience, setPlanAudience] = useState('');

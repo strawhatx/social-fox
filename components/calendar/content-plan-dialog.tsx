@@ -15,9 +15,6 @@ interface ContentPlanDialogProps {
 }
 
 export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogProps): JSX.Element {
-    if (!ENABLE_THIRTY_DAY_GENERATION) {
-        return <></>;
-    }
     const [open, setOpen] = useState(false);
     const [planSubject, setPlanSubject] = useState('');
     const [planAudience, setPlanAudience] = useState('');
@@ -25,6 +22,8 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
     const [planGoals, setPlanGoals] = useState('');
     const [mediaMode, setMediaMode] = useState<'text' | 'images' | 'gifs'>('text');
     const { subscription, loading } = useSubscription();
+
+    const disabled = !ENABLE_THIRTY_DAY_GENERATION;
 
     const handleGeneratePlan = async () => {
         onGeneratePlan(planAudience, planSubject, planTone, planGoals, mediaMode);
@@ -53,10 +52,12 @@ export default function ContentPlanDialog({ onGeneratePlan }: ContentPlanDialogP
 
     const availableMediaTypes = getAvailableMediaTypes();
 
+    if (disabled) {
+        return <></>;
+    }
+
     return (
         <>
-
-
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button

@@ -111,35 +111,6 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
         }
     };
 
-    const getNextAvailableHour = (targetDate: Date) => {
-        // Get all posts for the target date
-        const dayPosts = posts.filter((p) => {
-            if (!p.scheduledAt) return false;
-            const t = new Date(p.scheduledAt);
-            return t.getFullYear() === targetDate.getFullYear() &&
-                t.getMonth() === targetDate.getMonth() &&
-                t.getDate() === targetDate.getDate();
-        });
-
-        // Get all occupied hours
-        const occupiedHours = new Set(
-            dayPosts.map(p => {
-                const scheduled = new Date(p.scheduledAt!);
-                return scheduled.getHours();
-            })
-        );
-
-        // Find next available hour (9 AM to 9 PM)
-        for (let hour = 9; hour <= 21; hour++) {
-            if (!occupiedHours.has(hour)) {
-                return hour;
-            }
-        }
-
-        // Default to 9 AM if all hours are taken
-        return 9;
-    };
-
     function handleDragEnd(event: any) {
         const { active, over } = event;
         setActivePost(null); // clear overlay
@@ -344,19 +315,34 @@ function Dashboard({ posts, setPosts, onExport, onMonthChange }: DashboardProps)
                     setEditingPost(null);
                 }}
                 thread={editingPost?.items || [{ id: "1", postId: "1", parentId: null, metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), content: "", media: [] }]}
+                initialScheduledAt={editingPost?.scheduledAt || null}
                 readOnly={editingPost?.status === 'posted'}
-                onSave={editingPost?.status === 'posted' ? undefined : async (threadTweets: ThreadTweet[]) => {
+                onSave={editingPost?.status === 'posted' ? undefined : async (threadTweets: ThreadTweet[], scheduledTime?: string) => {
                     if (!editingPost) return;
                     try {
+                        // Compute scheduled_at if a time was provided
+                        let scheduled_at: string | undefined;
+                        if (scheduledTime) {
+                            const base = editingPost.scheduledAt ? new Date(editingPost.scheduledAt) : new Date();
+                            const [hhStr, mmStr] = scheduledTime.split(':');
+                            const hh = Math.min(23, Math.max(0, parseInt(hhStr || '0', 10)));
+                            const mm = Math.min(59, Math.max(0, parseInt(mmStr || '0', 10)));
+                            base.setHours(hh, mm, 0, 0);
+                            scheduled_at = base.toISOString();
+                        }
                         const response = await fetch(`/api/content-posts/${editingPost.id}`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                items: threadTweets.map(tweet => ({
-                                    id: editingPost.items[0]?.id || '1',
-                                    content: tweet.content,
-                                    media: tweet.attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
-                                }))
+                                ...(scheduled_at ? { scheduled_at } : {}),
+                                items: threadTweets.map((tweet, idx) => {
+                                    const base = {
+                                        content: tweet.content,
+                                        media: tweet.attachments.map((a: any) => ({ url: a.url, type: a.type, key: a.key })),
+                                    };
+                                    const existingId = editingPost.items?.[idx]?.id;
+                                    return existingId ? { id: existingId, ...base } : base;
+                                })
                             }),
                         });
                         if (!response.ok) throw new Error('Failed to save post');

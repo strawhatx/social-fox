@@ -61,7 +61,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     // Update scheduled time if provided
     if (scheduled_at) {
       await prisma.contentPost.update({ 
-        where: { id, userId: appUserId }, 
+        where: { id }, 
         data: { scheduledAt: new Date(scheduled_at) } 
       });
     }

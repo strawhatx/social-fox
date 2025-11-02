@@ -47,9 +47,10 @@ interface TweetModalProps {
     isOpen: boolean;
     onClose: () => void;
     thread: ContentPostItem[];
-    onSave?: (threadTweets: ThreadTweet[]) => void;
-    onPublish?: (threadTweets: ThreadTweet[]) => void;
+    onSave?: (threadTweets: ThreadTweet[], scheduledTime?: string) => void;
+    onPublish?: (threadTweets: ThreadTweet[], scheduledTime?: string) => void;
     readOnly?: boolean;
+    initialScheduledAt?: string | null;
 }
 
 export default function TweetModal({
@@ -58,7 +59,8 @@ export default function TweetModal({
     thread,
     onSave,
     onPublish,
-    readOnly
+    readOnly,
+    initialScheduledAt
 }: TweetModalProps) {
     const { user } = useUser();
     const [threadTweets, setThreadTweets] = useState<ThreadTweet[]>(
@@ -73,6 +75,7 @@ export default function TweetModal({
     const [isSaving, setIsSaving] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
     const [focusedTweetId, setFocusedTweetId] = useState<number>(1);
+    const [scheduledTime, setScheduledTime] = useState<string>('09:00');
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
@@ -95,8 +98,21 @@ export default function TweetModal({
                     textareaRef.current?.focus();
                 }, 100);
             }
+            // Initialize time from initialScheduledAt if provided
+            try {
+                const dt = initialScheduledAt ? new Date(initialScheduledAt) : null;
+                if (dt && !isNaN(dt.getTime())) {
+                    const hh = String(dt.getHours()).padStart(2, '0');
+                    const mm = String(dt.getMinutes()).padStart(2, '0');
+                    setScheduledTime(`${hh}:${mm}`);
+                } else {
+                    setScheduledTime('09:00');
+                }
+            } catch {
+                setScheduledTime('09:00');
+            }
         }
-    }, [isOpen, thread, readOnly]);
+    }, [isOpen, thread, readOnly, initialScheduledAt]);
 
     // Handle clicking on dialog content to focus textarea
     const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -127,7 +143,8 @@ export default function TweetModal({
 
         setIsSaving(true);
         try {
-            await onSave(threadTweets);
+            await onSave(threadTweets, scheduledTime);
+            onClose();
             toast({
                 title: "Saved!",
                 description: `Your thread with ${threadTweets.length} tweet${threadTweets.length === 1 ? '' : 's'} has been saved as a draft`
@@ -148,7 +165,7 @@ export default function TweetModal({
 
         setIsPublishing(true);
         try {
-            await onPublish(threadTweets);
+            await onPublish(threadTweets, scheduledTime);
             toast({
                 title: "Published!",
                 description: "Your thread has been published"
@@ -317,13 +334,16 @@ export default function TweetModal({
                         </div>
                     </div>
                     {!readOnly && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
-                        >
-                            Drafts
-                        </Button>
+                            <div className="flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground">Time</span>
+                                <input
+                                    type="time"
+                                    value={scheduledTime}
+                                    onChange={(e) => setScheduledTime(e.target.value)}
+                                    className="h-8 px-2 border border-border rounded text-sm"
+                                />
+                            </div>
+                           
                     )}
                 </div>
 

@@ -37,16 +37,10 @@ export default function Page() {
             </p>
             
             <div className="mb-12 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
-              <Image 
-                src="/assets/images/x-post-3.jpeg" 
-                alt="Twitter Integration" 
-                width={1200}
-                height={675}
-                className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20" 
-                priority
-                sizes="(max-width: 1200px) 100vw, 1200px"
-              />
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl blur-xl" />
+                <div className="relative w-full max-w-3xl mx-auto rounded-2xl shadow-2xl border border-white/20 bg-white/50 dark:bg-black/30 backdrop-blur p-16 flex items-center justify-center">
+                  <span className="text-8xl md:text-9xl select-none">𝕏</span>
+                </div>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

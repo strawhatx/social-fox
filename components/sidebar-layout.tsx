@@ -1,22 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
-import QuotaIndicator from '@/components/editor/quota-indicator';
+import { Home, Menu, CircleDollarSign } from 'lucide-react';
+import { UserButton, useUser } from '@clerk/nextjs';
 import { ToastProvider, ToastViewport } from '@/components/ui/toast';
-import SubscriptionStatus from './subscription/subscription-status';
+import SubscriptionManager from './subscription/subscription-manager';
+import useSubscription from '@/hooks/use-subscription';
+import { isFeatureEnabled, getFeatureLimit } from '@/lib/features';
 
-const menuItems = [
-  { id: 'editor', title: 'X Copilot', path: '/editor', icon: '🐦', color: 'text-orange-400 hover:bg-orange-100', stats: '3 AI suggestions', description: 'Create tweets from commits and AI suggestions' },
-  { id: "library", title: "X Library", icon: "✨", path: '/library', color: "text-orange-500 hover:bg-orange-100", stats: "15 templates",description: "AI-powered tweet templates for indie hackers and builders" },
-  { id: 'scheduler', title: 'Scheduler', path: '/scheduler', icon: '📅', color: 'text-orange-600 hover:bg-orange-100', stats: '5 queued', description: 'Manage your scheduled tweets' },
-];
+interface Header {
+  page: string;
+  left_content: React.ReactNode;
+}
+
+interface SidebarLayoutProps {
+  children: React.ReactNode;
+  header?: Header;
+}
+
+// Menu items are now gated by subscription + plan features
 
 function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebarOpen }: {
   menuItems: any[];
@@ -79,20 +86,84 @@ function Sidebar({ menuItems, activeTab, isMobileSidebarOpen, setIsMobileSidebar
             </Tooltip>
           ))}
         </nav>
+
+        <UserButton afterSignOutUrl="/sign-in" userProfileMode="modal">
+          {/* You can also pass the content as direct children */}
+          <UserButton.UserProfilePage label="Subscription" labelIcon={<CircleDollarSign className="w-4 h-4 text-gray-500" />} url="terms">
+            <div>
+              <h1 className="text-md font-semibold">Subscription</h1>
+              <hr className="my-2" />
+
+              <SubscriptionManager />
+
+            </div>
+          </UserButton.UserProfilePage>
+        </UserButton>
       </div>
     </>
   );
 }
 
-export default function SidebarLayout({ children }: { children: React.ReactNode }) {
+export default function SidebarLayout({ children, header = { page: 'Home', left_content: '' } }: SidebarLayoutProps) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('home');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { subscription } = useSubscription();
+  const { user } = useUser();
+
+  const menuItems = useMemo(() => {
+    const items: any[] = [];
+    const isActive = subscription?.status === 'active';
+    const plan = (subscription?.plan as 'launch' | 'grow' | undefined);
+
+    // Only show app features to active subscribers
+    if (isActive) {
+      // Calendar (quota-based: scheduledPosts)
+      const scheduledLimit = plan ? getFeatureLimit('scheduledPosts', plan)|| 0 : 0;
+      items.push({
+        id: 'calendar',
+        title: 'Calendar',
+        path: '/calendar',
+        icon: '📆',
+        color: 'text-orange-600 hover:bg-orange-100',
+        stats: `Plan ${scheduledLimit} scheduled posts`,
+        description: 'Plan and schedule posts with a monthly calendar'
+      });
+
+      // Library (binary feature: contentLibrary)
+      if (plan && isFeatureEnabled('contentLibrary', plan)) {
+        items.push({
+          id: 'library',
+          title: 'Library',
+          path: '/library',
+          icon: '📚',
+          color: 'text-orange-500 hover:bg-orange-100',
+          stats: plan === 'launch' ? 'Starter library' : 'My library',
+          description: 'Save templates and post faster'
+        });
+      }
+
+      // Analytics (binary feature: analytics)
+      if (plan && isFeatureEnabled('analytics', plan)) {
+        items.push({
+          id: 'analytics',
+          title: 'Analytics',
+          path: '/analytics',
+          icon: '📊',
+          color: 'text-orange-400 hover:bg-orange-100',
+          stats: 'View your content performance',
+          description: 'Track your content engagement and performance'
+        });
+      }
+    }
+
+    return items;
+  }, [subscription]);
 
   useEffect(() => {
     const found = menuItems.find((item) => pathname?.startsWith(item.path));
     setActiveTab(found ? found.id : 'home');
-  }, [pathname]);
+  }, [pathname, menuItems]);
 
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((v) => !v);
 
@@ -111,11 +182,9 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
               <Button variant="ghost" size="sm" className="md:hidden w-10 h-10 p-0 hover:bg-orange-100" onClick={toggleMobileSidebar}>
                 <Menu className="h-4 w-4" />
               </Button>
-              <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || 'Home'}</h1>
+              <h1 className="text-lg font-semibold text-gray-900">{menuItems.find((i) => i.id === activeTab)?.title || header?.page}</h1>
               <div className="ml-auto flex items-center gap-3">
-                <SubscriptionStatus />
-                <QuotaIndicator />
-                <UserButton afterSignOutUrl="/sign-in" />
+                {header?.left_content}
               </div>
             </header>
             <div className="flex-1 overflow-auto">{children}</div>

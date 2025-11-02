@@ -8,56 +8,71 @@ export interface SubscriptionPlan {
   action: string;
   buttonText: string;
   features: string[];
-  limits: Record<string, number | boolean>;
+  limits: Record<string, number | boolean | string | string[]>;
 }
 
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
-  explore: {
-    id: 'explore',
-    name: 'Explore',
-    price: 9,
+  launch: {
+    id: 'launch',
+    name: 'Launch — Starter',
+    price: 16,
     popular: false,
     interval: 'month',
     period: 'month',
-    action: 'explore',
-    buttonText: 'Upgrade to Explore',
+    action: 'launch',
+    buttonText: 'Choose Launch',
     features: [
-      '30 drafts(10 ideas x 3  variations)',
-      '10 scheduled posts',
-      'Template library access',
-      '1 X account',
-      'Basic support'
+      'Schedule + publish to X',
+      '1 connected X account',
+      'Threads & singles',
+      '30 posts / month',
+      '4 threads / month',
+      'Support: Standard'
     ],
     limits: {
-      copilotDrafts: 10,
-      scheduledPosts: 10,
-      starterTemplates: true,
-      customTemplates: true
+      scheduledPosts: 30,
+      threads: 4,
+      analytics: false,
+      automation: false,
+      contentLibrary: true,
+      aiGeneration: 1,
+      connectedAccounts: 1,
+      support: 'standard',
+      mediaTypes: ['text']
     }
   },
-  creator: {
-    id: 'creator',
-    name: 'Creator',
-    price: 29,
+  grow: {
+    id: 'grow',
+    name: 'Grow — Most Popular',
+    price: 39,
     popular: true,
     interval: 'month',
     period: 'month',
-    action: 'creator',
-    buttonText: 'Upgrade to Creator',
+    action: 'grow',
+    buttonText: 'Choose Grow',
     features: [
-        '120 drafts(40 ideas x 3 variations)',
-        '75 scheduled posts',
-        'Template library access',
-        '1 X account',
-        'Priority support'
+      'Everything in Launch, plus:',
+      'AI content generation (text + static images + GIFs)',
+      'Analytics insights & post history',
+      'More scheduling power',
+      '120 posts / month',
+      '9 threads / month',
+      'Unlimited rewrites in editor',
+      'Support: Priority'
     ],
     limits: {
-      copilotDrafts: 40,
-      scheduledPosts: 75,
-      starterTemplates: true,
-      customTemplates: true
+      scheduledPosts: 120,
+      threads: 9,
+      analytics: true,
+      automation: true,
+      contentLibrary: true,
+      aiGeneration: 5,
+      aiImages: true,
+      connectedAccounts: 1,
+      support: 'priority',
+      mediaTypes: ['text', 'images', 'gifs']
     }
-  }
+  },
 };
 
 export default SUBSCRIPTION_PLANS;

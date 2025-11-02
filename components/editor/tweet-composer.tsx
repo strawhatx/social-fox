@@ -1,21 +1,24 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, forwardRef, useEffect, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
 // Simple tweet composer
-export function TweetComposer({
-    value,
-    onChange,
-    placeholder,
-    registerInserter
-}: {
+export const TweetComposer = forwardRef<HTMLTextAreaElement, {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
     registerInserter?: (fn: (text: string) => void) => void;
-}) {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    readOnly?: boolean;
+}>(function TweetComposer({
+    value,
+    onChange,
+    placeholder,
+    registerInserter,
+    readOnly
+}, ref) {
+    const internalRef = useRef<HTMLTextAreaElement>(null);
+    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
     const insertAtCursor = (text: string) => {
         const textarea = textareaRef.current;
@@ -49,16 +52,38 @@ export function TweetComposer({
         registerInserter(insertAtCursor);
     }
 
+    // Auto-resize function
+    const autoResize = useCallback(() => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+    }, []);
+
+    // Auto-resize when value changes
+    useEffect(() => {
+        autoResize();
+    }, [value, autoResize]);
+
     return (
-        <div className="relative">
+        <div className="prose prose-sm max-w-none">
             <Textarea
                 ref={textareaRef}
                 placeholder={placeholder}
                 value={value}
+                rows={1}
                 onChange={(e) => onChange(e.target.value)}
-                className="min-h-[180px] resize-none bg-background border-border"
+                readOnly={!!readOnly}
+                className="w-full bg-white border-none rounded-md resize-none text-base leading-relaxed p-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[1.5rem]"
+                style={{ 
+                    height: 'auto',
+                    minHeight: '1.5rem',
+                    maxHeight: '200px'
+                }}
+                onInput={autoResize}
                 maxLength={280}
             />
         </div>
     );
-}
+});

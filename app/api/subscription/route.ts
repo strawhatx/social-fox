@@ -16,13 +16,13 @@ export async function GET() {
       // Return a virtual active subscription for admins
       return NextResponse.json({
         data: {
-          plan: 'creator',
+          plan: 'grow',
           status: 'active',
           subscriptionId: 'admin-bypass',
           expiry: null,
           planDetails: {
-            id: 'creator',
-            name: 'Creator',
+            id: 'grow',
+            name: 'Grow',
             price: 0,
             interval: 'month',
             features: [],

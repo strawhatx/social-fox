@@ -1,0 +1,26 @@
+import { prisma } from '../prisma';
+
+export async function createScheduledPost(userId: string, params: {
+  platform?: string;
+  status?: string;
+  scheduled_at: string;
+  attachments?: any[];
+  communityUrl?: string | null;
+}) {
+  const { platform = 'twitter', scheduled_at } = params;
+
+  if (!scheduled_at) throw new Error('Scheduled at is required');
+
+  return prisma.contentPost.create({
+    data: {
+      userId,
+      platform,
+      status: 'scheduled',
+      scheduledAt: new Date(scheduled_at),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+}
+
+

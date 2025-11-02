@@ -1,17 +1,23 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, RefreshCw, Sparkles, Heart, MessageCircle, Repeat2, Edit3, Plus, BookOpen, User, Bot } from "lucide-react";
+import TweetModal from "@/components/editor/tweet-modal";
+import { Copy, RefreshCw, Sparkles, Edit3, Plus, BookOpen, User, Bot, MessageSquare } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import SidebarLayout from "@/components/sidebar-layout";
 import SubscriptionGuard from "@/components/subscription/subscription-guard";
+
+interface ThreadTweet {
+  id: number;
+  content: string;
+  attachments: any[];
+}
 
 interface TweetTemplate {
   id: string;
@@ -35,7 +41,6 @@ const templateCategories = [
 ];
 
 export default function LibraryPage() {
-  const router = useRouter();
   const [templates, setTemplates] = useState<TweetTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All Templates");
@@ -48,6 +53,11 @@ export default function LibraryPage() {
     isViralReady: false
   });
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showTweetModal, setShowTweetModal] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState("");
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -127,33 +137,14 @@ export default function LibraryPage() {
   };
 
   const sendToCopilot = async (templateText: string) => {
-    try {
-      // Create new conversation and pass initial message for title
-      const conversationResponse = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initialMessage: `Rewrite this tweet: ${templateText}` })
-      });
+    // Open modal with template text
+    setNewTemplate({ ...newTemplate, text: templateText });
+    setShowTweetModal(true);
 
-      if (!conversationResponse.ok) throw new Error('Failed to create conversation');
-
-      const conversation = await conversationResponse.json();
-
-      // Navigate to editor with template text as initial message
-      const encodedMessage = encodeURIComponent(`Rewrite this tweet: ${templateText}`);
-      router.push(`/editor/${conversation.id}?message=${encodedMessage}`);
-
-      toast({
-        title: "Sent to Copilot!",
-        description: "Template sent to AI copilot for enhancement"
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send to copilot",
-        variant: "destructive"
-      });
-    }
+    toast({
+      title: "Opening Editor!",
+      description: "Template loaded in editor for enhancement"
+    });
   };
 
   const saveTemplate = async () => {
@@ -246,31 +237,33 @@ export default function LibraryPage() {
   return (
     <SidebarLayout>
       <SubscriptionGuard>
-        <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-background via-background to-muted/30 min-h-screen">
+          {/* Enhanced Header */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Template Library</h1>
-              <p className="text-gray-600 text-lg">
-                Discover and manage your tweet templates
-              </p>
-            </div>
-            <Button onClick={() => setShowAddForm(true)} className="gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0">
+            <p className="text-muted-foreground text-sm">
+              Discover, create, and manage your viral tweet templates
+            </p>
+
+            <Button onClick={() => setShowAddForm(true)} className="gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0">
               <Plus className="h-4 w-4" />
               Add Template
             </Button>
           </div>
 
           <Tabs value={libraryType} onValueChange={(value) => setLibraryType(value as "starter" | "user")}>
-            <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur-sm border-orange-200">
-              <TabsTrigger value="starter" className="gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-                <Sparkles className="h-4 w-4" />
-                Starter Library
-              </TabsTrigger>
-              <TabsTrigger value="user" className="gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-                <User className="h-4 w-4" />
-                My Library
-              </TabsTrigger>
-            </TabsList>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-blue-500/5 rounded-2xl" />
+              <TabsList className="relative grid w-full grid-cols-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-orange-200/50 dark:border-orange-800/50 rounded-2xl">
+                <TabsTrigger value="starter" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-xl">
+                  <Sparkles className="h-4 w-4" />
+                  Starter Library
+                </TabsTrigger>
+                <TabsTrigger value="user" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-xl">
+                  <User className="h-4 w-4" />
+                  My Library
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value={libraryType} className="space-y-4">
               <div className="flex items-center gap-4">
@@ -293,48 +286,67 @@ export default function LibraryPage() {
               </div>
 
               {showAddForm && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Add New Template</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Textarea
-                      placeholder="Enter your template text..."
-                      value={newTemplate.text}
-                      onChange={(e) => setNewTemplate({ ...newTemplate, text: e.target.value })}
-                      rows={4}
-                    />
-                    <div className="flex gap-4">
-                      <Select value={newTemplate.category} onValueChange={(value) => setNewTemplate({ ...newTemplate, category: value })}>
-                        <SelectTrigger className="w-[200px]">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {templateCategories.slice(1).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant={newTemplate.isViralReady ? "default" : "outline"}
-                        onClick={() => setNewTemplate({ ...newTemplate, isViralReady: !newTemplate.isViralReady })}
-                      >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Viral Ready
-                      </Button>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={saveTemplate} disabled={!newTemplate.text || !newTemplate.category}>
-                        Save Template
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-blue-500/5 rounded-2xl" />
+                  <Card className="relative border border-orange-200/50 dark:border-orange-800/50 bg-white/80 dark:bg-background/80 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Plus className="w-5 h-5 text-orange-500" />
+                        Add New Template
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Template Text</label>
+                        <Textarea
+                          placeholder="Enter your template text..."
+                          value={newTemplate.text}
+                          onChange={(e) => setNewTemplate({ ...newTemplate, text: e.target.value })}
+                          rows={4}
+                          className="border-orange-200 dark:border-orange-700 focus:border-orange-500 dark:focus:border-orange-400"
+                        />
+                      </div>
+                      <div className="flex gap-4">
+                        <div className="flex-1">
+                          <label className="text-sm font-medium mb-2 block">Category</label>
+                          <Select value={newTemplate.category} onValueChange={(value) => setNewTemplate({ ...newTemplate, category: value })}>
+                            <SelectTrigger className="border-orange-200 dark:border-orange-700 focus:border-orange-500 dark:focus:border-orange-400">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {templateCategories.slice(1).map((category) => (
+                                <SelectItem key={category} value={category}>
+                                  {category}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          variant={newTemplate.isViralReady ? "default" : "outline"}
+                          onClick={() => setNewTemplate({ ...newTemplate, isViralReady: !newTemplate.isViralReady })}
+                          className={newTemplate.isViralReady ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0" : "border-orange-200 dark:border-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950/20"}
+                        >
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Viral Ready
+                        </Button>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={saveTemplate}
+                          disabled={!newTemplate.text || !newTemplate.category}
+                          className="flex-1 gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Save Template
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowAddForm(false)} className="border-orange-200 dark:border-orange-700">
+                          Cancel
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
 
               {loading ? (
@@ -356,28 +368,29 @@ export default function LibraryPage() {
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {filteredTemplates.map((template) => (
-                    <Card key={template.id} className="relative bg-white/80 backdrop-blur-sm border-orange-200 transition-all duration-200 hover:-translate-y-1">
-                      <CardHeader className="pb-3">
+                    <Card key={template.id} className="group relative bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-orange-200/50 dark:border-orange-800/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <CardHeader className="pb-3 relative z-10">
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
-                            <CardTitle className="text-sm font-medium">
+                            <CardTitle className="text-sm font-medium text-foreground">
                               {template.category}
                             </CardTitle>
-                            <CardDescription className="text-xs">
+                            <CardDescription className="text-xs text-muted-foreground">
                               {template.isStarter ? "Starter Template" : "Your Template"}
                             </CardDescription>
                           </div>
                           <div className="flex items-center gap-1">
                             {template.isViralReady && (
-                              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700 border-orange-200">
+                              <Badge variant="secondary" className="text-xs bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700">
                                 <Sparkles className="h-3 w-3 mr-1" />
                                 Viral
                               </Badge>
                             )}
                             {template.isStarter && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs border-orange-200 dark:border-orange-700">
                                 Starter
                               </Badge>
                             )}
@@ -397,13 +410,14 @@ export default function LibraryPage() {
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center justify-between pt-2 relative z-10">
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => copyToClipboard(template.text)}
                               title="Copy to clipboard"
+                              className="hover:bg-orange-50 dark:hover:bg-orange-950/20 border-orange-200 dark:border-orange-700"
                             >
                               <Copy className="h-3 w-3" />
                             </Button>
@@ -414,6 +428,7 @@ export default function LibraryPage() {
                                 variant="outline"
                                 onClick={() => copyStarterTemplate(template.id)}
                                 title="Add to my library"
+                                className="hover:bg-green-50 dark:hover:bg-green-950/20 border-green-200 dark:border-green-700"
                               >
                                 <Plus className="h-3 w-3" />
                               </Button>
@@ -423,7 +438,7 @@ export default function LibraryPage() {
                               variant="outline"
                               onClick={() => sendToCopilot(template.text)}
                               title="Send to AI copilot"
-                              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
+                              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300"
                             >
                               <Bot className="h-3 w-3" />
                             </Button>
@@ -435,6 +450,7 @@ export default function LibraryPage() {
                                   variant="outline"
                                   onClick={() => setEditingTemplate(template)}
                                   title="Edit template"
+                                  className="hover:bg-blue-50 dark:hover:bg-blue-950/20 border-blue-200 dark:border-blue-700"
                                 >
                                   <Edit3 className="h-3 w-3" />
                                 </Button>
@@ -443,6 +459,7 @@ export default function LibraryPage() {
                                   variant="outline"
                                   onClick={() => deleteTemplate(template.id)}
                                   title="Delete template"
+                                  className="hover:bg-red-50 dark:hover:bg-red-950/20 border-red-200 dark:border-red-700 text-red-600 dark:text-red-400"
                                 >
                                   Delete
                                 </Button>
@@ -461,26 +478,37 @@ export default function LibraryPage() {
               )}
 
               {!loading && filteredTemplates.length === 0 && (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-                    <p className="text-muted-foreground text-center mb-4">
-                      {libraryType === "starter"
-                        ? "No starter templates available in this category."
-                        : libraryType === "user"
-                          ? "You haven't added any templates to your library yet."
-                          : "No templates found for the selected category."
-                      }
-                    </p>
-                    {libraryType === "user" && (
-                      <Button onClick={() => setShowAddForm(true)} className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Your First Template
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-blue-500/5 rounded-2xl" />
+                  <Card className="relative border border-orange-200/50 dark:border-orange-800/50 bg-white/80 dark:bg-background/80 backdrop-blur-sm">
+                    <CardContent className="flex flex-col items-center justify-center py-16">
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6">
+                        <BookOpen className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3 text-foreground">No templates found</h3>
+                      <p className="text-muted-foreground text-center mb-6 max-w-md">
+                        {libraryType === "starter"
+                          ? "No starter templates available in this category."
+                          : libraryType === "user"
+                            ? "You haven't added any templates to your library yet."
+                            : "No templates found for the selected category."
+                        }
+                      </p>
+                      {libraryType === "user" && (
+                        <div className="flex gap-3">
+                          <Button onClick={() => setShowAddForm(true)} className="gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0">
+                            <Plus className="h-4 w-4" />
+                            Add Your First Template
+                          </Button>
+                          <Button onClick={() => setShowTweetModal(true)} variant="outline" className="gap-2 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                            <MessageSquare className="h-4 w-4" />
+                            Create with Editor
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </TabsContent>
           </Tabs>
@@ -534,6 +562,51 @@ export default function LibraryPage() {
           )}
         </div>
       </SubscriptionGuard>
+
+      {/* Tweet Modal */}
+      <TweetModal
+        isOpen={showTweetModal}
+        onClose={() => {
+          setShowTweetModal(false);
+          setNewTemplate({ text: "", category: "", hashtags: [], isViralReady: false });
+        }}
+        thread={[{ id: "1", postId: "1", parentId: null, metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), content: newTemplate.text, media: [] }]}
+        onSave={async (threadTweets: ThreadTweet[]) => {
+          // Save as template
+          const templateToSave = {
+            text: threadTweets[0].content,
+            category: newTemplate.category || "Custom",
+            hashtags: newTemplate.hashtags,
+            isViralReady: newTemplate.isViralReady
+          };
+
+          try {
+            const response = await fetch('/api/library', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(templateToSave)
+            });
+
+            if (!response.ok) throw new Error('Failed to save template');
+
+            toast({
+              title: "Template Saved!",
+              description: "Your tweet has been saved to your library"
+            });
+
+            setShowTweetModal(false);
+            setNewTemplate({ text: "", category: "", hashtags: [], isViralReady: false });
+            fetchTemplates();
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Failed to save template",
+              variant: "destructive"
+            });
+          }
+        }}
+
+      />
     </SidebarLayout>
   );
 }

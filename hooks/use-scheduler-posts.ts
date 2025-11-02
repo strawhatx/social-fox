@@ -1,26 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ContentPost } from '@/lib/types/content_posts';
 
-type ContentPost = {
-  id: string;
-  content: string;
-  platform: string;
-  status: 'draft' | 'scheduled' | 'posted' | 'archived';
-  scheduledAt: string | null;
-  postedAt: string | null;
-  engagement: any | null;
-  metadata: any | null;
-};
-
-export type SchedulerItem = {
-  id: string;
-  content: string;
-  platform: 'twitter' | 'x' | string;
-  status: 'draft' | 'scheduled' | 'posted' | 'archived';
-  scheduledTime: string | null;
-  engagement: { likes?: number; shares?: number; comments?: number; retweets?: number; replies?: number } | null;
-  source?: 'commit' | 'ai' | 'conversation' | string;
-  metadata?: any;
-};
 
 export function useSchedulerPosts() {
   const [posts, setPosts] = useState<ContentPost[]>([]);
@@ -41,16 +21,33 @@ export function useSchedulerPosts() {
     }
   };
 
-  const items: SchedulerItem[] = useMemo(() => {
+  const fetchScheduledFor = async (month: number, year: number) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ month: String(month), year: String(year) });
+      const res = await fetch(`/api/content-posts?${params.toString()}`);
+      const body = await res.json();
+      const data = (body?.data as ContentPost[]) || [];
+      setPosts(data);
+    } catch (error) {
+      console.error('Error fetching scheduler posts for month:', error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const items: ContentPost[] = useMemo(() => {
     return posts.map((p) => ({
       id: p.id,
-      content: p.content,
+      userId: p.userId,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
       platform: (p.platform || 'twitter') as any,
-      status: (p.status as any) || 'draft',
-      scheduledTime: p.scheduledAt,
-      engagement: (p.engagement as any) || { likes: 0, shares: 0, comments: 0, retweets: 0, replies: 0 },
-      source: (p.metadata as any)?.source || undefined,
-      metadata: p.metadata,
+      status: p.status || 'draft',
+      scheduledAt: p.scheduledAt,
+      postedAt: p.postedAt,
+      items: p.items,
     }));
   }, [posts]);
 
@@ -87,8 +84,10 @@ export function useSchedulerPosts() {
 
   return {
     items,
+    setPosts,
     loading,
     refetch: fetchScheduled,
+    refetchForMonthYear: fetchScheduledFor,
     update,
     remove,
   };

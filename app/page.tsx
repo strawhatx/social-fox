@@ -1,29 +1,26 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import Hero from '@/components/landing/hero';
-import Results from '@/components/landing/results';
 import Features from '@/components/landing/features';
 import Pricing from '@/components/landing/pricing';
 import Footer from '@/components/landing/footer';
+import Demo from '@/components/landing/demo';
 
 export const metadata: Metadata = {
-  title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-  description:
-    'Social Fox is your AI co‑pilot for Twitter (X). Like ChatGPT for tweets, it helps founders & creators write better posts and threads—faster.',
+  title: 'Social Fox — The Simplest Content Planner for Creators',
+  description: 'Plan, create, and schedule social content in minutes. Social Fox helps creators stay consistent with an easy calendar and AI post ideas.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     url: 'https://socialfox.dev/',
-    title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-    description:
-      'Like ChatGPT for tweets: write better posts & threads faster with Social Fox.',
-    images: [{ url: '/twitter-image.jpeg', width: 1200, height: 630, alt: 'Social Fox – AI Copilot for Twitter (X)' }]
+    title: 'Social Fox: Plan, Create & Schedule Your Content Effortlessly',
+    description: 'Turn your ideas into posts that ship. Social Fox gives you a simple calendar, AI content generator, and smart analytics — all in one workspace.',
+    images: [{ url: '/twitter-image.jpeg', width: 1200, height: 630, alt: 'Social Fox — Content Planner for Creators' }]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Social Fox – AI Copilot for Twitter (X) Posts',
-    description:
-      'Like ChatGPT for tweets: write better posts & threads faster with Social Fox.',
+    title: 'Social Fox: Plan, Create & Schedule Your Content Effortlessly',
+    description: 'Turn your ideas into posts that ship. Social Fox gives you a simple calendar, AI content generator, and smart analytics — all in one workspace.',
     images: ['/twitter-image.jpeg']
   }
 };
@@ -32,7 +29,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <Results />
+      <Demo />
       <Features />
       <Pricing />
       <Footer />
@@ -77,18 +74,18 @@ export default function Home() {
             mainEntity: [
               {
                 '@type': 'Question',
-                name: 'Is there a ChatGPT for Twitter (X)?',
+                name: 'What is Social Fox?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Yes — Social Fox is an AI copilot for tweets and threads, helping you write better posts faster.'
+                  text: 'Social Fox is the simplest content planner for creators — plan, create, and schedule social content in minutes with an easy calendar, AI post ideas, and smart analytics.'
                 }
               },
               {
                 '@type': 'Question',
-                name: 'How can an AI copilot help with Twitter?',
+                name: 'How does Social Fox help creators stay consistent?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'It brainstorms ideas, drafts posts, refines tone, expands into threads, and helps schedule for peak reach.'
+                  text: 'It gives you an easy content calendar to plan your schedule, AI to generate post ideas, and analytics to learn what works — so your posts ship on time.'
                 }
               }
             ]

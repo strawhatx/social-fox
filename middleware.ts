@@ -25,7 +25,7 @@ export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);
   const path = url.pathname;
   const shouldNoIndex = (
-    path.startsWith('/editor') ||
+    path.startsWith('/calendar') ||
     path.startsWith('/library') ||
     path.startsWith('/scheduler') ||
     path.startsWith('/auth') ||

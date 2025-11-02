@@ -46,6 +46,6 @@ export function useFeatureAccess(feature: string) {
     canUse: access?.canUse || false,
     used: access?.featureConfig?.used || 0,
     limit: access?.featureConfig?.limit || 0,
-    plan: access?.currentPlan || 'explore'
+    plan: access?.currentPlan || 'launch'
   };
 }

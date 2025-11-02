@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -49,22 +48,36 @@ model TwitterAccount {
 }
 
 model ContentPost {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content     String
+  id          String            @id @default(uuid()) @db.Uuid
   platform    String
-  status      String    @default("draft") // draft, scheduled, posted, archived, failed
-  scheduledAt DateTime? @map("scheduled_at") @db.Timestamptz(6)
-  postedAt    DateTime? @map("posted_at") @db.Timestamptz(6)
-  engagement  Json      @default("{}")
-  metadata    Json      @default("{}")
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  userId      String    @map("user_id") @db.Uuid
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      String            @default("draft")
+  scheduledAt DateTime?         @map("scheduled_at") @db.Timestamptz(6)
+  postedAt    DateTime?         @map("posted_at") @db.Timestamptz(6)
+  userId      String            @map("user_id") @db.Uuid
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  items       ContentPostItem[]
 
-  @@map("content_posts")
+   @@map("content_posts")
 }
 
+model ContentPostItem {
+  id        String            @id @default(uuid()) @db.Uuid
+  post      ContentPost       @relation(fields: [postId], references: [id])
+  postId    String            @map("post_id") @db.Uuid
+  parent    ContentPostItem?  @relation("Thread", fields: [parentId], references: [id])
+  parentId  String?           @map("parent_id") @db.Uuid
+  children  ContentPostItem[] @relation("Thread")
+  content   String
+  media     Json              @default(dbgenerated("'[]'::jsonb"))
+  metadata  Json              @default(dbgenerated("'{}'::jsonb"))
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  analyticsSnapshots AnalyticsSnapshot[]
+
+   @@map("content_post_items")
+}
 
 model Library {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -123,3 +136,38 @@ model UserUsage {
   @@map("user_usage")
 }
 
+model AnalyticsSnapshot {
+  id             String     @id @default(uuid()) @db.Uuid
+  itemId         String    @map("post_item_id") @db.Uuid
+  item           ContentPostItem? @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  snapshotDate   DateTime   @map("snapshot_date") @db.Date
+  likes          Int        @default(0)
+  retweets       Int        @default(0)
+  replies        Int        @default(0)
+  impressions    Int?       @default(0)
+  engagementRate Float?     @map("engagement_rate")
+
+  @@unique([itemId, snapshotDate])
+  @@map("analytics_snapshots")
+}
+
+model BlogPage {
+  id              String   @id @default(uuid()) @db.Uuid
+  slug            String   @unique
+  type            String   // 'blog', 'comparison', 'integration', 'feature'
+  title           String
+  subtitle        String?
+  heroImage       String?  @map("hero_image")
+  features        Json?    @default(dbgenerated("'[]'::jsonb")) // For comparison pages
+  ctaText         String   @map("cta_text")
+  ctaLink         String   @map("cta_link")
+  content         String   // Markdown content
+  metaTitle       String?  @map("meta_title")
+  metaDescription String?  @map("meta_description")
+  published       Boolean  @default(false)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("blog_pages")
+}

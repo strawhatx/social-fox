@@ -6,26 +6,33 @@ AI-powered social media content creation platform with intelligent conversation-
 
 ### Core Functionality
 - **AI Copilot**: Interactive chat interface for creating and refining social media content
-- **Conversation Management**: Persistent chat history with message threading
-- **Content Scheduling**: Plan and schedule posts across social platforms
-- **Template Library**: Pre-built templates for different content types
-- **Usage Analytics**: Track engagement and performance metrics
+- **Content Calendar**: Visual calendar for planning and scheduling posts with drag & drop
+- **Thread Planner**: Plan and publish multi-tweet threads with clean structure and CTAs
+- **Analytics Dashboard**: Track which posts are driving followers, replies, and clicks
+- **Content Library**: Save, remix, and auto-fill winning posts
+- **AI Rewriter**: Rewrite posts with AI to make them more engaging and viral
+- **Playbooks**: Pre-built strategies for consistency, AI threads, and clarity templates
+- **Twitter/X Integration**: Direct publishing and analytics integration
 
 ### Subscription Plans
-- **Explore Plan** ($9/month): 30 drafts (10 ideas × 3 variations), 10 scheduled posts, template access
-- **Creator Plan** ($29/month): 120 drafts (40 ideas × 3 variations), 75 scheduled posts, template access, priority support
+- **Launch Plan** ($19/month): 30 scheduled posts/mo, up to 4 threads, limited analytics, content library access
+- **Grow Plan** ($49/month): 60 scheduled posts/mo, 8 threads, analytics included, partial AI automation, full content library access
+- **Scale Plan** ($99/month): 150 scheduled posts/mo, 15 threads, full AI automation, team access, priority support
 
 ## 🏗️ Architecture
 
 ### Tech Stack
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS, Radix UI
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL with Neon
 - **Authentication**: Clerk
 - **Payments**: Stripe
-- **AI**: OpenAI GPT models
+- **AI**: OpenAI GPT models, Gemini AI
+- **Storage**: AWS S3 for media uploads
+- **Social Integration**: Twitter/X API
+- **UI Components**: Radix UI, Lucide React icons, Framer Motion
 - **Deployment**: Netlify
- - **Infrastructure**: AWS Lambda (webhooks & scheduler), Amazon S3 (media uploads)
+- **Infrastructure**: AWS Lambda (webhooks & scheduler), Amazon S3 (media uploads)
 
 ### Key Systems
 - **Feature-Based Quota System**: Centralized usage tracking and limits
@@ -39,19 +46,37 @@ AI-powered social media content creation platform with intelligent conversation-
 ```
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
+│   │   ├── analytics/     # Analytics data endpoints
 │   │   ├── conversations/ # Chat/conversation endpoints
-│   │   ├── stripe/         # Stripe checkout and billing routes
+│   │   ├── content-posts/ # Content post management
+│   │   ├── library/       # Content library endpoints
+│   │   ├── s3/            # File upload endpoints
+│   │   ├── stripe/        # Stripe checkout and billing routes
 │   │   └── usage/         # Usage tracking
-│   ├── editor/            # Main chat interface
-│   └── scheduler/         # Content scheduling
+│   ├── calendar/          # Content calendar interface
+│   ├── features/          # Feature showcase pages
+│   │   ├── analytics/     # Analytics dashboard
+│   │   └── thread-planner/ # Thread planning tool
+│   ├── integrations/      # Third-party integrations
+│   │   └── twitter/       # Twitter/X integration
+│   ├── library/           # Content library interface
+│   ├── playbooks/         # Strategy playbooks
+│   │   ├── ai-threads/    # AI thread strategies
+│   │   ├── clarity-templates/ # Clarity templates
+│   │   └── consistency/   # Consistency strategies
+│   └── comparison/        # Competitor comparisons
 ├── components/            # React components
+│   ├── calendar/          # Calendar UI components
 │   ├── chat/             # Chat UI components
 │   ├── editor/           # Content editing tools
+│   ├── landing/          # Landing page components
 │   └── subscription/     # Payment/subscription UI
 ├── lib/                  # Core utilities
 │   ├── features.ts       # Feature definitions
-│   └── subscriptions.ts  # Subscription + usage management
-└── db/                   # Database migrations
+│   ├── subscriptions.ts  # Subscription + usage management
+│   ├── s3.ts            # AWS S3 integration
+│   └── twitter.ts       # Twitter API integration
+└── prisma/              # Database schema and migrations
 ```
 
 ## 🚀 Getting Started
@@ -88,6 +113,7 @@ AI-powered social media content creation platform with intelligent conversation-
    
    # Authentication
    CLERK_SECRET_KEY="sk_..."
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_..."
    
    # Payments
    STRIPE_SECRET_KEY="sk_..."
@@ -95,6 +121,16 @@ AI-powered social media content creation platform with intelligent conversation-
    
    # AI
    OPENAI_API_KEY="sk-..."
+   GEMINI_KEY="..."
+   
+   # AWS
+   AWS_REGION="us-east-1"
+   AWS_S3_BUCKET="your-bucket"
+   AWS_ACCESS_KEY_ID="..."
+   AWS_SECRET_ACCESS_KEY="..."
+   
+   # Social Media
+   NEXT_PUBLIC_GIPHY_API_KEY="..."
    ```
 
 4. **Set up the database**
@@ -114,51 +150,83 @@ AI-powered social media content creation platform with intelligent conversation-
 
 ```typescript
 // Current subscription plans
-SUBSCRIPTION_PLANS: = {
-  explore: {
-    id: 'explore',
-    name: 'Explore',
-    price: 9,
+SUBSCRIPTION_PLANS = {
+  launch: {
+    id: 'launch',
+    name: 'Never Miss a Post Again',
+    price: 19,
     popular: false,
     interval: 'month',
     period: 'month',
-    action: 'explore',
-    buttonText: 'Upgrade to Explore',
+    action: 'launch',
+    buttonText: 'Choose Tier 1',
     features: [
-      '30 drafts(10 ideas x 3  variations)',
-      '10 scheduled posts',
-      'Template library access',
-      '1 X account',
-      'Basic support'
+      '30 scheduled posts/mo',
+      'Up to 4 threads',
+      'Limited analytics',
+      'Access to content library (view only)'
     ],
     limits: {
-      copilotDrafts: 10,
-      scheduledPosts: 10,
-      starterTemplates: true,
-      customTemplates: true
+      scheduledPosts: 30,
+      threads: 4,
+      analytics: true,
+      automation: false,
+      contentLibrary: true,
+      aiGeneration: false
     }
   },
-  creator: {
-    id: 'creator',
-    name: 'Creator',
-    price: 29,
+  grow: {
+    id: 'grow',
+    name: 'Grow Your Reach',
+    price: 49,
     popular: true,
     interval: 'month',
     period: 'month',
-    action: 'creator',
-    buttonText: 'Upgrade to Creator',
+    action: 'grow',
+    buttonText: 'Choose Tier 2',
     features: [
-        '120 drafts(40 ideas x 3 variations)',
-        '75 scheduled posts',
-        'Template library access',
-        '1 X account',
-        'Priority support'
+      '60 scheduled posts/mo',
+      '8 threads',
+      'Analytics included',
+      'Partial AI automation',
+      'Full content library access'
     ],
     limits: {
-      copilotDrafts: 40,
-      scheduledPosts: 75,
-      starterTemplates: true,
-      customTemplates: true
+      scheduledPosts: 60,
+      threads: 8,
+      analytics: true,
+      automation: true,
+      contentLibrary: true,
+      aiGeneration: true
+    }
+  },
+  scale: {
+    id: 'scale',
+    name: 'Set It & Forget It',
+    price: 99,
+    popular: false,
+    interval: 'month',
+    period: 'month',
+    action: 'scale',
+    buttonText: 'Choose Tier 3',
+    features: [
+      '150 scheduled posts/mo',
+      '15 threads',
+      'Full AI automation + all features',
+      'Full analytics',
+      'Team access',
+      'Content library (save, remix, and auto-fill winning posts)',
+      'Priority support'
+    ],
+    limits: {
+      scheduledPosts: 150,
+      threads: 15,
+      analytics: true,
+      automation: true,
+      contentLibrary: true,
+      aiGeneration: true,
+      teamAccess: true,
+      prioritySupport: true
     }
   }
 };
@@ -192,33 +260,57 @@ SUBSCRIPTION_PLANS: = {
 ```typescript
 // Feature definitions
 export const QUOTA_FEATURES = {
-  copilotDrafts: {
-    name: 'Copilot Drafts',
-    description: 'Generate AI-powered social media posts',
-    limits: {
-      explore: 20,
-      creator: 150
-    }
-  },
   scheduledPosts: {
     name: 'Scheduled Posts',
     description: 'Schedule posts for future publishing',
     limits: {
-      explore: 10,
-      creator: 100
+      launch: 30,
+      grow: 60,
+      scale: 150
+    }
+  },
+  threads: {
+    name: 'Threads',
+    description: 'Create multi-tweet thread content',
+    limits: {
+      launch: 4,
+      grow: 8,
+      scale: 15
     }
   }
 };
 
 // Binary features
 export const BINARY_FEATURES = {
-  starterTemplates: {
-    name: 'Starter Templates',
-    enabled: { explore: true, creator: true }
+  analytics: {
+    name: 'Analytics',
+    description: 'Track post performance and engagement',
+    enabled: { launch: true, grow: true, scale: true }
   },
-  customTemplates: {
-    name: 'Custom Templates',
-    enabled: { explore: false, creator: true }
+  automation: {
+    name: 'AI Automation',
+    description: 'Automated content generation and optimization',
+    enabled: { launch: false, grow: true, scale: true }
+  },
+  contentLibrary: {
+    name: 'Content Library',
+    description: 'Save, remix, and auto-fill winning posts',
+    enabled: { launch: true, grow: true, scale: true }
+  },
+  aiGeneration: {
+    name: 'AI Generation',
+    description: 'AI-powered content creation',
+    enabled: { launch: false, grow: true, scale: true }
+  },
+  teamAccess: {
+    name: 'Team Access',
+    description: 'Collaborate with team members',
+    enabled: { launch: false, grow: false, scale: true }
+  },
+  prioritySupport: {
+    name: 'Priority Support',
+    description: 'Priority customer support',
+    enabled: { launch: false, grow: false, scale: true }
   }
 };
 ```
@@ -406,7 +498,7 @@ npm run dev
   - `NETLIFY_AUTH_TOKEN`
   - `NETLIFY_SITE_ID`
 - Build-time envs forwarded by the workflow (set as repo secrets as needed):
-  - `CLERK_SECRET_KEY`, `NEXT_PUBLIC_GIPHY_API_KEY`, `DATABASE_URL`, `SITE_URL`, `STRIPE_SECRET_KEY`, `GEMINI_KEY`, `OPENAI_API_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
+  - `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GIPHY_API_KEY`, `PEXELS_API_KEY`, `DATABASE_URL`, `SITE_URL`, `STRIPE_SECRET_KEY`, `GEMINI_KEY`, `OPENAI_API_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
 
 Troubleshooting:
 - If you see `ENOENT: no such file or directory, lstat '.../out'`, ensure the workflow uses Netlify CLI and that `publish = ".next"` is set in `netlify.toml` (this app does not use `next export`).
@@ -423,15 +515,21 @@ DATABASE_URL=postgresql://user:pass@host:port/db
 
 # Authentication
 CLERK_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
 
 # AI
 OPENAI_API_KEY=sk-...
+GEMINI_KEY=...
 
 # AWS (serverless webhooks & scheduler)
 AWS_REGION=us-east-1
 AWS_S3_BUCKET=your-bucket
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
+
+# Social Media
+NEXT_PUBLIC_GIPHY_API_KEY=...
+PEXELS_API_KEY=...
 ```
 
 ### Database Migration

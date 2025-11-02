@@ -65,9 +65,8 @@ const Results: React.FC = () => {
     <section id="examples" className="py-2 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Before vs After: Transform bland updates into engaging posts that actually get noticed.
-          </p>
+          <h2 className="text-2xl font-bold mb-2">Social Proof / Status Loops</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">“X creator doubled replies and followers in 7 days using Social Fox.”<br/>“Used by solo operators, agencies, and brand managers to scale effortlessly.”</p>
         </div>
 
         <div className="relative">
@@ -75,7 +74,7 @@ const Results: React.FC = () => {
             <CarouselContent className="-ml-6">
               {posts.map((post, index) => (
                 <CarouselItem key={index} className="pl-6 basis-full sm:basis-1/2 lg:basis-1/3 select-none">
-                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 h-full">
+                  <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg border border-orange-100/60 p-6 h-full">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="w-6 h-6 text-blue-400">𝕏</span>
 
@@ -115,19 +114,9 @@ const Results: React.FC = () => {
           </Carousel>
         </div>
 
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500 mb-4">
-            <span className="inline-flex items-center gap-1">
-              👆 Swipe to see more examples
-            </span>
-          </p>
-          <Button
-            variant="outline"
-            size="lg"
-            className="mx-auto bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:shadow-lg"
-          >
-            Try It Free
-          </Button>
+        <div className="text-center mt-10">
+          <p className="text-sm text-gray-500 mb-2">Tease: Expand to LinkedIn & Reddit soon.</p>
+          <a href="/sign-up" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 font-semibold hover:shadow-lg">Automate My Tweets</a>
         </div>
       </div>
     </section>

@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Image as ImageIcon } from 'lucide-react';
 
 type ImageUploaderProps = {
-  onSelect: (urls: string[], files: File[]) => void;
+  onSelect: (items: Array<{ url: string; file: File; type: string; key?: string }>) => void;
   multiple?: boolean;
   disabled?: boolean;
   className?: string;
@@ -21,7 +21,37 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // No immediate upload; return blob URLs for preview and keep File objects for save
+  async function uploadFile(file: File): Promise<{ url: string; file: File; type: string; key?: string } | null> {
+    try {
+      const presignRes = await fetch('/api/s3/presign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ contentType: file.type, fileName: file.name }),
+      });
+      
+      if (!presignRes.ok) return null;
+      const { url, fields, publicUrl, key } = await presignRes.json();
+
+      const form = new FormData();
+      Object.entries(fields || {}).forEach(([k, v]) => form.append(k, String(v)));
+      form.append('file', file);
+
+      const uploadRes = await fetch(url, { method: 'POST', body: form });
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text().catch(() => '');
+        console.error('S3 upload failed', {
+          status: uploadRes.status,
+          statusText: uploadRes.statusText,
+          body: errText,
+        });
+        return null;
+      }
+
+      return { url: publicUrl, file, type: file.type, key };
+    } catch {
+      return null;
+    }
+  }
 
   return (
     <>
@@ -34,14 +64,12 @@ export default function ImageUploader({
         onChange={async (e) => {
           const files = Array.from(e.target.files || []);
           const mediaFiles = files.filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'));
-
           if (!mediaFiles.length) return;
 
-          // Create local object URLs for preview; actual upload happens on save
-          const blobUrls = mediaFiles.map((f) => URL.createObjectURL(f));
-          onSelect(blobUrls, mediaFiles);
+          const results = await Promise.all(mediaFiles.map(uploadFile));
+          const successful = results.filter(Boolean) as Array<{ url: string; file: File; type: string; key?: string }>;
+          if (successful.length) onSelect(successful);
 
-          // Reset input so user can re-select same files
           if (inputRef.current) inputRef.current.value = '';
         }}
       />

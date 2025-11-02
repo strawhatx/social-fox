@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { getUserSubscription, canUseFeatureDetailed } from '@/lib/subscriptions';
 import { getFeatureLimit, QUOTA_FEATURES } from '@/lib/features';
 
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       // Check specific feature access using new system
       const sub = await getUserSubscription(user.clerkUserId);
       const access = await canUseFeatureDetailed(user.id, featureName);
-      const planName = sub?.planDetails ? (sub.planDetails.id as 'explore' | 'creator') : undefined;
+      const planName = sub?.planDetails?.id as ('launch' | 'grow') | undefined;
       const limit = planName ? getFeatureLimit(featureName, planName) : 0;
       
       return NextResponse.json({

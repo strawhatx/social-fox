@@ -86,7 +86,7 @@ export async function GET(req: Request) {
 
     const snapshots = await prisma.analyticsSnapshot.findMany({
       where: {
-        postId,
+        item: { postId },
         ...(startDate && endDate && {
           snapshotDate: {
             gte: new Date(startDate),

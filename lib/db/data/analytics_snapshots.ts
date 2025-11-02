@@ -25,6 +25,9 @@ export async function createAnalyticsSnapshot(
   data: SnapshotData,
   itemId?: string
 ) {
+  if (!itemId) {
+    throw new Error('itemId is required to create analytics snapshot');
+  }
   const totalInteractions = data.likes + data.retweets + data.replies;
   const engagementRate = data.impressions && data.impressions > 0
     ? (totalInteractions / data.impressions) * 100
@@ -32,9 +35,8 @@ export async function createAnalyticsSnapshot(
 
   const existing = await prisma.analyticsSnapshot.findFirst({
     where: {
-      postId,
+      itemId,
       snapshotDate,
-      itemId: itemId ? { equals: itemId } : { equals: null },
     },
   });
 
@@ -53,8 +55,7 @@ export async function createAnalyticsSnapshot(
 
   return prisma.analyticsSnapshot.create({
     data: {
-      postId,
-      itemId: itemId ?? null,
+      itemId,
       snapshotDate,
       likes: data.likes,
       retweets: data.retweets,
@@ -76,8 +77,8 @@ export async function getAnalyticsSnapshots(
 ) {
   return prisma.analyticsSnapshot.findMany({
     where: {
-      postId,
-      itemId: itemId || null,
+      item: { postId },
+      ...(itemId ? { itemId } : {}),
       snapshotDate: {
         gte: startDate,
         lte: endDate,
@@ -97,7 +98,7 @@ export async function getAnalyticsSnapshotsForPosts(
 ) {
   return prisma.analyticsSnapshot.findMany({
     where: {
-      postId: { in: postIds },
+      item: { postId: { in: postIds } },
       snapshotDate: {
         gte: startDate,
         lte: endDate,
@@ -120,7 +121,7 @@ export async function getAggregatedPostSnapshots(
 ) {
   const snapshots = await prisma.analyticsSnapshot.findMany({
     where: {
-      postId,
+      item: { postId },
       snapshotDate: {
         gte: startDate,
         lte: endDate,

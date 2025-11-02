@@ -131,7 +131,7 @@ export default function SidebarLayout({ children, header = { page: 'Home', left_
       });
 
       // Library (binary feature: contentLibrary)
-      if (isFeatureEnabled('contentLibrary', plan)) {
+      if (plan && isFeatureEnabled('contentLibrary', plan)) {
         items.push({
           id: 'library',
           title: 'Library',
@@ -144,7 +144,7 @@ export default function SidebarLayout({ children, header = { page: 'Home', left_
       }
 
       // Analytics (binary feature: analytics)
-      if (isFeatureEnabled('analytics', plan)) {
+      if (plan && isFeatureEnabled('analytics', plan)) {
         items.push({
           id: 'analytics',
           title: 'Analytics',
@@ -158,7 +158,7 @@ export default function SidebarLayout({ children, header = { page: 'Home', left_
     }
 
     return items;
-  }, [subscription, user?.id]);
+  }, [subscription]);
 
   useEffect(() => {
     const found = menuItems.find((item) => pathname?.startsWith(item.path));

@@ -5,6 +5,13 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/pricing(.*)',
+  '/comparison(.*)',
+  '/features(.*)',
+  '/integrations(.*)',
+  '/legal(.*)',
+  '/playbooks(.*)',
+
 
   // Public assets
   '/favicon.ico',

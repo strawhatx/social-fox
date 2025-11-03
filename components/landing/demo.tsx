@@ -6,7 +6,7 @@ const Demo = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">See it in Action.</h2>
         <p className="text-md text-italic text-gray-600 mb-8 max-w-2xl mx-auto">Type a rough thought → AI turns it into a clean, on‑brand post → Tweak fast → Schedule.</p>
-        <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200 group cursor-pointer">
+        <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 group cursor-pointer">
           <iframe
             src="https://capture.navattic.com/cmhf3v4dc000404ju0l8eab4p"
             style={{ border: 'none', width: '100%', height: '100%' }}

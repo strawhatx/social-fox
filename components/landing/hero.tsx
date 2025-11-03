@@ -66,10 +66,7 @@ const Hero = () => {
               <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
               <span className="text-sm font-semibold text-green-700 dark:text-green-300">93% time saved</span>
             </div>
-            <div className="group flex items-center gap-3 bg-white/80 dark:bg-background/80 backdrop-blur-md rounded-full px-6 py-3 border border-blue-200 dark:border-blue-800 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">87% more engaging content</span>
-            </div>
+
             <div className="group flex items-center gap-3 bg-white/80 dark:bg-background/80 backdrop-blur-md rounded-full px-6 py-3 border border-orange-200 dark:border-orange-800 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="w-3 h-3 rounded-full bg-orange-500 animate-pulse" />
               <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">Powered by AI</span>

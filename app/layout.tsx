@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster } from '@/components/ui/sonner';
 import UpgradeModalProvider from '@/components/subscription/upgrade-modal-provider';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,6 +66,18 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
       <html lang="en">
 
         <body className={inter.className}>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-NML6R8WYKV"
+            strategy="afterInteractive"
+          />
+          <Script id="ga-gtag" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-NML6R8WYKV');
+            `}
+          </Script>
           <UpgradeModalProvider>
             {children}
           </UpgradeModalProvider>
